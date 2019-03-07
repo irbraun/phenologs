@@ -1,0 +1,9 @@
+<#if licenseFirst??>
+${licenseFirst}
+</#if>
+${licensePrefix}Ian Braun
+${licensePrefix}irbraun@iastate.edu
+${licensePrefix}term-mapping 
+<#if licenseLast??>
+${licenseLast}
+</#if>

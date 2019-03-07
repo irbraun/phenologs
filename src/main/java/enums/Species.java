@@ -1,0 +1,12 @@
+
+package enums;
+
+public enum Species {
+    ARABIDOPSIS_THALIANA,
+    ZEA_MAYS,
+    SOLANUM_LYCOPERSICUM,
+    ORYZA_SATIVA,
+    MEDICAGO_TRUNCATULA,
+    GLYCINE_MAX,
+    UNKNOWN
+}
