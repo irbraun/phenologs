@@ -115,6 +115,7 @@ public class MaxEnt_Mapping {
         
         // Pick a base directory based on the testing set.
         String baseDirectory;
+        /*
         switch (Config.typePartitions) {
             case "species":
                 baseDirectory = String.format("%s%s/", Config.mePath, "set1");
@@ -125,6 +126,8 @@ public class MaxEnt_Mapping {
             default:
                 throw new Exception();
         }
+        */
+        baseDirectory = String.format("%s%s/", Config.mePath, "set1");
         
        
         // Partition numbers for testing and training.

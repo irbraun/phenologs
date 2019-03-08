@@ -110,7 +110,7 @@ public class MaxEnt_Model {
 
                     // See what features are present in this pairing, depending on whether lemmatization is used.
                     List<String> words = new ArrayList<>();
-                    if (Config.useLemma){
+                    if (Config.useLemmas){
                         annotations = Modifier.getAnnotation(chunk);
                         words = annotations.lemmas;
                     }
@@ -334,7 +334,7 @@ public class MaxEnt_Model {
         
         // Check whether want to use lemmatization or not.
         List<String> words = new ArrayList<>();
-        if (Config.useLemma){
+        if (Config.useLemmas){
             MyAnnotation annotations = Modifier.getAnnotation(chunk);
             words = annotations.lemmas;
         }

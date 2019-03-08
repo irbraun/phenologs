@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import static main.Main.logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -35,7 +36,6 @@ public class Config {
     public static int seedValue;
     public static boolean useSaveStore;
     public static int numPartitions;
-    public static String typePartitions;
     public static boolean useStemmer;
     public static boolean removeStopWords;
     
@@ -44,12 +44,7 @@ public class Config {
     public static ArrayList<Integer> fullPartitions;
     
     public static String predictedStmtsPath;
-    public static ArrayList<Double> qThreshold;
-    public static ArrayList<Double> beta;
     public static int maxTermsUsedPerOntology;
-    
-    public static String set1Name;
-    public static String set2Name;
     
     public static String nbPath;
     public static String ncPath;
@@ -64,20 +59,16 @@ public class Config {
     public static String naSourceFileGO;
     public static String naSourceFileChEBI;
     
-   
-    
-    public static HashMap<Ontology,Double> annotThresholds; //TODO DELETE THIS IT SHOULDNT BREAK ANYTHING
-    public static boolean usePrior; //for the naive bayes classifier
-    public static boolean useLemma;
+    public static boolean usePrior;
+    public static boolean useLemmas;
     public static boolean useEmbeddings;
     public static double maxentTol;
-    public static int maxFeaturesPerTerm; // for the max ent classifier
+    public static int maxFeaturesPerTerm;
     public static boolean buildNetworks;
     public static String pheneNetworkPath;
     public static String phenotypeNetworkPath;
     public static String pheneNodesPath;
     public static String phenotypeNodesPath;
-    public static String mixedPhenotypeNetworkPath;
 
     public static HashMap<Ontology,String> varImpPaths;
     public static HashMap<Ontology,String> ontologyPaths;
@@ -91,7 +82,6 @@ public class Config {
     public static boolean quick;
     public static int quickLimit;
     public static String species;
-    
     
     // Stuff that has defaults, doesn't need to be in the config files.
     public static String dataTable;
@@ -145,7 +135,6 @@ public class Config {
         allPairsPath = properties.getProperty("allPairsPath").trim();
         
         numPartitions = Integer.valueOf(properties.getProperty("numPartitions"));
-        typePartitions = properties.getProperty("typePartitions").trim();
         seedValue = Integer.valueOf(properties.getProperty("seedValue"));
         
         // Files containing the ontologies to be used.
@@ -156,10 +145,6 @@ public class Config {
         ontologyPaths.put(Ontology.GO, String.format("%s%s",owlPath,properties.getProperty("goFilename")).trim());
         ontologyPaths.put(Ontology.CHEBI, String.format("%s%s",owlPath,properties.getProperty("chebiFilename")).trim());
         ontologyPaths.put(Ontology.UBERON, String.format("%s%s", owlPath,properties.getProperty("uberonFilename")).trim());
-       
-        // Phenotype testing set descriptions.
-        set1Name = properties.getProperty("set1Name").trim();
-        set2Name = properties.getProperty("set2Name").trim();
         
         // Semantic annotation tools.
         String baseDir = properties.getProperty("baseDir").trim();
@@ -200,53 +185,61 @@ public class Config {
         JSONParser parser = new JSONParser();
         Object obj = parser.parse(new FileReader(filename));
         JSONObject json = (JSONObject) obj;
-        
        
-        // Feature architecture and other options for features.
-        JSONObject features = (JSONObject) json.get("features");
-        ontologyName = features.get("ontology").toString();
-        useSaveStore = Boolean.parseBoolean(features.get("use_saved").toString());
-        //useSpecies = Boolean.parseBoolean(features.get("use_species").toString());
-        savedPath = features.get("saved_path").toString();
-        useStemmer = Boolean.parseBoolean(features.get("use_stemmer").toString());
-        removeStopWords = Boolean.parseBoolean(features.get("remove_stopwords").toString());
-        csvPath = features.get("data_path").toString();
-        csvName = features.get("data_name").toString();
-               
-        JSONObject undersampling = (JSONObject) features.get("undersampling");
-        undersample = Boolean.parseBoolean(undersampling.get("undersample").toString());
-        maxNegRetain = Integer.valueOf(undersampling.get("max_neg_retain").toString());
-        fullPartitions = utils.Util.getNumericList(undersampling.get("full_partitions").toString());
+        
+        // Look for optional parts of the config json file used in older experiments.
+        try{
+            // Feature architecture and other options for features.
+            JSONObject features = (JSONObject) json.get("features");
+            ontologyName = features.get("ontology").toString();
+            useSaveStore = Boolean.parseBoolean(features.get("use_saved").toString());
+            savedPath = features.get("saved_path").toString();
+            useStemmer = Boolean.parseBoolean(features.get("use_stemmer").toString());
+            removeStopWords = Boolean.parseBoolean(features.get("remove_stopwords").toString());
+            csvPath = features.get("data_path").toString();
+            csvName = features.get("data_name").toString();
+            
+            JSONObject undersampling = (JSONObject) features.get("undersampling");
+            undersample = Boolean.parseBoolean(undersampling.get("undersample").toString());
+            maxNegRetain = Integer.valueOf(undersampling.get("max_neg_retain").toString());
+            fullPartitions = utils.Util.getNumericList(undersampling.get("full_partitions").toString());
 
-        JSONObject featureArchitecture = (JSONObject) features.get("feature_architecture");
-        numEdges = Side.valueOf(featureArchitecture.get("num_edges").toString());
-        weighting = Side.valueOf(featureArchitecture.get("weighting").toString());
+            JSONObject featureArchitecture = (JSONObject) features.get("feature_architecture");
+            numEdges = Side.valueOf(featureArchitecture.get("num_edges").toString());
+            weighting = Side.valueOf(featureArchitecture.get("weighting").toString());
+
+            JSONObject normal = (JSONObject) features.get("normal");
+            JSONArray normalSemanticFunctionsArr = (JSONArray) normal.get("semantic_functions");
+            JSONArray normalSyntacticFunctionsArr = (JSONArray) normal.get("syntactic_functions");
+            JSONArray normalAspectsArr = (JSONArray) normal.get("aspects");       
+            normalFunctions = new ArrayList<>();
+            normalFunctions.addAll(fillFunctionListFromIter(normalSemanticFunctionsArr.iterator()));
+            normalFunctions.addAll(fillFunctionListFromIter(normalSyntacticFunctionsArr.iterator()));
+            normalAspects = new ArrayList<>();
+            normalAspects.addAll(fillAspectListFromIter(normalAspectsArr.iterator()));
+
+            JSONObject context = (JSONObject) features.get("context");
+            JSONArray contextSemanticFunctionsArr = (JSONArray) context.get("semantic_functions");
+            JSONArray contextSyntacticFunctionsArr = (JSONArray) context.get("syntactic_functions");
+            JSONArray contextAspectsArr = (JSONArray) context.get("aspects");
+            contextFunctions = new ArrayList<>();
+            contextFunctions.addAll(fillFunctionListFromIter(contextSemanticFunctionsArr.iterator()));
+            contextFunctions.addAll(fillFunctionListFromIter(contextSyntacticFunctionsArr.iterator()));
+            contextAspects = new ArrayList<>();
+            contextAspects.addAll(fillAspectListFromIter(contextAspectsArr.iterator()));
+            
+            JSONObject testingOptions = (JSONObject) json.get("testing");
+            quick = Boolean.parseBoolean(testingOptions.get("quick").toString());
+            quickLimit = Integer.valueOf(testingOptions.get("quick_limit").toString());
+            species = testingOptions.get("species").toString();
+        }
+        catch (Exception e){
+            logger.info("some options specific to random forests were not provided");
+        }
         
-        JSONObject normal = (JSONObject) features.get("normal");
-        JSONArray normalSemanticFunctionsArr = (JSONArray) normal.get("semantic_functions");
-        JSONArray normalSyntacticFunctionsArr = (JSONArray) normal.get("syntactic_functions");
-        JSONArray normalAspectsArr = (JSONArray) normal.get("aspects");       
-        normalFunctions = new ArrayList<>();
-        normalFunctions.addAll(fillFunctionListFromIter(normalSemanticFunctionsArr.iterator()));
-        normalFunctions.addAll(fillFunctionListFromIter(normalSyntacticFunctionsArr.iterator()));
-        normalAspects = new ArrayList<>();
-        normalAspects.addAll(fillAspectListFromIter(normalAspectsArr.iterator()));
-       
-        JSONObject context = (JSONObject) features.get("context");
-        JSONArray contextSemanticFunctionsArr = (JSONArray) context.get("semantic_functions");
-        JSONArray contextSyntacticFunctionsArr = (JSONArray) context.get("syntactic_functions");
-        JSONArray contextAspectsArr = (JSONArray) context.get("aspects");
-        contextFunctions = new ArrayList<>();
-        contextFunctions.addAll(fillFunctionListFromIter(contextSemanticFunctionsArr.iterator()));
-        contextFunctions.addAll(fillFunctionListFromIter(contextSyntacticFunctionsArr.iterator()));
-        contextAspects = new ArrayList<>();
-        contextAspects.addAll(fillAspectListFromIter(contextAspectsArr.iterator()));
-        
-        
-        
+
         // Options for the composer step.
         JSONObject composer = (JSONObject) json.get("composer");
-        
         maxTermsUsedPerOntology = Integer.valueOf(composer.get("max_terms_per_ontology").toString());
         predictedStmtsPath = composer.get("output_path").toString();
         
@@ -261,7 +254,6 @@ public class Config {
         classProbsPaths.put(Ontology.GO, fillStringListFromIter(goClassProbs.iterator()));
         classProbsPaths.put(Ontology.CHEBI, fillStringListFromIter(chebiClassProbs.iterator()));
         
-        
         JSONObject dgFiles = (JSONObject) composer.get("dg_files");
         JSONArray patoDGFiles = (JSONArray) dgFiles.get("q");
         JSONArray otherDGFiles = (JSONArray) dgFiles.get("other");
@@ -270,46 +262,20 @@ public class Config {
         otherFilesForDependencyParsing = new ArrayList<>();
         otherFilesForDependencyParsing.addAll(fillStringListFromIter(otherDGFiles.iterator()));
         
-        
-        
-        JSONObject parameters = (JSONObject) composer.get("parameters");
-        JSONArray qThresholdArr = (JSONArray) parameters.get("q_threshold");
-        JSONArray betaArr = (JSONArray) parameters.get("beta");
-        qThreshold = fillDoubleListFromIter(qThresholdArr.iterator());
-        beta = fillDoubleListFromIter(betaArr.iterator());
-        
-        
         JSONObject network = (JSONObject) composer.get("network");
         buildNetworks = Boolean.parseBoolean(network.get("network_values").toString());
         pheneNetworkPath = network.get("phene_network").toString();
         phenotypeNetworkPath = network.get("phenotype_network").toString();   
         pheneNodesPath = network.get("phene_nodes_path").toString().trim();
         phenotypeNodesPath = network.get("phenotype_nodes_path").toString().trim();
-        mixedPhenotypeNetworkPath = network.get("mixed_network").toString();
-        
-        
-        
-        
-        
-        
-        
         
         
         
         // Options relevant to using the NLP pipeline. Note, also used for the composer.  
         JSONObject nlp = (JSONObject) json.get("nlp");
-        
-        /*
-        JSONObject thresholds = (JSONObject) nlp.get("thresholds");
-        annotThresholds = new HashMap<>();
-        annotThresholds.put(Ontology.PATO, Double.valueOf(thresholds.get("pato").toString()));
-        annotThresholds.put(Ontology.PO, Double.valueOf(thresholds.get("po").toString()));
-        annotThresholds.put(Ontology.GO, Double.valueOf(thresholds.get("go").toString()));
-        annotThresholds.put(Ontology.CHEBI, Double.valueOf(thresholds.get("chebi").toString()));
-        */
-        
+                
         usePrior = Boolean.parseBoolean(nlp.get("use_prior").toString());
-        useLemma = Boolean.parseBoolean(nlp.get("use_lemmas").toString());
+        useLemmas = Boolean.parseBoolean(nlp.get("use_lemmas").toString());
         useEmbeddings = Boolean.parseBoolean(nlp.get("use_embeddings").toString());
         String maxentTolStr = nlp.get("maxent_tol").toString().trim();
         switch (maxentTolStr) {
@@ -334,22 +300,6 @@ public class Config {
         maxFeaturesPerTerm = Integer.valueOf(nlp.get("max_features_per_term").toString());
         distributionsPath = nlp.get("dist_path").toString();
         distributionsSerialName = nlp.get("dist_ser_name").toString();
-        //heatmapsPath = nlp.get("heatmaps_path").toString();
-        
-        JSONObject varImpPathsAll = (JSONObject) nlp.get("global_varimp_paths");
-        varImpPaths = new HashMap<>();
-        varImpPaths.put(Ontology.PATO, varImpPathsAll.get("pato").toString());
-        varImpPaths.put(Ontology.PO, varImpPathsAll.get("po").toString());
-        varImpPaths.put(Ontology.GO, varImpPathsAll.get("go").toString());
-        varImpPaths.put(Ontology.CHEBI, varImpPathsAll.get("chebi").toString());     
-       
-        
-        // Options for testing.
-        JSONObject testingOptions = (JSONObject) json.get("testing");
-        quick = Boolean.parseBoolean(testingOptions.get("quick").toString());
-        quickLimit = Integer.valueOf(testingOptions.get("quick_limit").toString());
-        species = testingOptions.get("species").toString();
-        
     }
     
     

@@ -124,7 +124,7 @@ public class NaiveBayes_Model {
             
             // Check if lemmatization should be done before updating the word frequences.
             List<String> tokens = new ArrayList<>();
-            if (Config.useLemma){
+            if (Config.useLemmas){
                 MyAnnotation annotations = Modifier.getAnnotation(chunk);
                 tokens = annotations.lemmas;
                 // new bit
@@ -252,7 +252,7 @@ public class NaiveBayes_Model {
         
         // Only do this modification if lemmatization is used.
         List<String> chunkWords;
-        if (Config.useLemma){
+        if (Config.useLemmas){
             MyAnnotation annotations = Modifier.getAnnotation(chunk);
             chunkWords = annotations.lemmas;
         }
