@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import structure.Chunk;
 import static utils.Util.sqliteCall;
@@ -25,8 +24,6 @@ import static utils.Util.sqliteCall;
  * Text data is read in from the SQLite database and stored by this object which assigns 
  * relevant identifiers and provides methods for relating parts of the data to each other 
  * and accessing it.
- * TODO: Don't need three separate processes that look at the database table, could just 
- * do this once and populate the three types of structures.
  * @author irbraun
  */
 public class Text {
@@ -51,8 +48,9 @@ public class Text {
     
     
     
+    
+    // Initialize all the maps and call methods to populate them.
     public Text() throws SQLException{
-        // Initialize all the maps.
         phenotypeIDtoAtomIDs = new HashMap<>();
         phenotypeIDtoSplitIDs = new HashMap<>();
         atomIDtoPhenotypeID = new HashMap<>();
@@ -62,20 +60,20 @@ public class Text {
         atChunkMap = new HashMap<>();
         spChunkMap = new HashMap<>();
         atSpeciesMap = new HashMap<>();
-        // Fill them with the appropriate information from the database.
         populateCuratedEQStmts();
         buildChunks();
     }
 
 
-    // Retrieve atomized statement IDs given another kind of ID.
+    
+    
+    // Functions to convert between IDs of different text datatypes.
     public ArrayList<Integer> getAtomIDsFromPhenotypeID(int phenotypeID){
         return phenotypeIDtoAtomIDs.get(phenotypeID);
     }
-    public ArrayList<Integer> getSplitIDsFromPhenotypeID(int phenotypeID){
+    public ArrayList<Integer> getSplitIPhenotypeDsFromPhenotypeID(int phenotypeID){
         return phenotypeIDtoSplitIDs.get(phenotypeID);
     }
-    // Retrieve phenotype ID given another kind of ID.
     public int getPhenotypeIDfromAtomID(int atomID){
         return atomIDtoPhenotypeID.get(atomID);
     }
@@ -105,20 +103,40 @@ public class Text {
     
    
     
-    
-    // Uses the SQL table and assigns new IDs to phenotype but takes atomizes statement IDs from the table.
+    /**
+     * Uses the SQL table and assigns new IDS to each phenotype (those IDs don't come
+     * from the table. This is different than the atomized statements which get their
+     * IDs read directly from the SQL table.
+     * @return
+     * @throws SQLException 
+     */
     private ArrayList<Chunk> buildPhenotypeChunks() throws SQLException{
         ArrayList<Chunk> chunks = getUntaggedPhenotypes();
         return chunks;
     } 
     
-    // Uses the SQL table and takes IDs for each atomized statement directly from there.
+    /**
+     * Uses the SQL table and reads the IDs of each atomized statement directly from
+     * the table.
+     * @return
+     * @throws SQLException 
+     */
     private ArrayList<Chunk> buildAtomChunks() throws SQLException{
         ArrayList<Chunk> chunks = getUntaggedAtoms();
         return chunks;
     } 
 
-    // Split the phenotype descriptions by semicolons and periods and give each a unique ID.
+    
+    
+    
+    /**
+     * Tries out the assumption that periods and semi-colons are used to deliminate 
+     * different phenes in the phenotype description. Simplest possible assumption to
+     * check performance of splitting phenotypes into atomized statements without 
+     * trying to infer any new information.
+     * @return
+     * @throws SQLException 
+     */
     private ArrayList<Chunk> buildSplitChunks() throws SQLException{
         ArrayList<Chunk> chunks = new ArrayList<>();
         int splitID=1;
@@ -127,11 +145,14 @@ public class Text {
             String phenotype_desc = c.getRawText();
             for (String s1: phenotype_desc.split("\\.")){
                 for (String s2: s1.split(";")){
-                    Chunk spChunk = new Chunk(splitID, TextDatatype.SPLIT_PHENOTYPE, s2.trim());
-                    chunks.add(spChunk);
-                    splitIDtoPhenotypeID.put(splitID, c.chunkID);
-                    splitChunkIDsForThisPhenotype.add(spChunk.chunkID);
-                    splitID++;
+                    s2 = s2.trim();
+                    if (!s2.equals("")){
+                        Chunk spChunk = new Chunk(splitID, TextDatatype.SPLIT_PHENOTYPE, s2);
+                        chunks.add(spChunk);
+                        splitIDtoPhenotypeID.put(splitID, c.chunkID);
+                        splitChunkIDsForThisPhenotype.add(spChunk.chunkID);
+                        splitID++;
+                    }
                 }
             }
             phenotypeIDtoSplitIDs.put(splitID, splitChunkIDsForThisPhenotype);
@@ -142,6 +163,8 @@ public class Text {
     
     
     
+    
+    /* TO BE DELETED
     public ArrayList<Chunk> getChunksOfKind(String choice) throws SQLException{
         return getChunksOfKind(utils.Util.inferTextType(choice));
     }
@@ -155,6 +178,10 @@ public class Text {
             return null;
         }
     }
+    */
+    
+    
+    
     
     public ArrayList<Chunk> getChunksOfKindAndSpecies(TextDatatype choice, Species species) throws SQLException{
         ArrayList<Chunk> chunks = new ArrayList<>();
@@ -193,8 +220,28 @@ public class Text {
         return spChunks;
     }
     
+    
+    
+    /**
+     * Return a set of text chunks based on a description of their datatype.
+     * @param dtype_str
+     * @return
+     * @throws Exception 
+     */
     public ArrayList<Chunk> getAllChunksOfDType(String dtype_str) throws Exception{
         TextDatatype dtype = utils.Util.inferTextType(dtype_str);
+        switch(dtype){
+            case PHENOTYPE:
+                return phChunks;
+            case PHENE:
+                return atChunks;
+            case SPLIT_PHENOTYPE:
+                return spChunks;
+            default:
+                throw new Exception();
+        }    
+    }
+    public ArrayList<Chunk> getAllChunksOfDType(TextDatatype dtype) throws Exception{
         switch(dtype){
             case PHENOTYPE:
                 return phChunks;
@@ -211,7 +258,7 @@ public class Text {
     
     
     
-    // not used, to be deleted.
+    /* TO BE DELETED.
     public ArrayList<Chunk> getAllAtomChunksNoDuplicates() throws SQLException{
         ArrayList<Chunk> chunks = atChunks;
         List<Chunk> uniqueChunks = new ArrayList<>();
@@ -231,16 +278,13 @@ public class Text {
         chunks.retainAll(uniqueChunks);
         return chunks;
     }
+    */
     
     
     
     
     
-    
-    
-    
-    
-    
+ 
     /* NOTES
     Currently when populating the list of used term IDs and the roles of those terms,
     the duplicates of where a term is used more than once is not removed, so there is the potential
@@ -257,30 +301,11 @@ public class Text {
     
     
     
-    
-    /*
-    public List getETermIDs(int id, TextType textType){
-        if (textType == TextType.ATOM){
-            return getETermIDsAtom(id);
-        }
-        else if (textType == TextType.PHENOTYPE){
-            return getETermIDsPhen(id);
-        }
-        return null;
-    }
-    
-    public List getQTermIDs(int id, TextType textType){
-        if (textType == TextType.ATOM){
-            return getQTermIDsAtom(id);
-        }
-        else if (textType == TextType.PHENOTYPE){
-            return getQTermIDsPhen(id);
-        }
-        return null;
-    }
-    */
-    
-    
+    // Functions to get the term IDs and their roles in the curated EQ statements
+    // associated with either an atomized statement or a phenotype description.
+    // Importantly these two methods return lists of the same size with the same
+    // ordering. This is used later so should be enforced here rather than just
+    // assumed ideally.
     public List getAllTermIDs(int id, TextDatatype textType){
         
         switch(textType){
@@ -293,32 +318,6 @@ public class Text {
         }
        
     }
-    
-    /*
-    public List getETermRoles(int id, TextType textType){
-        if (textType == TextType.ATOM){
-            return getETermRolesAtom(id);
-        }
-        else if (textType == TextType.PHENOTYPE){
-            return getETermRolesPhen(id);
-        }
-        return null;
-    }
-
-    public List getQTermRoles(int id, TextType textType){
-        if (textType == TextType.ATOM){
-            return getQTermRolesAtom(id);
-        }
-        else if (textType == TextType.PHENOTYPE){
-            return getQTermRolesPhen(id);
-        }
-        return null;
-    }
-    
-    */
-    
-    
-    
     public List getAllTermRoles(int id, TextDatatype textType){
         switch(textType){
         case PHENE:
@@ -332,21 +331,14 @@ public class Text {
     
     
     
-    
-    
     private List getAllTermIDsAtom(int atomID){
         EQStatement eqStmt = atomIDtoEQStatement.get(atomID);
         return eqStmt.getAllTermIDs();
     }
-    
-    
-    
     private List getAllTermRolesAtom(int atomID){
         EQStatement eqStmt = atomIDtoEQStatement.get(atomID);
         return eqStmt.getAllTermRoles();
     }
-    
-    
     private List getAllTermIDsPhen(int phenotypeID){
         ArrayList<Integer> atomIDs = phenotypeIDtoAtomIDs.get(phenotypeID);
         ArrayList<String> allTermsIDs = new ArrayList<>();
@@ -355,7 +347,6 @@ public class Text {
         }
         return allTermsIDs;
     }
-    
     private List getAllTermRolesPhen(int phenotypeID){
         ArrayList<Integer> atomIDs = phenotypeIDtoAtomIDs.get(phenotypeID);
         ArrayList<String> allTermRoles = new ArrayList<>();
@@ -368,12 +359,13 @@ public class Text {
     
     
     
-    
-    
-    
-    
-    
- 
+  
+    /**
+     * Specific to the formatting of the csv file that was read into the SQL table.
+     * Changes need to be made here is standardizing the way the input should look
+     * in the csv file.
+     * @throws SQLException 
+     */
     private void populateCuratedEQStmts() throws SQLException{
         
         String relevantColumns = "ppn_id, quality_ID, PATO_Qualifier_ID_optional, primary_entity1_ID, primary_entity2_ID_optional, secondary_entity1_ID_optional, secondary_entity2_ID_optional, developmental_stage_ID_optional";
@@ -397,100 +389,13 @@ public class Text {
         }  
     }
     
-    
-    
-    
-    /* to be deleted.
-    // NOTE: rows 327, 541 and 542 just don't have any entities or qualities in them.
-    // those should probably just be thrown out in the original file and ignored.
-    // need to account for the few cases where UBERON isn't used, check this stuff here.
-    // the RE in just one case is not UBERON, account for this.
-    private void populateCuratedEQStmtsGS() throws SQLException{
-        String relevantColumns = "Unique_ID, Entity, Quality, Related_Entity";
-        String dataTable = "gsdata";
-        ResultSet rs = sqliteCall(String.format("SELECT %s FROM %s", relevantColumns, dataTable));
-        while (rs.next()){
-            int atomID = rs.getInt("Unique_ID");
-            // These term ID's coming from the gold standard dataset also need to be converted to use the _ instead of :, as is in the owl files.
-            // Also using a substring part here to exclude the functional descriptions that are present in this column.
-            // This should probably be done with regex instead.
-            String entityID="";
-            String qualityID="";
-            try {
-                entityID = rs.getString("Entity").substring(0, 14).replace(":", "_").trim();
-                qualityID = rs.getString("Quality").substring(0, 12).replace(":", "_").trim();
-            }
-            catch(Exception e){
-                System.out.println("entity"+ atomID + " = " + rs.getString("Entity"));
-                System.out.println("quality"+ atomID + " = " + rs.getString("Quality"));
-            }
-            String relatedEntityID = rs.getString("Related_Entity").replace(":", "_").trim();
-            if (!relatedEntityID.equals("")){
-                if (relatedEntityID.length()>13){
-                    relatedEntityID = relatedEntityID.substring(0,14);
-                }
-                else{
-                    System.out.println("RE = " + relatedEntityID);
-                }
-            }
-            String[] eqStmtComponents = {qualityID, "", entityID, "", relatedEntityID, "", ""};
-            EQStatement eqStmt = new EQStatement(eqStmtComponents);
-            atomIDtoEQStatement.put(atomID, eqStmt);
-        }
-    }
-    */
-        
-    
-    
-    
-    
-   
-    /* to be deleted.
-    private ArrayList<Chunk> getUntaggedAtomsGSChar() throws SQLException{
-        ArrayList<Chunk> chunks = new ArrayList<>();
-        ResultSet rs;
-        String dataTable = "gsdata";
-        rs = sqliteCall(String.format("SELECT Unique_ID, Character_Description, State_Description FROM %s", dataTable));
-        while(rs.next()){
-            int chunkID = rs.getInt("Unique_ID");
-            String atomizedStatement = rs.getString("Character_Description");
-            Chunk chunk = formUntaggedAtom(chunkID, atomizedStatement, Species.UNKNOWN);
-            chunks.add(chunk); 
-        }
-        return chunks;
-    }
-    private ArrayList<Chunk> getUntaggedAtomsGSState() throws SQLException{
-        ArrayList<Chunk> chunks = new ArrayList<>();
-        ResultSet rs;
-        String dataTable = "gsdata";
-        rs = sqliteCall(String.format("SELECT Unique_ID, Character_Description, State_Description FROM %s", dataTable));
-        while(rs.next()){
-            int chunkID = rs.getInt("Unique_ID");
-            String atomizedStatement = rs.getString("State_Description");
-            Chunk chunk = formUntaggedAtom(chunkID, atomizedStatement, Species.UNKNOWN);
-            chunks.add(chunk); 
-        }
-        return chunks;
-    }*/
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
+  
     
     /**
-     * This is a method where the column names for the SQL data actually matter.
-     * Would have to change how this works if updating the requirements for a table of input text.
-     * Note untagged means that the words in the atomized statements are not marked up, as they
-     * could be by a BioNLP parser.
+     * Specific to the formatting of the csv file that was read into the SQL table.
+     * Changes need to be made here is standardizing the way the input should look
+     * in the csv file. Note untagged means that the words in the atomized statements 
+     * are not marked up, as they could be by a BioNLP parser.
      * @return
      * @throws SQLException 
      */
@@ -516,36 +421,29 @@ public class Text {
         return chunks;
         
     }
-    // Supporting methods.
     private Chunk formUntaggedAtom(int chunkID, String atomizedStatement, Species species){
         Chunk chunk = new Chunk(chunkID, TextDatatype.PHENE, atomizedStatement, species);
         return chunk;
         
     }
     
+    
+    
+    
     /**
-     * This is a method where the column names for the SQL data actually matter.
-     * Would have to change how this works if updating the requirements for a table of input text.
-     * Note un-tagged means that the words in the atomized statements are not marked up, as they
-     * could be by a BioNLP parser.
+     * Specific to the formatting of the csv file that was read into the SQL table.
+     * Changes need to be made here is standardizing the way the input should look
+     * in the csv file. Note untagged means that the words in the atomized statements 
+     * are not marked up, as they could be by a BioNLP parser.
      * @return
      * @throws SQLException 
      */
-    
-    // Modifying this method to fix the phenotype numbering problem, has to take gene name into account. (gene_symbol, Gene_Identifier)
     private ArrayList<Chunk> getUntaggedPhenotypes() throws SQLException{
         ArrayList<Chunk> chunks = new ArrayList<>();
         int chunkID = 0;
         ResultSet rs;
-        /*
-        if (Config.quick){
-            Object[] data = {Config.dataTable, Config.species};
-            rs = sqliteCall(String.format("SELECT DISTINCT phenotype_description FROM %s WHERE Species=\"%s\"", data));
-        }
-        else */
         rs = sqliteCall(String.format("SELECT DISTINCT Species,Gene_Identifier,phenotype_description FROM %s", Config.dataTable));
-        
-        
+
         while (rs.next()){
             chunkID++;
             String phenotypeDescription = rs.getString("phenotype_description");
@@ -553,13 +451,8 @@ public class Text {
             String speciesStr = rs.getString("Species");
             Species species = utils.Util.inferSpecies(speciesStr);
             
+            // The requirement for a phenotype in the input table is that is has to be unique in all these columns.
             List<Integer> atomIDs = new ArrayList<>();
-            
-            // is it okay to only look at gene_identifier here? should use phenotype description as well?
-            // it was bad, fixed it.
-            
-            //Object[] data2 = {Config.dataTable, geneIdentifier};
-            //ResultSet rs2 = sqliteCall(String.format("SELECT ppn_id FROM %s WHERE Gene_Identifier=\"%s\"", data2));
             Object[] data2 = {Config.dataTable, geneIdentifier, speciesStr, phenotypeDescription};
             ResultSet rs2 = sqliteCall(String.format("SELECT ppn_id FROM %s WHERE Gene_Identifier=\"%s\" AND Species=\"%s\" and phenotype_description=\"%s\"", data2));
             while (rs2.next()){
@@ -569,74 +462,14 @@ public class Text {
             Chunk chunk = formUntaggedPhenotype(chunkID, phenotypeDescription, species);
             chunks.add(chunk);
             
-            // Updating the ID map.
+            // Updating the ID maps.
             phenotypeIDtoAtomIDs.put(chunkID, (ArrayList<Integer>) atomIDs);
-            // Updating the other ID map.
-            for (int atomID: atomIDs){
-                atomIDtoPhenotypeID.put(atomID, chunkID);
-            }
-            
-            
-            /* to be removed.
-            if (atomIDs.isEmpty()){
-                System.out.println("Phenotype "+chunkID+ " has no phenes associated with it.");
-            }
-            if (chunkID==2823){
-                System.out.println("The number of atoms for phenotype 2823 is " + atomIDs.size());
-                for (int atomID: atomIDs){
-                    System.out.println("A " + atomID + " maps to P " + atomIDtoPhenotypeID.get(atomID));
-                }
-            }
-            */
-            
-            
-            
-            
-        }
-        return chunks;
-    }
-    /*
-    private ArrayList<Chunk> getUntaggedPhenotypes() throws SQLException{
-        ArrayList<Chunk> chunks = new ArrayList<>();
-        int chunkID = 0;
-        ResultSet rs;
-        if (Config.quick){
-            Object[] data = {Config.dataTable, Config.species};
-            rs = sqliteCall(String.format("SELECT DISTINCT phenotype_description FROM %s WHERE Species=\"%s\"", data));
-        }
-        else {
-            rs = sqliteCall(String.format("SELECT DISTINCT phenotype_description FROM %s", Config.dataTable));
-        }
-        
-        while (rs.next()){
-            chunkID++;
-            String phenotypeDescription = rs.getString("phenotype_description");
-            
-            List<Integer> atomIDs = new ArrayList<>();
-            
-            Object[] data2 = {Config.dataTable, phenotypeDescription};
-            ResultSet rs2 = sqliteCall(String.format("SELECT ppn_id FROM %s WHERE phenotype_description=\"%s\"", data2));
-            while (rs2.next()){
-                atomIDs.add(rs2.getInt("ppn_id"));
-            }
-            
-            Chunk chunk = formUntaggedPhenotype(chunkID, phenotypeDescription);
-            chunks.add(chunk);
-            
-            // Updating the ID map.
-            phenotypeIDtoAtomIDs.put(chunkID, (ArrayList<Integer>) atomIDs);
-            // Updating the other ID map.
             for (int atomID: atomIDs){
                 atomIDtoPhenotypeID.put(atomID, chunkID);
             }
         }
         return chunks;
     }
-    */
-    
-    
-    
-    // Supporting method.
     private Chunk formUntaggedPhenotype(int chunkID, String phenotypeDescription, Species species){
         Chunk chunk = new Chunk(chunkID, TextDatatype.PHENOTYPE, phenotypeDescription, species);
         return chunk;
@@ -644,9 +477,6 @@ public class Text {
         
     
     
-    
-    
-
     
     public Chunk getAtomChunkFromID(int atomID){
         return atChunkMap.get(atomID);
@@ -659,8 +489,6 @@ public class Text {
     public Chunk getSplitPhenotypeChunkFromID(int spID){
         return spChunkMap.get(spID);
     }
-    
-    
     public Chunk getChunkFromIDWithDType(int id, TextDatatype dt) throws Exception{
         switch(dt){
             case PHENOTYPE:
@@ -671,9 +499,11 @@ public class Text {
                 return getSplitPhenotypeChunkFromID(id);
             default:
                 throw new Exception();
-          
         }
     }
+    
+    
+    
     
     public List<Chunk> getAtomChunksFromIDs(List<Integer> atomIDs){
         List<Chunk> chunks = new ArrayList<>();
@@ -682,7 +512,6 @@ public class Text {
         }
         return chunks;
     }
-    
     public List<Chunk> getPhenotypeChunksFromIDs(List<Integer> phenotypeIDs){
         List<Chunk> chunks = new ArrayList<>();
                 for (int phenID: phenotypeIDs){
@@ -691,51 +520,34 @@ public class Text {
         return chunks;
     }
    
-    
-    /* check to verify that these are not used at all....
-    public Chunk getDefaultChunkFromChunkID(int chunkID) throws Exception{
-        switch(utils.Util.inferTextType(Config.format)){
-        case ATOM:
-            return getAtomChunkFromID(chunkID);
-        case PHENOTYPE:
-            return getPhenotypeChunkFromID(chunkID);
-        default:
-            throw new Exception();
-        }
-    }
-    */
-    /* chcck to verify that these are not used at all...
-    public List<Chunk> getDefaultChunksFromChunkIDs(List<Integer> chunkIDs) throws Exception{
-        switch(utils.Util.inferTextType(Config.format)){
-        case ATOM:
-            return getAtomChunksFromIDs(chunkIDs);
-        case PHENOTYPE:
-            return getPhenotypeChunksFromIDs(chunkIDs);
-        default:
-            throw new Exception();
-        }
-    }
-    */
-   
-    
+
+
+
     
     public String getAtomizedStatementStr(int atomID){
         String atomizedStatement = atChunkMap.get(atomID).getRawText();
         String atomizedStatementNoCommas = atomizedStatement.replace(",","");
         return atomizedStatementNoCommas;
     }
-    
     public String getPhenotypeDescStr(int phenotypeID){
-        int onePossibleAtomID = phenotypeIDtoAtomIDs.get(phenotypeID).get(0);
         String phenotypeDesc = phChunkMap.get(phenotypeID).getRawText();
         String phenotypeDescNoCommas = phenotypeDesc.replace(",","");
         return phenotypeDescNoCommas;
     }
+    public String getSplitPhenotypeDescStr(int splitPhenotypeID){
+        String desc = spChunkMap.get(splitPhenotypeID).getRawText();
+        String descNoCommas = desc.replace(",","");
+        return descNoCommas;
+    }
+    
+
+
+    
+    
     
     public EQStatement getCuratedEQStatementFromAtomID(int atomID){
         return atomIDtoEQStatement.get(atomID);
     }
-    
     public ArrayList<EQStatement> getCuratedEQStatementsFromAtomIDs(ArrayList<Integer> atomIDs){
         ArrayList<EQStatement> eqs = new ArrayList<>();
         for (int atomID: atomIDs){
@@ -743,7 +555,6 @@ public class Text {
         }
         return eqs;
     }
-    
     public ArrayList<EQStatement> getCuratedEQStatementsFromPhenotypeID(int phenotypeID){
         ArrayList<Integer> atomIDs = getAtomIDsFromPhenotypeID(phenotypeID);
         return getCuratedEQStatementsFromAtomIDs(atomIDs);

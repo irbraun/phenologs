@@ -437,7 +437,7 @@ public class Composer {
         for (int phenotypeID: phenotypeIDs){
             
             ArrayList<String> dataRowsForThisPhenotype = new ArrayList<>();
-            ArrayList<Integer> splitDescIDs = text.getSplitIDsFromPhenotypeID(phenotypeID);
+            ArrayList<Integer> splitDescIDs = text.getSplitIPhenotypeDsFromPhenotypeID(phenotypeID);
            
             ArrayList<EQStatement> allCuratedEQsForThisPhenotype = text.getCuratedEQStatementsFromPhenotypeID(phenotypeID);
             ArrayList<EQStatement> allPredictedEQsForThisPhenotype = new ArrayList<>();

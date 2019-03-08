@@ -1,10 +1,12 @@
 check for semicolon problems with that sql script
-RScript works on local machine but not on Condo, has to be Rscript?
+RScript works on local machine but not on Condo, has to be Rscript? Another case sensitive issue, see below, something about the os maybe.
 
 
 the 'allpairs.txt' file path is hardcoded into the Text object in java, fix this.
 
 
-
-
 When splitting the phenotype description through regex, the R script that reads evaluation files will just crash because those are produced when doing this, just make it skip that step to make this cleaner.
+
+NOBLE Coder works on condo, just have to put ALL the files (including the context one) fron the ~/.noble/ directory ~/.noble/ on the cluser.
+
+For whatever reason, referencing the name of the RESULTS.tsv file produced by noble coder is case sensitive when run on condo but not locally. just make sure to use right case in the script.

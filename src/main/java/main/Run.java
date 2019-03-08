@@ -73,7 +73,7 @@ public class Run {
         if (Config.text.equals("ppn")){
             text = new Text();
             InfoContent.setup(ontoObjects, text);
-            chunks = text.getChunksOfKind(format);
+            chunks = text.getAllChunksOfDType(format);
 
             terms = ontoObjects.get(utils.Util.inferOntology(Config.ontologyName)).getTermList();
             // Currently hardcoded to group the chunks (of any kind) into partitions based on phenotype.

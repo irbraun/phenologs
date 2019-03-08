@@ -183,13 +183,13 @@ dtype = "splitphenotypes"
 
 
 
-#preprocessing(topn=5, threshold=1.00, dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin")
+preprocessing(topn=5, threshold=1.00, dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin")
 
 
 
 
 # Running NOBLE Coder for semantic annotation with gridsearch for parameters.
-thresholds = [1.00]
+thresholds = []
 for t in thresholds:
 
 	# Using the domain-specific word embeddings model from pubmed abstracts.

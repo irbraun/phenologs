@@ -64,7 +64,7 @@ public class LabelMatching1 {
     private ArrayList<String> search(Ontology ontology, TextDatatype format, int lowerPartNum, int upperPartNum) throws SQLException, Exception{
         
         Text text = new Text();
-        List<Chunk> chunks = text.getChunksOfKind(format);
+        List<Chunk> chunks = text.getAllChunksOfDType(format);
         
         // The lower and upper partition numbers are inclusive.
         List<Integer> parts = new ArrayList<>();
