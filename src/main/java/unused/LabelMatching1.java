@@ -72,7 +72,7 @@ public class LabelMatching1 {
             parts.add(part);
         }
        
-        Partitions partitions = new Partitions(text, "");
+        Partitions partitions = new Partitions(text);
         List<Chunk> usedChunks = partitions.getChunksFromPartitions(parts, chunks);
         String ontologyPath = utils.Util.pickOntologyPath(ontology.toString());
         Onto onto = new Onto(ontologyPath);

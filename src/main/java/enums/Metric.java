@@ -20,8 +20,6 @@ public enum Metric {
     LCS_DIST,
     JAROWINKLER_DIST;
     
-    
-   
     public static boolean isDistanceMetric(Metric metric) throws Exception{
         return EnumSet.of(COSINE_DIST, LEVENSCHTEIN_DIST, LCS_DIST).contains(metric);
     } 
@@ -33,6 +31,4 @@ public enum Metric {
     public static List<String> names() {
         return Arrays.asList(Stream.of(Metric.values()).map(Metric::name).toArray(String[]::new));
     }
-    
-    
 }

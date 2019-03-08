@@ -1,4 +1,4 @@
-package index;
+package randomforest.index;
 
 
 import config.Config;

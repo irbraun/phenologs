@@ -1,7 +1,7 @@
 package structure;
 
-import index.PairIndices;
-import index.FeatureIndices;
+import randomforest.index.PairIndices;
+import randomforest.index.FeatureIndices;
 import config.Config;
 import java.io.File;
 import java.io.FileNotFoundException;

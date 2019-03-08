@@ -3,7 +3,7 @@
  * irbraun@iastate.edu
  * term-mapping 
  */
-package nlp_algs;
+package maxent;
 
 import composer.Modifier;
 import composer.Term;

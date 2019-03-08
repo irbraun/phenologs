@@ -21,13 +21,15 @@ import static main.Main.logger;
 import main.Partitions;
 import structure.Chunk;
 
+
+
+
+
 /**
  *
  * @author irbraun
  */
 public class TextUtils {
-    
-    
     
     
     /**
@@ -43,7 +45,7 @@ public class TextUtils {
      */
     public static void createWordFiles(String path) throws SQLException, FileNotFoundException, Exception{
         Text text = new Text();
-        Partitions parts = new Partitions(text, Config.typePartitions);
+        Partitions parts = new Partitions(text);
         List<Chunk> chunks = parts.getChunksInPartitionRangeInclusive(0, Config.numPartitions-1, text.getAllAtomChunks());
         String filename = path;
         File file = new File(filename);
@@ -61,8 +63,7 @@ public class TextUtils {
     }
     
     
-    
-    
+
     
     /**
      * Generate one text file for each chunk. Uses the naming scheme of 
@@ -70,9 +71,12 @@ public class TextUtils {
      * head directory where the of the individual text files should be put.
      * This is useful for the external tools that take text files as input
      * and then produce annotations for a single file, allows for keeping
-     * the chunks separate during this process.
+     * the chunks separate during this process and for the filenames in the
+     * output of those tools to be parsed in meaningful way that can be
+     * related back to the text data.
      * @param dir
      * @param threshold
+     * @param format
      * @throws SQLException
      * @throws FileNotFoundException 
      */
@@ -80,7 +84,7 @@ public class TextUtils {
         // Read in the synonym mappings that are the results of the word embedding process.
         HashMap<String,ArrayList<String>> w2vs = new HashMap<>();
         if (Config.useEmbeddings){
-            File file = new File("/Users/irbraun/NetBeansProjects/term-mapping/path/data/allpairs.txt");
+            File file = new File(Config.allPairsPath);
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -97,34 +101,20 @@ public class TextUtils {
                         w2vs.put(w2, b);
                     }
                 }
-                System.out.println("done reading in dict");
             }
             catch (Exception e){
                 logger.info("file containing word embedding results could not be read");
             }
             
             Text text = new Text();
-            List<Chunk> chunks;
-            switch(format){
-            case PHENE: 
-                chunks = text.getAllAtomChunks();
-                break;
-            case PHENOTYPE:
-                chunks = text.getAllPhenotypeChunks();
-                break;
-            case SPLIT_PHENOTYPE:
-                chunks = text.getAllSplitPhenotypeChunks();
-                break;
-            default:
-                throw new Exception();
-            }
-
+            List<Chunk> chunks = text.getAllChunksOfDType(format);
+            
             for (Chunk c: chunks){
                 File outputFile = new File(String.format("%s%s.txt",dir,c.chunkID));
                 PrintWriter writer = new PrintWriter(outputFile);
                 writer.println(c.getRawText());
 
-                // Append all other variations that could be possible using the allowed synonyms at this threshold value.
+                // Append all other variations that could be possible using the allowed synonyms/related words at this threshold value.
                 for (int w=0; w<c.getBagValues().size(); w++){
                     String word = c.getBagValues().get(w);
                     ArrayList<String> synonyms = w2vs.getOrDefault(word, new ArrayList<>());

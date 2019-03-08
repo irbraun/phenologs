@@ -26,6 +26,8 @@ public class Config {
     public static String format;
     public static String connPath;
     public static String stopWordsPath;
+    public static String allWordsPath;
+    public static String allPairsPath;
     public static String ontologyName;
     public static String savedPath;
     public static String csvPath;
@@ -137,8 +139,11 @@ public class Config {
         // General properties.
         text = properties.getProperty("text").trim();
         format = properties.getProperty("format").trim();
-        connPath = properties.getProperty("connPath");
-        stopWordsPath = properties.getProperty("stopPath");
+        connPath = properties.getProperty("connPath").trim();
+        stopWordsPath = properties.getProperty("stopPath").trim();
+        allWordsPath = properties.getProperty("allWordsPath").trim();
+        allPairsPath = properties.getProperty("allPairsPath").trim();
+        
         numPartitions = Integer.valueOf(properties.getProperty("numPartitions"));
         typePartitions = properties.getProperty("typePartitions").trim();
         seedValue = Integer.valueOf(properties.getProperty("seedValue"));

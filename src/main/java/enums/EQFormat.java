@@ -1,16 +1,7 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
 package enums;
 
 import java.util.EnumSet;
 
-/**
- *
- * @author irbraun
- */
 public enum EQFormat {
     EQ,
     EQq,

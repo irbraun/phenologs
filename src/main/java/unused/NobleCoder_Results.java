@@ -20,7 +20,7 @@ import java.util.Scanner;
 import main.Group;
 import static main.Main.logger;
 import main.Partitions;
-import nlp_algs.Utils;
+import nlp_annot.Utils;
 import ontology.Onto;
 import org.json.simple.parser.ParseException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -45,8 +45,8 @@ public class NobleCoder_Results {
         List<Integer> testPartsRandom = utils.Util.range(0, 4);
         
         Text text = new Text();
-        Partitions pRandom = new Partitions(text, "random");   
-        Partitions pSpecies = new Partitions(text, "species");
+        Partitions pRandom = new Partitions(text);   
+        Partitions pSpecies = new Partitions(text);
         
         // Annotated data available in the Plant PhenomeNET.
         List<Group> patoGroups = new ArrayList<>();

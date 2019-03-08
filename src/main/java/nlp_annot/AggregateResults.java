@@ -3,7 +3,7 @@
  * irbraun@iastate.edu
  * term-mapping 
  */
-package nlp_algs;
+package nlp_annot;
 
 import composer.ComposerIO;
 import composer.Term;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import main.Group;
 import main.Partitions;
-import static nlp_algs.OutsideAnnotationReader.populateFilesForTestSets;
+import static nlp_annot.OutsideAnnotationReader.populateFilesForTestSets;
 import org.json.simple.parser.ParseException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import text.Text;
@@ -197,7 +197,7 @@ public class AggregateResults {
         
         // Text data and partition objects for each testing set.
         Text text = new Text();
-        Partitions set1PartitionObj = new Partitions(text, Config.set1Name); 
+        Partitions set1PartitionObj = new Partitions(text); 
        
         String outputPath = String.format("%s/%s",baseDirectory,"output_pato");
         List<Group> patoGroups = new ArrayList<>();

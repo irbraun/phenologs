@@ -1,14 +1,14 @@
-package main;
+package randomforest.process;
 
 import config.Config;
 import enums.Metric;
 import enums.Ontology;
 import enums.TextDatatype;
-import index.FeatureIndices;
+import randomforest.index.FeatureIndices;
 import structure.OntologyTerm;
 import structure.FeatureArray;
 import structure.Chunk;
-import index.PairIndices;
+import randomforest.index.PairIndices;
 import infocontent.InfoContent;
 import structure.SimilarityStore;
 import java.io.FileNotFoundException;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import main.Partitions;
 import static main.Main.logger;
 import nlp.CoreNLP;
 import ontology.Onto;
@@ -78,7 +79,7 @@ public class Run {
             terms = ontoObjects.get(utils.Util.inferOntology(Config.ontologyName)).getTermList();
             // Currently hardcoded to group the chunks (of any kind) into partitions based on phenotype.
             logger.info("partitioning");
-            partitions = new Partitions(text, Config.typePartitions);
+            partitions = new Partitions(text);
             finder = new SimilarityFinder();
             logger.info("processing text in each partition");
             for (int part=0; part<Config.numPartitions; part++){

@@ -50,7 +50,7 @@ public class Learner {
 
         // Training parts given where partitions 1 to 7 are used for testing.
         List<Integer> trainingParts = IntStream.rangeClosed(8, 31).boxed().collect(Collectors.toList());
-        Partitions partitions = new Partitions(text, Config.typePartitions);
+        Partitions partitions = new Partitions(text);
         List<Chunk> trainingChunks = partitions.getChunksFromPartitions(trainingParts, chunks);
         
         logger.info("parsing");

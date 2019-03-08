@@ -8,7 +8,7 @@ package unused;
 import enums.Aspect;
 import enums.Context;
 import enums.Metric;
-import index.FeatureIndices;
+import randomforest.index.FeatureIndices;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;

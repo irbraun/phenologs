@@ -20,7 +20,7 @@ import java.util.Scanner;
 import main.Group;
 import static main.Main.logger;
 import main.Partitions;
-import nlp_algs.Utils;
+import nlp_annot.Utils;
 import ontology.Onto;
 import org.json.simple.parser.ParseException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;

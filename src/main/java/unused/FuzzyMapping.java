@@ -22,7 +22,7 @@ import main.Partitions;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import me.xdrop.fuzzywuzzy.model.ExtractedResult;
 import nlp.CoreNLP;
-import nlp_algs.Utils;
+import nlp_annot.Utils;
 import ontology.Onto;
 import structure.Chunk;
 import structure.OntologyTerm;
@@ -81,8 +81,8 @@ public class FuzzyMapping {
         
         
         Text text = new Text();
-        Partitions pRandom = new Partitions(text, "random");   
-        Partitions pSpecies = new Partitions(text, "species");
+        Partitions pRandom = new Partitions(text);   
+        Partitions pSpecies = new Partitions(text);
 
         
         // Annotated data available in the Plant PhenomeNET.
@@ -121,7 +121,7 @@ public class FuzzyMapping {
         
         // Plant PhenomeNET text data.
         List<Chunk> chunks = text.getAllAtomChunks();
-        Partitions partsObj = new Partitions(text, Config.typePartitions);
+        Partitions partsObj = new Partitions(text);
         String ontologyPath = utils.Util.pickOntologyPath(ontology.toString());
         Onto onto = new Onto(ontologyPath);
         List<OntologyTerm> terms = onto.getTermList();

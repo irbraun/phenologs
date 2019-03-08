@@ -3,13 +3,12 @@
  * irbraun@iastate.edu
  * term-mapping 
  */
-package nlp_algs;
+package nlp_annot;
 
 import composer.Term;
 import config.Config;
 import enums.Ontology;
 import enums.Role;
-import enums.TextDatatype;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -23,44 +22,53 @@ import main.Group;
 import static main.Main.logger;
 import main.Partitions;
 import ontology.Onto;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import structure.Chunk;
 import structure.OntologyTerm;
 import text.Text;
+import uk.ac.ebi.brain.error.ClassExpressionException;
+import uk.ac.ebi.brain.error.NewOntologyException;
 import static utils.Util.range;
 
 /**
  *
  * @author irbraun
  */
-public class MaxEnt_Mapping {
+
+
+/*
+What should happen here when the phenotypes are split using ; and .? 
+The training should ignore the split phenotypes and just look at the whole phenotypes.
+The testing should then predict using the actual split ones.
+
+I don't think that's true. Doesn't matter which, its just counting how many times words co-occur with terms.
+*/
+
+
+
+
+public class NaiveBayes_Mapping {
     
     
     
+    private final HashMap<Ontology,Onto> ontoObjects;
     
-    HashMap<Ontology,Double> ratios;
+    public NaiveBayes_Mapping() throws OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
+        ontoObjects = new HashMap<>();
+        for (Ontology ontology: Ontology.getAllOntologies()){
+            String ontologyPath = utils.Util.pickOntologyPath(ontology.toString());
+            Onto onto = new Onto(ontologyPath);
+            ontoObjects.put(ontology, onto);
+        }
+    }
     
-    
-    
-    
-    
-    
-    public void run(int maxIter) throws SQLException, Exception{
-        
-        // Generate the objects for the tagged data.
-        Text text = new Text();
-        List<Chunk> chunks = text.getAllAtomChunks();
-        Partitions partitions = new Partitions(text, Config.typePartitions);   
-        
-        
-        
-        
-        // Get ratios.
+   
+    private HashMap<Ontology,Double> getLearnedRatios(Text text, List<Chunk> trainingChunks){
         HashMap<Ontology,Integer> counts = new HashMap<>();
         for (Ontology o: Ontology.values()){
             counts.put(o, 0);
         }
         // Count the occurences of terms from each ontology in the training set.
-        List<Chunk> trainingChunks = partitions.getChunksInPartitionRangeInclusive(5, 31, chunks);
         for (Chunk c: trainingChunks){
             for (String termID: text.getCuratedEQStatementFromAtomID(c.chunkID).getAllTermIDs()){
                 int count = counts.get(utils.Util.inferOntology(termID));
@@ -69,147 +77,158 @@ public class MaxEnt_Mapping {
             }
         }
         // Output the ratios as term per chunk of text for each ontology.
-        ratios = new HashMap<>();
+        HashMap<Ontology,Double> ratios = new HashMap<>();
         for (Ontology o: counts.keySet()){
             double ratio = (double) counts.get(o) / (double) trainingChunks.size();
             ratios.put(o, ratio);
         }
-        
-        
-        
-        
-        
-        
-        // Create and train the ME and then use it on remaining data.
-        
-        // trying out separating by ontology to reduce number of target classes.
-        logger.info("training with max of " + maxIter + " iterations.");
-        MaxEnt_Model mec1 = new MaxEnt_Model(maxIter, Ontology.PATO);
-        mec1.train(text, partitions.getChunksFromPartitions(range(5,31), chunks));
-        runOneFold(mec1, "fold", range(0,31), range(0,4), range(5,31), Ontology.PATO);
-        
-        /*
-        MaxEnt_Model mec2 = new MaxEnt_Model(maxIter, Ontology.PO);
-        mec2.train(text, partitions.getChunksFromPartitions(range(5,31), chunks));
-        runOneFold(mec2, "fold", range(0,31), range(0,4), range(5,31), Ontology.PO);
-        
-        MaxEnt_Model mec3 = new MaxEnt_Model(maxIter, Ontology.GO);
-        mec3.train(text, partitions.getChunksFromPartitions(range(5,31), chunks));
-        runOneFold(mec3, "fold", range(0,31), range(0,4), range(5,31), Ontology.GO);
-        
-        MaxEnt_Model mec4 = new MaxEnt_Model(maxIter, Ontology.CHEBI);
-        mec4.train(text, partitions.getChunksFromPartitions(range(5,31), chunks));
-        runOneFold(mec4, "fold", range(0,31), range(0,4), range(5,31), Ontology.CHEBI);
-        */
-        
-        
-        
-        
-        
+        return ratios;
     }
     
     
     
-    private void runOneFold(MaxEnt_Model mec, String fold, List<Integer> allParts, List<Integer> testParts, List<Integer> trainParts, Ontology o) throws FileNotFoundException, SQLException, Exception{
+    public void run(double threshold) throws SQLException, Exception{
         
-        // Pick a base directory based on the testing set.
-        String baseDirectory;
-        switch (Config.typePartitions) {
-            case "species":
-                baseDirectory = String.format("%s%s/", Config.mePath, "set1");
-                break;
-            case "random":
-                baseDirectory = String.format("%s%s/", Config.mePath, "set2");
-                break;
-            default:
-                throw new Exception();
-        }
+        // Generate the objects for the tagged data.
+        Text text = new Text();
+        List<Chunk> chunks = text.getAllChunksOfDType(Config.format);
+        Partitions partitions = new Partitions(text);        
+
+        // Create and train the naive Bayes classifiers and then use it on remaining data.
+        NaiveBayes_Model nb1 = new NaiveBayes_Model();
+        nb1.train(text, partitions.getChunksFromPartitions(range(8,31), chunks), threshold);
+        HashMap<Ontology,Double> ratios1 = getLearnedRatios(text, partitions.getChunksFromPartitions(range(8,31), chunks));
+        runOneFold(nb1, "fold1", range(0,31), range(0,7), range(8,31), ratios1);
+        
+        NaiveBayes_Model nb2 = new NaiveBayes_Model();
+        nb2.train(text, partitions.getChunksFromPartitions(range(0,7,16,31), chunks), threshold);
+        HashMap<Ontology,Double> ratios2 = getLearnedRatios(text, partitions.getChunksFromPartitions(range(0,7,16,31), chunks));
+        runOneFold(nb2, "fold2", range(0,31), range(8,15), range(0,7,16,31), ratios2);
+        
+        NaiveBayes_Model nb3 = new NaiveBayes_Model();
+        nb3.train(text, partitions.getChunksFromPartitions(range(0,15,24,31), chunks), threshold);
+        HashMap<Ontology,Double> ratios3 = getLearnedRatios(text, partitions.getChunksFromPartitions(range(0,15,24,31), chunks));
+        runOneFold(nb3, "fold3", range(0,31), range(16,23), range(0,15,24,31), ratios3);
+        
+        NaiveBayes_Model nb4 = new NaiveBayes_Model();
+        nb4.train(text, partitions.getChunksFromPartitions(range(0,23), chunks), threshold);
+        HashMap<Ontology,Double> ratios4 = getLearnedRatios(text, partitions.getChunksFromPartitions(range(0,23), chunks));
+        runOneFold(nb4, "fold4", range(0,31), range(24,31), range(0,23), ratios4);
         
        
+    }
+    
+    private void runOneFold(NaiveBayes_Model nb, String fold, List<Integer> allParts, List<Integer> testParts, List<Integer> trainParts, HashMap<Ontology,Double> ratios) throws FileNotFoundException, SQLException, Exception{
+        
+
+        String baseDirectory = Config.nbPath;
+        
         // Partition numbers for testing and training.
         List<Integer> allPartitionNumbers = allParts;
         List<Integer> testingPartitionNumbers = testParts;
         List<Integer> trainingPartitionNumbers = trainParts;
         
         Text text = new Text();
-        Partitions p = new Partitions(text, Config.typePartitions);  
+        Partitions p = new Partitions(text);  
         
         String allName = "all";
         String trainingName = "train";
         String testingName = "test";
                 
         String dataset = "ppn";
+       
         
-               
+        
+        // Find the fraction of the testing set that is directly present in the training set.
+        List<String> testSetInstances = new ArrayList<>();
+        for (Chunk c: p.getChunksFromPartitions(testParts, text.getAllAtomChunks())){
+            testSetInstances.add(String.format("%s:%s",c.getRawText(),text.getCuratedEQStatementFromAtomID(c.chunkID).toIDText()));
+        }
+        HashSet<String> trainingSetInstances = new HashSet<>();
+        for (Chunk c: p.getChunksFromPartitions(trainParts, text.getAllAtomChunks())){
+            trainingSetInstances.add(String.format("%s:%s",c.getRawText(),text.getCuratedEQStatementFromAtomID(c.chunkID).toIDText()));
+        }
+        int numOverlappingInstances = 0;
+        for (String instance: testSetInstances){
+            if (trainingSetInstances.contains(instance)){
+                numOverlappingInstances++;
+            }
+        }
+        double fractionOfTestingInTraining = (double) numOverlappingInstances / (double) testSetInstances.size();
+        System.out.println(String.format("For fold %s %s of the testing instances are observed in the training data.", fold, fractionOfTestingInTraining));
+        // Done doing that.
+
+        
+        
         // Annotated data available in the Plant PhenomeNET.
-        if (o.equals(Ontology.PATO)){
-            List<Group> patoGroups = new ArrayList<>();
-            patoGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "pato/"), p));
-            patoGroups.add(new Group("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "pato/"), p));
-            patoGroups.add(new Group("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "pato/"), p));
-            search(Ontology.PATO, new Text(), patoGroups, mec);
-        }
+        List<Group> patoGroups = new ArrayList<>();
+        String outputPath = String.format("%s/%s",baseDirectory,"output_pato");
+        patoGroups.add(new Group("all"+fold, fold, allPartitionNumbers, outputPath, p));
+        patoGroups.add(new Group("test"+fold, fold, testingPartitionNumbers, outputPath, p));
+        patoGroups.add(new Group("train"+fold, fold, trainingPartitionNumbers, outputPath, p));
+        search(Ontology.PATO, new Text(), patoGroups, nb, ratios);
+       
+        List<Group> poGroups = new ArrayList<>();
+        outputPath = String.format("%s/%s",baseDirectory,"output_po");
+        poGroups.add(new Group("all"+fold, fold, allPartitionNumbers, outputPath, p));
+        poGroups.add(new Group("test"+fold, fold, testingPartitionNumbers, outputPath, p));
+        poGroups.add(new Group("train"+fold, fold, trainingPartitionNumbers, outputPath, p));
+        search(Ontology.PO, new Text(), poGroups, nb, ratios);
         
-        if (o.equals(Ontology.PO)){
-            List<Group> poGroups = new ArrayList<>();
-            poGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "po/"), p));
-            poGroups.add(new Group("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "po/"), p));
-            poGroups.add(new Group("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "po/"), p));
-            search(Ontology.PO, new Text(), poGroups, mec);
-        }
+        List<Group> goGroups = new ArrayList<>();
+        outputPath = String.format("%s/%s",baseDirectory,"output_go");
+        goGroups.add(new Group("all"+fold, fold, allPartitionNumbers, outputPath, p));
+        goGroups.add(new Group("test"+fold, fold, testingPartitionNumbers, outputPath, p));
+        goGroups.add(new Group("train"+fold, fold, trainingPartitionNumbers, outputPath, p));
+        search(Ontology.GO, new Text(), goGroups, nb, ratios);
         
-        if (o.equals(Ontology.GO)){
-            List<Group> goGroups = new ArrayList<>();
-            goGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "go/"), p));
-            goGroups.add(new Group("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "go/"), p));
-            goGroups.add(new Group("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "go/"), p));
-            search(Ontology.GO, new Text(), goGroups, mec);
-        }
+        List<Group> chebiGroups = new ArrayList<>();
+        outputPath = String.format("%s/%s",baseDirectory,"output_chebi");
+        chebiGroups.add(new Group("all"+fold, fold, allPartitionNumbers, outputPath, p));
+        chebiGroups.add(new Group("test"+fold, fold, testingPartitionNumbers, outputPath, p));
+        chebiGroups.add(new Group("train"+fold, fold, trainingPartitionNumbers, outputPath, p));
+        search(Ontology.CHEBI, new Text(), chebiGroups, nb, ratios);
         
-        if (o.equals(Ontology.CHEBI)){
-            List<Group> chebiGroups = new ArrayList<>();
-            chebiGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "chebi/"), p));
-            chebiGroups.add(new Group("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "chebi/"), p));
-            chebiGroups.add(new Group("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "chebi/"), p));
-            search(Ontology.CHEBI, new Text(), chebiGroups, mec);
-        }
     }
+    
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    private void search(Ontology ontology, Text text, List<Group> groups, NaiveBayes_Model nb, HashMap<Ontology,Double> ratios) throws SQLException, Exception{
         
-    
-    
-    
-    
-    
-    
-    private void search(Ontology ontology, Text text, List<Group> groups, MaxEnt_Model mec) throws SQLException, Exception{
         
+       
         // Which ontology currently working on.
         logger.info(String.format("working on terms from %s",ontology.toString()));
         
         // Plant PhenomeNET text data.
         List<Chunk> chunks = text.getAllAtomChunks();
-        Partitions partsObj = new Partitions(text, Config.typePartitions);
-        String ontologyPath = utils.Util.pickOntologyPath(ontology.toString());
-        Onto onto = new Onto(ontologyPath);
+        Partitions partsObj = new Partitions(text);
+               
+        Onto onto = ontoObjects.get(ontology);
         List<OntologyTerm> terms = onto.getTermList();
-        
-        
-        
         
         
         
         // Inserting this here to take care of the thresholding issue.
         HashMap<Chunk,List<Result>> searchResultsMap = new HashMap<>();
-        List<Result> allMatchesBeforeThresholding = new ArrayList<>();                    // nothing ever gets add 
+        List<Result> allMatchesBeforeThresholding = new ArrayList<>();
         for (Chunk chunk: chunks){
             double initialThreshold = Double.NEGATIVE_INFINITY;
-            List<Result> matches = findMatchingTerms(chunk, terms, mec, initialThreshold);
+            List<Result> matches = findMatchingTerms(chunk, terms, nb, initialThreshold);
             searchResultsMap.put(chunk, matches);
             allMatchesBeforeThresholding.addAll(matches);
         }
         // Sort all the matching terms for all chunks.
         Collections.sort(allMatchesBeforeThresholding, new ResultComparatorByProb());
-        int numResultsBefore = allMatchesBeforeThresholding.size();                                         // at this point the size of the list is 0
+        int numResultsBefore = allMatchesBeforeThresholding.size();
         // Find the threshold value.
         double ratio = ratios.get(ontology);
         logger.info(String.format("the expected ratio for this ontology from training data is %s", ratio));
@@ -244,10 +263,6 @@ public class MaxEnt_Mapping {
         
         
         
-        
-        
-        
-        
         String evalHeader = "chunk,text,label,term,score,component,category,similarity,nodes";
         String classProbHeader = "chunk,term,prob,nodes";
         
@@ -261,7 +276,7 @@ public class MaxEnt_Mapping {
            
            
             // What are the term ID's of the terms that can be found to match this chunk with this classifier?
-            //List<Result> matches = findMatchingTerms(chunk, terms, mec, Config.annotThresholds.get(ontology));
+            //List<Result> matches = findMatchingTerms(chunk, terms, nb, Config.annotThresholds.get(ontology));
             List<Result> matches = searchResultsMap.get(chunk); // Just use the map from the first pass above instead.
             
             
@@ -354,16 +369,13 @@ public class MaxEnt_Mapping {
     
     
     
-    
-    private List<Result> findMatchingTerms(Chunk chunk, List<OntologyTerm> terms, MaxEnt_Model mec, double threshold) throws Exception{
+            
+            
+            
+    private List<Result> findMatchingTerms(Chunk chunk, List<OntologyTerm> terms, NaiveBayes_Model nb, double threshold){
         int k = Config.maxTermsUsedPerOntology;
         List<Result> matches = new ArrayList<>();
-        List<Term> matchingTerms = mec.getBestKTerms(terms, chunk, k);
-        
-        
-        // no terms are returned here.... always zero.
-        //logger.info(String.format("calling getBestKTerms, sending %s terms for chunk %s ",terms.size(),chunk.chunkID));
-        
+        List<Term> matchingTerms = nb.getBestKTerms(terms, chunk, k);
         for (Term t: matchingTerms){
             Result r = new Result();
             r.prob = t.probability;
@@ -387,6 +399,8 @@ public class MaxEnt_Mapping {
     }
     
     
+    
+    
     static class ResultComparatorByProb implements Comparator<Result>{
         @Override
         public int compare(Result r1, Result r2){
@@ -399,17 +413,6 @@ public class MaxEnt_Mapping {
             return 0;
         }  
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     

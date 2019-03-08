@@ -1,4 +1,4 @@
-package main;
+package randomforest.process;
 
 
 import config.Config;

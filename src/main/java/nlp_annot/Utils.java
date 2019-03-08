@@ -3,7 +3,7 @@
  * irbraun@iastate.edu
  * term-mapping 
  */
-package nlp_algs;
+package nlp_annot;
 
 import java.util.List;
 import main.Group;

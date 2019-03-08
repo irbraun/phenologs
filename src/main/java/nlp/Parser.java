@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import static main.Main.logger;
-import main.SimilarityFinder;
+import randomforest.process.SimilarityFinder;
 import ontology.Onto;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import structure.Chunk;

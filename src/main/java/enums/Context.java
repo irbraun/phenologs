@@ -15,7 +15,6 @@ public enum Context {
         return EnumSet.of(NONE);
     }
     
-    
 }
 
 

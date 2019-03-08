@@ -9,7 +9,7 @@ import config.Config;
 import enums.Metric;
 import enums.Ontology;
 import enums.Aspect;
-import index.FeatureIndices;
+import randomforest.index.FeatureIndices;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;

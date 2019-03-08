@@ -6,8 +6,6 @@
 package main;
 
 import config.Config;
-import enums.Species;
-import enums.TextDatatype;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,36 +27,26 @@ public class Partitions {
     private final HashMap<Chunk,Integer> phenotypePartitionMap;
     private final HashMap<Chunk,Integer> phenePartitionMap;
     private final Text text;
-    private final String split;
     
     
-    
-    /*
-    split phenotype partitions are never accounted for when generating partitions.
-    you get their partition numbers by sending either them or the phenotype here and it checks the phenotype.
-    
-    */
-    
-    
-    public Partitions(Text text, String splitStr) throws SQLException, Exception{
+    /**
+     * Note that split phenotypes are never accounted for when generating partitions.
+     * Partition numbers for those are done by sending either them or their associated
+     * phenotype here and then the partition number of the phenotype is always checked.
+     * @param text
+     * @throws SQLException
+     * @throws Exception 
+     */
+    public Partitions(Text text) throws SQLException, Exception{
         this.text = text;
-        split = splitStr;
         phenePartitionMap = new HashMap<>();
         phenotypePartitionMap = new HashMap<>();
         generatePartitions();
-        
-        Chunk p = text.getPhenotypeChunkFromID(2823);
-        System.out.println(p.chunkID);
     }
     
     
     
-    
-    
-    
-    
-    
-    // Check which partition a chunk belongs to.
+    // Check which partition a text chunk belongs to.
     public int getPartitionNumber(Chunk c) throws Exception{
         switch(c.textType){
         case PHENOTYPE:
@@ -74,10 +62,7 @@ public class Partitions {
     }
        
     
-   
     
-    
-  
     private void generatePartitions() throws SQLException, Exception{
        
         List<Chunk> pChunks = text.getAllPhenotypeChunks();
@@ -118,13 +103,8 @@ public class Partitions {
    
                 
                 
-        // --------------------------------------------------------------------- //  
+        // ----------------------- code for generating more specific testing sets, not currently used --------------------------------- //  
                 
-                
-                
-                
-                
-        
         /*
         // partitions 0 to 4 will have other species in them.
         if (split.equals("species")){
@@ -138,14 +118,7 @@ public class Partitions {
             throw new Exception();
         }
         */
-              
-                
-                
-                
-                
-                
-                
-                
+                  
         /*
         // other, random splits with equal sizes.
         List<Chunk> chunks;
@@ -175,8 +148,7 @@ public class Partitions {
                 break;
             }
         }
-        
-
+       
         // If we want to use chunks of the same type that we're partitioning with respect to.
         if (whatToPartition.equals(withRespectTo)){
             Collections.shuffle(partList, new Random(Config.seedValue));
@@ -184,7 +156,6 @@ public class Partitions {
                 partitionMap.put(chunks.get(j), partList.get(j));
             }
         }
-        
         // If we want to use atomized statement chunks but partition on them with respect to the phenotype they belong to.
         if (whatToPartition.equals(TextDatatype.PHENE) && withRespectTo.equals(TextDatatype.PHENOTYPE)){
             Collections.shuffle(partList, new Random(Config.seedValue));
@@ -197,7 +168,6 @@ public class Partitions {
             }
                
         }
-        
         */
     }
     
@@ -210,6 +180,7 @@ public class Partitions {
     // Right now these are not being split up such that phenotypes remain within  a continuous partition.
     // That shouldn't be a problem because phenotypes in this case are always going to be within the same
     // training or testing group. Make sure this is right.
+    /*
     private void generateSpeciesPartitions() throws SQLException, Exception{
         
         // Arabidopsis phenotype chunks.
@@ -247,29 +218,17 @@ public class Partitions {
             }
         }
         
-        
-        
         // does calling getPartitionNumber work okay here? it should..
-        
         // can change this to iterate through the phenotype chunks instead, but this should work so figure out why it doesnt.
-        
         // Assign the phenotype chunks parts as well. (NEW)
         for (Chunk atomChunk: text.getAllAtomChunks()){
             Chunk phenotypeChunk = text.getPhenotypeChunkFromID(text.getPhenotypeIDfromAtomID(atomChunk.chunkID));
             phenotypePartitionMap.put(phenotypeChunk, getPartitionNumber(atomChunk));
         }
-        
-        
-        
-        
-        
-        
-        
-        
-        
     }
-    
+    */
 
+    /*
     private void generateConsistentPartitions() throws SQLException, Exception{
         
         // Split criteria is random but phenotypes should group and number of testing
@@ -332,30 +291,19 @@ public class Partitions {
             Chunk phenotypeChunk = text.getPhenotypeChunkFromID(text.getPhenotypeIDfromAtomID(atomChunk.chunkID));
             phenotypePartitionMap.put(phenotypeChunk, getPartitionNumber(atomChunk));
         }
-        
-        
-        
-        
-        
-        
-        
     }    
+    */
         
-        
-        
-        
-   
-    
-    
-    
-    
-    // These still work because the list of chunks are provided as a param.
-    // So if all phene chunks are passed in, you'll only get phenes back, etc.
-    
-    // TODO: These are pretty inefficient, the method that actually assigns the partitions should just make a hash
-    // map where the keys are partition numbers and the value are lists of chunks, then this can just return the 
-    // list of chunks. This doesn't matter much for the small dataset, might matter more when using a really large
-    // one.
+       
+    /* 
+    Notes: These work even if datatype is unknown because the list of text chunks are provided as an argument.
+    So if you pass in only phenes you're guaranteed to only get phenes back.
+    TODO pretty inefficient, the method that actually assigns the partitions should just make a hash
+    map where the keys are partition numbers and the value are lists of chunks, then this can just return 
+    the  list of chunks. This doesn't matter much for the small dataset, might matter more when using a 
+    really large one.
+    */
+
 
     public List<Chunk> getChunksFromPartitions(int part, List<Chunk> chunks) throws Exception{
         List<Chunk> partitionChunks = new ArrayList<>();
@@ -382,12 +330,6 @@ public class Partitions {
         return getChunksFromPartitions(parts, chunks);
     }
     
-    
-    
-    
-    
-    
-    // Get the chunk IDs that are present in a specific range of partitions.
     public List<Integer> getChunkIDsFromPartitionRangeInclusive(int lower, int upper, List<Chunk> chunks) throws Exception{
         List<Integer> parts = IntStream.rangeClosed(lower, upper).boxed().collect(Collectors.toList());
         List<Integer> partitionChunkIDs = new ArrayList<>();

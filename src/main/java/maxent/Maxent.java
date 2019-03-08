@@ -14,7 +14,7 @@
  * limitations under the License.
  *******************************************************************************/
 
-package nlp_algs;
+package maxent;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -91,7 +91,7 @@ public class RandomForest_Results {
         // TODO don't hardcode this
         List<Chunk> allChunks = text.getAllAtomChunks();
         List<Chunk> chunks = new ArrayList<>();
-        Partitions partitions = new Partitions(text, "");
+        Partitions partitions = new Partitions(text);
         if (inputFilename.contains("all")){
             chunks.addAll(partitions.getChunksInPartitionRangeInclusive(0, 31, allChunks));
         }

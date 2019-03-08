@@ -18,7 +18,7 @@ import java.util.List;
 import static main.Main.logger; 
 import main.Partitions;
 import nlp.MyAnnotation;
-import nlp_algs.DependencyParsing;
+import nlp_annot.DependencyParsing;
 import ontology.Onto;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import structure.Chunk;
@@ -50,7 +50,7 @@ public class Composer {
 
         logger.info("reading in the text data");
         text = new Text();
-        Partitions parts = new Partitions(text, Config.typePartitions);
+        Partitions parts = new Partitions(text);
         chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
         //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(20, 22, text.getAllChunksOfDType(Config.format));
         

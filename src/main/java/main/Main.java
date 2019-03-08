@@ -2,6 +2,7 @@
 package main;
 
 
+import randomforest.process.Run;
 import composer.Composer;
 import config.Config;
 import config.Connect;
@@ -15,7 +16,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import nlp.CoreNLP;
 import nlp.Learner;
-import nlp_algs.AggregateResults;
+import nlp_annot.AggregateResults;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
@@ -26,8 +27,8 @@ import org.xml.sax.SAXException;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
 import uk.ac.ebi.brain.error.NonExistingEntityException;
-import nlp_algs.NaiveBayes_Mapping;
-import nlp_algs.OutsideAnnotationReader;
+import nlp_annot.NaiveBayes_Mapping;
+import nlp_annot.OutsideAnnotationReader;
 import text.TextUtils;
 
 

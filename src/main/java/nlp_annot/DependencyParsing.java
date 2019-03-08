@@ -3,7 +3,7 @@
  * irbraun@iastate.edu
  * term-mapping 
  */
-package nlp_algs;
+package nlp_annot;
 
 import composer.EQStatement;
 import composer.Modifier;

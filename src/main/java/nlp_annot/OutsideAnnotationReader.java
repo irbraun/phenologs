@@ -3,7 +3,7 @@
  * irbraun@iastate.edu
  * term-mapping 
  */
-package nlp_algs;
+package nlp_annot;
 
 import composer.EQStatement;
 import config.Config;
@@ -86,8 +86,8 @@ public class OutsideAnnotationReader {
         
         // Text data and partition objects for each testing set.
         Text text = new Text();
-        Partitions set1PartitionObj = new Partitions(text, Config.set1Name);
-        Partitions set2PartitionObj = new Partitions(text, Config.set2Name);   
+        Partitions set1PartitionObj = new Partitions(text);
+        Partitions set2PartitionObj = new Partitions(text);   
         
         
         
