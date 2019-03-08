@@ -29,10 +29,7 @@ import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
 
-/*
-Note: made it so that the ontology term's potentially use two different identifiers.
-One that is used when the brain is called and one that is used everywhere else.
-*/
+
 
 
 
@@ -75,9 +72,6 @@ public class OutsideAnnotationReader {
         
         // Strings identifying aspects of the testing sets of phenotypes.
         String fold = "fold";
-        String set1 = Config.set1Name;
-        String set2 = Config.set2Name;
-        String all = "all";
        
         // Partition numbers for each testing set.
         List<Integer> allPartitionNumbers = utils.Util.range(0, 31);
@@ -89,132 +83,7 @@ public class OutsideAnnotationReader {
         Partitions set1PartitionObj = new Partitions(text);
         Partitions set2PartitionObj = new Partitions(text);   
         
-        
-        
-        
-        
-        //TESTING
-        /*
-        List<Integer> badA = new ArrayList<>();
-        for (Chunk a: text.getAllAtomChunks()){
-            try{
-                int t = set1PartitionObj.getPartitionNumber(a);
-            }
-            catch(Exception e){
-                badA.add(a.chunkID);
-            }
-        }
-        List<Integer> badP = new ArrayList<>();
-        for (Chunk p: text.getAllAtomChunks()){
-            try{
-                int t = set1PartitionObj.getPartitionNumber(p);
-            }
-            catch(Exception e){
-                badP.add(p.chunkID);
-            }
-        }
-        System.out.println(badA.size()); //0
-        System.out.println(badP.size()); //0
-        System.out.prpintln("those two values should be zero.");
 
-        
-        
-        //2823 is in the text object sent to the partitions, but not added to the phenotypePartitionMap....
-        //Why can't we access all the Phenotypes using the phene numbers???
-        for (Chunk p: text.getAllPhenotypeChunks()){
-            if (text.getAtomIDsFromPhenotypeID(p.chunkID).isEmpty()){
-                System.out.println("Found a phenotype with no corresponding atoms");
-            }
-        }
-        System.out.println("There are " + text.getAllPhenotypeChunks().size() + " phenotypes");
-        HashSet<Integer> s = new HashSet<>();
-        for (Chunk a: text.getAllAtomChunks()){
-            s.add(text.getPhenotypeIDfromAtomID(a.chunkID));
-        }
-        System.out.println("There are " + s.size() + " phenotypes");
-        
-        System.out.println(set1PartitionObj.getPartitionNumber(text.getPhenotypeChunkFromID(2823)));
-        */
-        
-        
-        
-        /*
-        problem, some phenotype ID's like 2823 aren't found by iterating through the phenes?
-        there's a bunch of phenotypes that aren't associated with any phenes, why is that.
-        how are those numbers assigned for the phenotypes??
-        */
-        
-        /*
-        List<Integer> bad = new ArrayList<>();
-        
-        for (Chunk cc: text.getAllAtomChunks()){
-            Chunk p = text.getPhenotypeChunkFromID(text.getPhenotypeIDfromAtomID(cc.chunkID));
-            if (p.chunkID==2823){
-                System.out.println("2823 is associated with a phene as well");
-            }
-            
-            
-            try {
-                int a = set1PartitionObj.getPartitionNumber(p);
-            }
-            catch(Exception e){
-                bad.add(p.chunkID);
-            }
-        }
-        
-        for (Chunk p: text.getAllPhenotypeChunks()){
-            try {
-                int a = set1PartitionObj.getPartitionNumber(p);
-            }
-            catch(Exception e){
-                bad.add(p.chunkID);
-            }
-        }
-        
-        System.out.println("These phenotype ID's weren't in the part dict");
-        for (int i: bad){
-            System.out.println(i);
-        }
-        System.out.println("done");
-        
-        
-        Chunk c = text.getPhenotypeChunkFromID(2823);
-        System.out.println("seeing if that p in the dict");
-        System.out.println(set1PartitionObj.getPartitionNumber(c));
-        */
-        
-       
-        // Annotated data available in the Plant PhenomeNET.
-        /*
-        String dataset = "ppn";
-        List<Group> patoGroups = new ArrayList<>();
-        patoGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "pato/"), set1PartitionObj));
-        patoGroups.add(new Group("name", fold, set1PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set1, dataset, "pato/"), set1PartitionObj));
-        patoGroups.add(new Group("name", fold, set2PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set2, dataset, "pato/"), set2PartitionObj));
-        populateFilesForTestSets(text, Ontology.PATO, patoGroups, patosrc);
-
-        List<Group> poGroups = new ArrayList<>();
-        poGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "po/"), set1PartitionObj));
-        poGroups.add(new Group("name", fold, set1PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set1, dataset, "po/"), set1PartitionObj));
-        poGroups.add(new Group("name", fold, set2PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set2, dataset, "po/"), set2PartitionObj));
-        populateFilesForTestSets(text, Ontology.PO, poGroups, posrc);
-
-        List<Group> goGroups = new ArrayList<>();
-        goGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "go/"), set1PartitionObj));
-        goGroups.add(new Group("name", fold, set1PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set1, dataset, "go/"), set1PartitionObj));
-        goGroups.add(new Group("name", fold, set2PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set2, dataset, "go/"), set2PartitionObj));
-        populateFilesForTestSets(text, Ontology.GO, goGroups, gosrc);
-        
-        if (!source.equals("nc")){
-            List<Group> chebiGroups = new ArrayList<>();
-            chebiGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "chebi/"), set1PartitionObj));
-            chebiGroups.add(new Group("name", fold, set1PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set1, dataset, "chebi/"), set1PartitionObj));
-            chebiGroups.add(new Group("name", fold, set2PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set2, dataset, "chebi/"), set2PartitionObj));
-            populateFilesForTestSets(text, Ontology.CHEBI, chebiGroups, chebisrc);
-        }
-        */
-        
-        
         
         
         // Annotated data available in the Plant PhenomeNET. The groups are currently based off of different sections of the data.
@@ -249,11 +118,9 @@ public class OutsideAnnotationReader {
             populateFilesForTestSets(text, Ontology.CHEBI, chebiGroups, chebisrc);
         }
 
-        
-        
-        
-        
     }
+    
+    
     
     
     
@@ -342,9 +209,6 @@ public class OutsideAnnotationReader {
         
        
                 
-                
-                
-        
         if (dtype.equals(TextDatatype.PHENOTYPE) || dtype.equals(TextDatatype.PHENE)){
             for (Chunk c: chunks){
 

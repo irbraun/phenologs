@@ -18,8 +18,10 @@ public class OntologyTerm {
     
     
     public String termID;
-    public String unnormalizedTermID; // (This is only necessary because when the Brain is called outside of this class
-                                      // it needs access to the unnormalized version of the ID so that it exactly matches the owl file.
+    public String unnormalizedTermID; 
+    // The unnormalizedTermID is necessary to remember because when the Brain is called outside of
+    // of this class it needs access to the unnormalized version of the ID so that it exactly matches
+    // the OWL file.
     public String label;
     public String description;
     public List<String> exactSynonyms;
@@ -27,7 +29,7 @@ public class OntologyTerm {
     public List<String> broadSynonyms;
     public List<String> relatedSynonyms;
     public List inheritedNodes;
-    public List siblingNodes; //this should really be a set, based on how we're adding to it.
+    public List siblingNodes;
     public List allNodes;
     
     
@@ -40,8 +42,6 @@ public class OntologyTerm {
         this.termID = normalizeTermID(unnormalizedTermID);
         this.label = brain.getLabel(unnormalizedTermID).replace(",", "").trim();
         
-        
-        // "Thing" is what brain uses as a default root node, don't count it.
         List<String> temp = brain.getSuperClasses(unnormalizedTermID, false);
         temp.remove("Thing");
         this.inheritedNodes = temp;
@@ -67,10 +67,6 @@ public class OntologyTerm {
             siblingNodes.remove(this.termID);
         }
 
-        
-        
-        
- 
         
         // Synonyms are represented by emtpy lists if they are not used by this term.
         try{
@@ -115,7 +111,10 @@ public class OntologyTerm {
         
     }
  
-    // Returns a list of words that were in the desired aspect of this term. Double check about this choice of returning null, needs to be handled by metrics.
+    
+    
+    
+    // Returns a list of words that were in the desired aspect of this term.
     public List<String> getAllWords(Aspect aspect){
         
         switch(aspect){
@@ -138,10 +137,6 @@ public class OntologyTerm {
         synonyms.addAll(this.getAllWords(Aspect.BROAD_SYN));
         return synonyms;
     }
-    
-    
-    
-    
     
     // Split the aspect into individual words. Handles empty lists as well.
     private List<String> tokenized(List<String> synonyms){
@@ -166,8 +161,7 @@ public class OntologyTerm {
     }
     
     
-    
-    
+
     
     /**
      * Ad hoc method that finds the extended description of a term from a given ontology.

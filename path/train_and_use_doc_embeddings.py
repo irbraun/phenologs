@@ -61,7 +61,7 @@ revised_network_filename = args[4]
 # The path for the the pre-trained model is hardcoded and specified here.
 model_domain_dmpv = train_model(training_sentences_file, "dmpv.model", dm=0, size=300)
 model_domain_dbow = train_model(training_sentences_file, "dbow.model", dm=1, size=300)
-model_enwiki = gensim.models.Doc2Vec.load("/Users/irbraun/Downloads/enwiki_dbow/doc2vec.bin")
+model_enwiki = gensim.models.Doc2Vec.load("./gensim/enwiki_dbow/doc2vec.bin")
 
 # List of the model and corresponding list of dictionaries to store their inferred vectors in.
 model_list = [model_domain_dmpv, model_domain_dbow, model_enwiki] 

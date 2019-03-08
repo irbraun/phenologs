@@ -71,7 +71,7 @@ def annotate_with_noblecoder(level="precise-match"):
 		os.system("java -jar "+nc_jar_path+" -terminology "+onto+" -input "+split_chunks_path+" -output "+noble_output_path+" -search '"+level+"'"+" -score.concepts")
 
 		# Run scripts to interpret the output in the context of the text data.
-		raw_output_filename = os.path.join(noble_output_path, 'results.tsv')
+		raw_output_filename = os.path.join(noble_output_path, 'RESULTS.tsv')
 		processed_output_filename = os.path.join(noble_output_path, 'results.csv')
 		nc_parse_script_path = os.path.join(noblecoder_dir, r'nc_parse.py')
 		os.system("python " + nc_parse_script_path + " " + raw_output_filename + " " + processed_output_filename)
