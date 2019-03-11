@@ -12,6 +12,7 @@ import edu.stanford.nlp.simple.Sentence;
 import edu.stanford.nlp.trees.Tree;
 import java.util.ArrayList;
 import java.util.List;
+import static main.Main.logger;
 
 /**
  * Stores the different data structure obtained by the core NLP pipeline for a particular sentence.
@@ -27,9 +28,6 @@ public class MyAnnotation {
     public List<Token> tokens;
     
     
-    
-    
-    
     public MyAnnotation(CoreSentence sentence){
         Sentence simpleSentence = new Sentence(sentence.coreMap());
         constituencyTree = sentence.constituencyParse();
@@ -38,15 +36,22 @@ public class MyAnnotation {
         tokens = new ArrayList<>();
         lemmas = simpleSentence.lemmas();
         for(int idx=1; idx<=dependencyGraph.size(); idx++){
-            String graphNode = dependencyGraph.getNodeByIndex(idx).originalText();
-            Token token = new Token();
-            token.idxWord = dependencyGraph.getNodeByIndex(idx);
-            token.nodeText = token.idxWord.originalText();
-            token.posTag = posTags.get(idx-1);
-            token.posIndex = idx-1;
-            token.depIndex = idx;
-            token.lemma = simpleSentence.lemma(idx-1);
-            tokens.add(token);
+            try {
+                String graphNode = dependencyGraph.getNodeByIndex(idx).originalText();
+                Token token = new Token();
+                token.idxWord = dependencyGraph.getNodeByIndex(idx);
+                token.nodeText = token.idxWord.originalText();
+                token.posTag = posTags.get(idx-1);
+                token.posIndex = idx-1;
+                token.depIndex = idx;
+                token.lemma = simpleSentence.lemma(idx-1);
+                tokens.add(token);
+            }
+            catch(NullPointerException e) {
+                logger.info(String.format("problem with index %s for some dG",idx));
+                logger.info("not currently adding anothing for this node");
+                logger.info(String.format("the sentences was: %s", sentence.text()));
+            }
         }
         
         

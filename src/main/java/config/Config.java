@@ -298,8 +298,6 @@ public class Config {
                 throw new Exception();
         }
         maxFeaturesPerTerm = Integer.valueOf(nlp.get("max_features_per_term").toString());
-        distributionsPath = nlp.get("dist_path").toString();
-        distributionsSerialName = nlp.get("dist_ser_name").toString();
     }
     
     

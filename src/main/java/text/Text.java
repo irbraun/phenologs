@@ -71,7 +71,7 @@ public class Text {
     public ArrayList<Integer> getAtomIDsFromPhenotypeID(int phenotypeID){
         return phenotypeIDtoAtomIDs.get(phenotypeID);
     }
-    public ArrayList<Integer> getSplitIPhenotypeDsFromPhenotypeID(int phenotypeID){
+    public ArrayList<Integer> getSplitPhenotypeIDsFromPhenotypeID(int phenotypeID){
         return phenotypeIDtoSplitIDs.get(phenotypeID);
     }
     public int getPhenotypeIDfromAtomID(int atomID){
@@ -155,34 +155,13 @@ public class Text {
                     }
                 }
             }
-            phenotypeIDtoSplitIDs.put(splitID, splitChunkIDsForThisPhenotype);
+            phenotypeIDtoSplitIDs.put(c.chunkID, splitChunkIDsForThisPhenotype);
         }
         return chunks;
     }     
 
     
-    
-    
-    
-    /* TO BE DELETED
-    public ArrayList<Chunk> getChunksOfKind(String choice) throws SQLException{
-        return getChunksOfKind(utils.Util.inferTextType(choice));
-    }
-    public ArrayList<Chunk> getChunksOfKind(TextDatatype choice) throws SQLException{
-        switch(choice){
-        case PHENE: 
-            return getAllAtomChunks();
-        case PHENOTYPE: 
-            return getAllPhenotypeChunks();
-        default:
-            return null;
-        }
-    }
-    */
-    
-    
-    
-    
+     
     public ArrayList<Chunk> getChunksOfKindAndSpecies(TextDatatype choice, Species species) throws SQLException{
         ArrayList<Chunk> chunks = new ArrayList<>();
         switch(choice){

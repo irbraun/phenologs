@@ -8,7 +8,6 @@ package nlp_annot;
 import composer.EQStatement;
 import composer.Modifier;
 import config.Config;
-import enums.Ontology;
 import enums.Role;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
@@ -39,43 +38,15 @@ public class DependencyParsing {
     
     public DependencyParsing() throws SQLException, FileNotFoundException{
         
-        // TODO
-        // These file names are all hardcoded, change this.
-        
-        
-        String dir = "/work/dillpicl/irbraun/term-mapping/alpha2/";
-        //String dir = "/Users/irbraun/Desktop/droplet/alpha2/";
-        
-        
+
+        // Establish a list of files to be used as training data for word to term associations.
         List<OwlSet> patoSets = new ArrayList<>();
-        
-        //patoSets.add(new OwlSet(String.format("%snlp/na/outputs_all_ppn_pato/name.fold.eval.csv",dir)));
-        //patoSets.add(new OwlSet(String.format("%snlp/nc/outputs_all_ppn_pato/name.fold.eval.csv",dir)));
-        
-        
-        
         for (String filepath: Config.qFilesForDependencyParsing){
             patoSets.add(new OwlSet(filepath));
         }
 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        // Establish a list of files to be used as training data for word to term associations.
         List<OwlSet> otherSets = new ArrayList<>();
-        //otherSets.add(new OwlSet(String.format("%snlp/na/outputs_all_ppn_po/name.fold.eval.csv",dir)));
-        //otherSets.add(new OwlSet(String.format("%snlp/na/outputs_all_ppn_go/name.fold.eval.csv",dir)));
-        //otherSets.add(new OwlSet(String.format("%snlp/na/outputs_all_ppn_chebi/name.fold.eval.csv",dir)));
-        //otherSets.add(new OwlSet(String.format("%snlp/nc/outputs_all_ppn_po/name.fold.eval.csv",dir)));
-        //otherSets.add(new OwlSet(String.format("%snlp/nc/outputs_all_ppn_go/name.fold.eval.csv",dir)));
-        
-        
         for (String filepath: Config.otherFilesForDependencyParsing){
             otherSets.add(new OwlSet(filepath));
         }

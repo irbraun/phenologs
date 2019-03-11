@@ -5,7 +5,6 @@
  */
 package composer;
 
-import composer.Utils.TermComparatorByIC;
 import composer.Utils.TermComparatorByLabelLength;
 import composer.Utils.TermComparatorByProb;
 import edu.stanford.nlp.ling.IndexedWord;
@@ -32,29 +31,35 @@ import structure.Chunk;
 public class Modifier {
     
     
-
-    
-    // Assumes there is only one sentence or fragment in the chunk, uses the first if the parser finds multiple.
+    /**
+     * Assumes there is only one sentence or fragment in the chunk, uses the first if the 
+     * parser finds multiple. This method should only receive as input chunks thats are related 
+     * to phenes or phenotypes that have already been split into multiple atomized statements 
+     * so that only one sentence is retrieved from Stanford pipeline. TODO add a check to see
+     * how many times this parse is falling to retrieve less than two sentences.
+     * @param chunk
+     * @return 
+     */
     public static MyAnnotation getAnnotation(Chunk chunk){
         String text = chunk.getRawText();
         CoreDocument doc = new CoreDocument(text);
         CoreNLP.getPipeline().annotate(doc);
         return new MyAnnotation(doc.sentences().get(0));
-        
-        
-        
-        
-        
     }
     
     
-    
-    // TODO fix this method, not reliable. 
-    // Goal is to detect when the subject is only implied using the NLP information rather
-    // than just a lack of finding other entities. That might not be the right approach.
-    // Maybe it's hard to do better than just checking to see if you can find anything else.
-    // That could run into problems when the Q is relational but the primary entity is implied.
-    // TODO add the other edges which imply the presence of a subject (complete sentence).
+
+        
+    /**
+     * This method does not work. Goal is to detect when the subject is only implied using the
+     * NLP information rather than just a lack of finding other entities. That might not be the 
+     * right approach because it's much more difficult that just seeing what else was found
+     * during annotation and haven't found a reliable way to get that information out of the dG.
+     * TODO figure out which edge types (if any) reliably imply the presence of a subject (enables
+     * it to be a complete sentence as well).
+     * @param annot
+     * @return 
+     */
     public static boolean hasImpliedSubject(MyAnnotation annot){
         for (SemanticGraphEdge edge: annot.dependencyGraph.edgeListSorted()){
             if (edge.getRelation().getShortName().equals("nsubj")){
@@ -65,6 +70,7 @@ public class Modifier {
     }
     
     
+
     // Find the EQ statements that don't use the implied subject term as the single primary entity.
     public static List<EQStatement> getNonImpliedSubjEQs(List<EQStatement> eqs){
         List<EQStatement> toDelete = new ArrayList<>();
@@ -80,15 +86,8 @@ public class Modifier {
     }
     
     
-    
-    
-    
-    
-    /**
-     * Return EQs that don't use the optional qualifier term.
-     * @param eqs
-     * @return 
-     */
+   
+    // Find EQ statements that don't use the optional qualifier.
     public static List<EQStatement> getNonQualifierEQs(List<EQStatement> eqs){
         List<EQStatement> toDelete = new ArrayList<>();
         for (EQStatement eq: eqs){
@@ -104,8 +103,7 @@ public class Modifier {
     
     
     
-    
-   
+    // Find EQ statements that don't satisfy a dependency graph check.
     public static List<EQStatement> getInvalidComplexEQs(List<EQStatement> eqs, MyAnnotation annot){
         List<EQStatement> toDelete = new ArrayList<>();
         for (EQStatement eq: eqs){
@@ -125,10 +123,13 @@ public class Modifier {
     
     
     
-   
-    
-    
-    
+    /**
+     * 
+     * @param t1
+     * @param t2
+     * @param annot
+     * @return true=there is directed path length of 1 from t1 to t2, false=anything else.
+     */
     private static boolean checkDependency(Term t1, Term t2, MyAnnotation annot){
         List<IndexedWord> nodesTerm1 = new ArrayList<>();
         List<IndexedWord> nodesTerm2 = new ArrayList<>();
@@ -172,6 +173,9 @@ public class Modifier {
 
     
     
+    
+    
+    // Find the minimum path length between two nodes in the dG.
     public static int getMinPathLength(HashSet<String> set1, HashSet<String> set2, MyAnnotation annot){
         set1 = CoreNLP.removeStopWords(set1);
         set2 = CoreNLP.removeStopWords(set2);
@@ -255,20 +259,14 @@ public class Modifier {
         }
         return toDelete;
     }
-    private static List<Term> getConflictsOrderedByIC(Term target, List<Term> other){
-        // Get the set of terms that is considered to be representing the same meaning as the target.
-        List<Term> conflicts = getOverlappingTerms(target, other);
-        conflicts.add(target);
-        // Get the terms that had the lowest information content from the group.
-        Collections.sort(conflicts, new TermComparatorByIC());
-        
-        return conflicts;
-        //return conflicts.subList(1, conflicts.size());
-    }
+    
+    
+    
+    
+    
     private static List<Term> getConflictsOrderedByOntoThenProb(Term target, List<Term> other){
         
-        
-        
+        // Figure out which terms are overlapping so that conflicts can be resolved.
         List<Term> conflicts = getOverlappingTerms(target,other);
         conflicts.add(target);
         List<Term> conflictsSorted = new ArrayList<>();
@@ -278,12 +276,14 @@ public class Modifier {
             System.out.println(t.id);
         }
         
+        // Define default order for how ontology terms should be retained.
         HashMap<Integer,Ontology> ontoOrder = new HashMap<>();
         ontoOrder.put(1,Ontology.PO);
         ontoOrder.put(2,Ontology.UBERON);
         ontoOrder.put(3,Ontology.GO);
         ontoOrder.put(4,Ontology.CHEBI);
         
+        // Do the sorting based on those preferences.
         for (int order=1; order<=ontoOrder.keySet().size(); order++){
             List<Term> fromThisO = new ArrayList<>();
             for(Term t: conflicts){
@@ -295,36 +295,25 @@ public class Modifier {
             conflictsSorted.addAll(fromThisO);
         }
         
-        
         logger.info(String.format("conflicts sorted has %s terms", conflictsSorted.size()));
         for (Term t: conflictsSorted){
             System.out.println(t.id);
         }
-        
-        
-        
         
         return conflictsSorted;
     }
         
     
     
-    
-    
-    
-    // the comparison by label length should be replaced by a comparison of probabilty ,which takes into
-    // account partial match characeteristics
-    
-    
-    
-    
-    
+
     
     
     
     /**
      * Return the quality terms that overlap with another quality term in the list
-     * but have short label strings.
+     * but have short label strings. TODO the criteria of having longer label needs
+     * to be replaced by probability or information content, placeholder comparison
+     * which doesn't take into account any information found during annotation step.
      * @param terms
      * @return 
      */
@@ -355,13 +344,6 @@ public class Modifier {
     
     
     
-    
-    
-    
-    
-    
-    
- 
     /**
      * Return EQs where an entity term is overlapping with either the quality term or 
      * a term being used as an optional qualifier.
@@ -389,7 +371,6 @@ public class Modifier {
                     toDelete.add(eq);
                 }
             }
-            
         }
         return toDelete;
     }

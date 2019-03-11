@@ -437,7 +437,7 @@ public class Composer {
         for (int phenotypeID: phenotypeIDs){
             
             ArrayList<String> dataRowsForThisPhenotype = new ArrayList<>();
-            ArrayList<Integer> splitDescIDs = text.getSplitIPhenotypeDsFromPhenotypeID(phenotypeID);
+            ArrayList<Integer> splitDescIDs = text.getSplitPhenotypeIDsFromPhenotypeID(phenotypeID);
            
             ArrayList<EQStatement> allCuratedEQsForThisPhenotype = text.getCuratedEQStatementsFromPhenotypeID(phenotypeID);
             ArrayList<EQStatement> allPredictedEQsForThisPhenotype = new ArrayList<>();
@@ -747,7 +747,6 @@ public class Composer {
         
        
         // Run the NLP pipeline to get depedencies, constituencies, POS, any other information.
-        //Chunk chunk = text.getAtomChunkFromID(chunkID);
         Chunk chunk = text.getChunkFromIDWithDType(chunkID, utils.Util.inferTextType(Config.format));
         
         MyAnnotation annot = Modifier.getAnnotation(chunk);
