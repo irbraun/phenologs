@@ -18,9 +18,9 @@ read <- function(dir,filename){
   return(d)
 }
 
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/output/set1/"
+dir <- "/Users/irbraun/Desktop/droplet/path/networks/"
 edges_file <- "phenotype_network.csv"
-nodes_file <- "phenotype_network_nodes.csv"
+nodes_file <- "phenotype_nodes.csv"
 links <- read(dir,edges_file)
 nodes <- read(dir,nodes_file)
 

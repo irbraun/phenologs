@@ -88,33 +88,34 @@ public class OutsideAnnotationReader {
         
         // Annotated data available in the Plant PhenomeNET. The groups are currently based off of different sections of the data.
         String outputPath = String.format("%s/%s",baseDirectory,"output_pato");
+        String dtypeTag = String.format("_%s",utils.Util.inferTextType(Config.format).toString().toLowerCase());
         List<Group> patoGroups = new ArrayList<>();
-        patoGroups.add(new Group("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
-        patoGroups.add(new Group("group2", fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-        patoGroups.add(new Group("group3", fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+        patoGroups.add(new Group("group1"+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
+        patoGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
+        patoGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
         populateFilesForTestSets(text, Ontology.PATO, patoGroups, patosrc);
 
         List<Group> poGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_po");
-        poGroups.add(new Group("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
-        poGroups.add(new Group("group2", fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-        poGroups.add(new Group("group3", fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+        poGroups.add(new Group("group1"+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
+        poGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
+        poGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
         populateFilesForTestSets(text, Ontology.PO, poGroups, posrc);
 
         List<Group> goGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_go");
-        goGroups.add(new Group("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
-        goGroups.add(new Group("group2", fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-        goGroups.add(new Group("group3", fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+        goGroups.add(new Group("group1"+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
+        goGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
+        goGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
         populateFilesForTestSets(text, Ontology.GO, goGroups, gosrc);
         
         // Not currently using the ChEBI ontology with NOBLE Coder.
         if (!source.equals("nc")){
             List<Group> chebiGroups = new ArrayList<>();
             outputPath = String.format("%s/%s",baseDirectory,"output_chebi");
-            chebiGroups.add(new Group("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
-            chebiGroups.add(new Group("group2", fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-            chebiGroups.add(new Group("group3", fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+            chebiGroups.add(new Group("group1"+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
+            chebiGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
+            chebiGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
             populateFilesForTestSets(text, Ontology.CHEBI, chebiGroups, chebisrc);
         }
 

@@ -47,7 +47,7 @@ public class MyAnnotation {
                 token.lemma = simpleSentence.lemma(idx-1);
                 tokens.add(token);
             }
-            catch(NullPointerException e) {
+            catch(Exception e) {
                 logger.info(String.format("problem with index %s for some dG",idx));
                 logger.info("not currently adding anothing for this node");
                 logger.info(String.format("the sentences was: %s", sentence.text()));

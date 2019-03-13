@@ -480,7 +480,7 @@ public class Composer {
                                     phenotypeID, 
                                     text.getPhenotypeDescStr(phenotypeID).replace(",", ""),
                                     sID,
-                                    text.getAtomizedStatementStr(sID).replace(",", ""), 
+                                    text.getSplitPhenotypeChunkFromID(sID).getRawText().replace(",", ""),
                                     predictedEQs.size(),
                                     predictedEQ.toLabelText(ontoObjects).replace(",", ""),
                                     predictedEQ.toIDText().replace(",", ""),

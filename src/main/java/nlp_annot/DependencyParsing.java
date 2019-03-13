@@ -35,7 +35,15 @@ public class DependencyParsing {
     private int sumPE1toPE2;
     private int sumPE1toSE1;
     
-    
+    /**
+     * Finds the frequencies of particular path lengths between terms in the curated
+     * data. This only currently works using the phene descriptions because need to 
+     * know which atomized statement is referring to which EQ statement and estimation
+     * comes from these associations. The evaluation files that are specified in the 
+     * config file should be from the semantic annotation of the phene descriptions.
+     * @throws SQLException
+     * @throws FileNotFoundException 
+     */
     public DependencyParsing() throws SQLException, FileNotFoundException{
         
 
@@ -149,10 +157,10 @@ public class DependencyParsing {
     public double getProbability(Role r1, Role r2, int length) throws Exception{
         double prob;
         if (r1.equals(Role.PRIMARY_ENTITY1_ID) && r2.equals(Role.QUALITY_ID)){
-        prob = (double) countsPE1toQ.getOrDefault(length, 0) / (double) sumPE1toQ;
+            prob = (double) countsPE1toQ.getOrDefault(length, 0) / (double) sumPE1toQ;
         }
         else if (r1.equals(Role.PRIMARY_ENTITY1_ID) && r2.equals(Role.PRIMARY_ENTITY2_ID)){
-        prob = (double) countsPE1toPE2.getOrDefault(length, 0) / (double) sumPE1toPE2;
+            prob = (double) countsPE1toPE2.getOrDefault(length, 0) / (double) sumPE1toPE2;
         }
         else if (r1.equals(Role.PRIMARY_ENTITY1_ID) && r2.equals(Role.SECONDARY_ENTITY1_ID)){
             prob = (double) countsPE1toSE1.getOrDefault(length, 0) / (double) sumPE1toSE1;
