@@ -128,7 +128,7 @@ public class Config {
 
         // General properties.
         text = properties.getProperty("text").trim();
-        format = properties.getProperty("format").trim();
+        //format = properties.getProperty("format").trim();
         connPath = properties.getProperty("connPath").trim();
         stopWordsPath = properties.getProperty("stopPath").trim();
         allWordsPath = properties.getProperty("allWordsPath").trim();

@@ -68,6 +68,11 @@ public class Main {
     private String agg = "";
     @Option(name="-w", usage="word file")
     private String wordFiles = "";
+    
+    // Specify the type of text data if it's applicable.
+    @Option(name="-d", usage="text datatype")
+    private String dtype = "";
+    
    
     @Argument
     private List<String> arguments = new ArrayList<String>();
@@ -92,7 +97,15 @@ public class Main {
         Connect conn = new Connect();
         CoreNLP.setup();
         
+        
+        
         // Different option dependent methods that can be run.
+        if (!dtype.equals("")){
+            Config.format = dtype.trim();
+        }
+        else {
+            throw new Exception();
+        }
         if (textprep){
             InputDataPreparer idp = new InputDataPreparer();
             idp.findAndWriteAtoms();

@@ -36,16 +36,6 @@ import static utils.Util.range;
  */
 
 
-/*
-What should happen here when the phenotypes are split using ; and .? 
-The training should ignore the split phenotypes and just look at the whole phenotypes.
-The testing should then predict using the actual split ones.
-
-I don't think that's true. Doesn't matter which, its just counting how many times words co-occur with terms.
-*/
-
-
-
 
 public class NaiveBayes_Mapping {
     
@@ -62,7 +52,7 @@ public class NaiveBayes_Mapping {
         }
     }
     
-   
+
     private HashMap<Ontology,Double> getLearnedRatios(Text text, List<Chunk> trainingChunks){
         HashMap<Ontology,Integer> counts = new HashMap<>();
         for (Ontology o: Ontology.values()){
@@ -94,7 +84,7 @@ public class NaiveBayes_Mapping {
         List<Chunk> chunks = text.getAllChunksOfDType(Config.format);
         Partitions partitions = new Partitions(text);        
 
-        // Create and train the naive Bayes classifiers and then use it on remaining data.
+        // Create and train the naive Bayes classifiers and then use it on remaining data (across four folds).
         NaiveBayes_Model nb1 = new NaiveBayes_Model();
         nb1.train(text, partitions.getChunksFromPartitions(range(8,31), chunks), threshold);
         HashMap<Ontology,Double> ratios1 = getLearnedRatios(text, partitions.getChunksFromPartitions(range(8,31), chunks));
@@ -124,21 +114,15 @@ public class NaiveBayes_Mapping {
         String baseDirectory = Config.nbPath;
         
         // Partition numbers for testing and training.
-        List<Integer> allPartitionNumbers = allParts;
         List<Integer> testingPartitionNumbers = testParts;
         List<Integer> trainingPartitionNumbers = trainParts;
+        List<Integer> allPartitionNumbers = allParts;
         
         Text text = new Text();
         Partitions p = new Partitions(text);  
+        String dtypeTag = String.format("_%s",utils.Util.inferTextType(Config.format).toString().toLowerCase());
         
-        String allName = "all";
-        String trainingName = "train";
-        String testingName = "test";
-                
-        String dataset = "ppn";
-       
-        
-        
+
         // Find the fraction of the testing set that is directly present in the training set.
         List<String> testSetInstances = new ArrayList<>();
         for (Chunk c: p.getChunksFromPartitions(testParts, text.getAllAtomChunks())){
@@ -156,37 +140,37 @@ public class NaiveBayes_Mapping {
         }
         double fractionOfTestingInTraining = (double) numOverlappingInstances / (double) testSetInstances.size();
         System.out.println(String.format("For fold %s %s of the testing instances are observed in the training data.", fold, fractionOfTestingInTraining));
-        // Done doing that.
 
+        
         
         
         // Annotated data available in the Plant PhenomeNET.
         List<Group> patoGroups = new ArrayList<>();
         String outputPath = String.format("%s/%s",baseDirectory,"output_pato");
-        patoGroups.add(new Group("all"+fold, fold, allPartitionNumbers, outputPath, p));
-        patoGroups.add(new Group("test"+fold, fold, testingPartitionNumbers, outputPath, p));
-        patoGroups.add(new Group("train"+fold, fold, trainingPartitionNumbers, outputPath, p));
+        patoGroups.add(new Group("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
+        //patoGroups.add(new Group("train"+fold+dtypeTag, fold, trainingPartitionNumbers, outputPath, p));
+        //patoGroups.add(new Group("all"+fold+dtypeTag, fold, allPartitionNumbers, outputPath, p));
         search(Ontology.PATO, new Text(), patoGroups, nb, ratios);
        
         List<Group> poGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_po");
-        poGroups.add(new Group("all"+fold, fold, allPartitionNumbers, outputPath, p));
-        poGroups.add(new Group("test"+fold, fold, testingPartitionNumbers, outputPath, p));
-        poGroups.add(new Group("train"+fold, fold, trainingPartitionNumbers, outputPath, p));
+        poGroups.add(new Group("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
+        //poGroups.add(new Group("train"+fold+dtypeTag, fold, trainingPartitionNumbers, outputPath, p));
+        //poGroups.add(new Group("all"+fold+dtypeTag, fold, allPartitionNumbers, outputPath, p));
         search(Ontology.PO, new Text(), poGroups, nb, ratios);
         
         List<Group> goGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_go");
-        goGroups.add(new Group("all"+fold, fold, allPartitionNumbers, outputPath, p));
-        goGroups.add(new Group("test"+fold, fold, testingPartitionNumbers, outputPath, p));
-        goGroups.add(new Group("train"+fold, fold, trainingPartitionNumbers, outputPath, p));
+        goGroups.add(new Group("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
+        //goGroups.add(new Group("train"+fold+dtypeTag, fold, trainingPartitionNumbers, outputPath, p));
+        //goGroups.add(new Group("all"+fold+dtypeTag, fold, allPartitionNumbers, outputPath, p));
         search(Ontology.GO, new Text(), goGroups, nb, ratios);
         
         List<Group> chebiGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_chebi");
-        chebiGroups.add(new Group("all"+fold, fold, allPartitionNumbers, outputPath, p));
-        chebiGroups.add(new Group("test"+fold, fold, testingPartitionNumbers, outputPath, p));
-        chebiGroups.add(new Group("train"+fold, fold, trainingPartitionNumbers, outputPath, p));
+        chebiGroups.add(new Group("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
+        //chebiGroups.add(new Group("train"+fold+dtypeTag, fold, trainingPartitionNumbers, outputPath, p));
+        //chebiGroups.add(new Group("all"+fold+dtypeTag, fold, allPartitionNumbers, outputPath, p));
         search(Ontology.CHEBI, new Text(), chebiGroups, nb, ratios);
         
     }
@@ -196,15 +180,8 @@ public class NaiveBayes_Mapping {
     
     
     
-  
-    
-    
-    
-    
     private void search(Ontology ontology, Text text, List<Group> groups, NaiveBayes_Model nb, HashMap<Ontology,Double> ratios) throws SQLException, Exception{
         
-        
-       
         // Which ontology currently working on.
         logger.info(String.format("working on terms from %s",ontology.toString()));
         
@@ -214,7 +191,6 @@ public class NaiveBayes_Mapping {
                
         Onto onto = ontoObjects.get(ontology);
         List<OntologyTerm> terms = onto.getTermList();
-        
         
         
         // Inserting this here to take care of the thresholding issue.
@@ -255,11 +231,6 @@ public class NaiveBayes_Mapping {
             numResultsAfter += searchResultsMap.get(c).size();
         }
         logger.info(String.format("the number of search results was reduced from %s to %s after thresholding",numResultsBefore,numResultsAfter));
-        
-        
-        
-        
-        
         
         
         
@@ -355,15 +326,11 @@ public class NaiveBayes_Mapping {
           
         }
 
-        
-        
         for (Group g: groups){
             g.classProbsPrinter.close();
             g.evalPrinter.close();
         }
-        
-        
-        
+                
     }
     
     
