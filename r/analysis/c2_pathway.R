@@ -36,8 +36,8 @@ get_max_phene_similarity <- function(df,p1,p2){
 
 
 
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/output/set1/"
-phenotype_edges_file <- "phenotype_network.csv"
+dir <- "/Users/irbraun/Desktop/droplet/path/networks/"
+phenotype_edges_file <- "phenotype_network_modified.csv"
 phene_edges_file <- "phene_network.csv"
 
 phenotype_network <- read(dir,phenotype_edges_file)

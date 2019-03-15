@@ -10,3 +10,10 @@ When splitting the phenotype description through regex, the R script that reads 
 NOBLE Coder works on condo, just have to put ALL the files (including the context one) fron the ~/.noble/ directory ~/.noble/ on the cluser.
 
 For whatever reason, referencing the name of the RESULTS.tsv file produced by noble coder is case sensitive when run on condo but not locally. just make sure to use right case in the script.
+
+
+
+Things to fix tomorrow
+1. move the path contents to place that makes more sense in the git repository
+2. provide paths for all the kinds of text datatypes in the config file and then just use the format parameter to select which ones to use in a given call to some function in the jar.
+3. organize the helper funtions for eqpipe.py
