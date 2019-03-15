@@ -24,9 +24,6 @@ nodes_file <- "phenotype_nodes.csv"
 links <- read(dir,edges_file)
 nodes <- read(dir,nodes_file)
 
-
-
-
 get_type <- function(t,p,c) { 
   if(p>=t & c>=t) z <- "both"
   else if(p<t & c>=t) z <- "curated"

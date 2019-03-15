@@ -1,5 +1,5 @@
 
-# Normalization function for numerical scores.
+# Normalization function for numerical values.
 range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
 
 
@@ -7,11 +7,6 @@ read <- function(dir,filename){
   d <- read.csv(file=paste(dir,filename,sep=""), header=T, sep=",")
   return(d)
 }
-
-
-
-
-
 
 normalize_file <- function(dir,filename){
   df <- read(dir,filename)
@@ -22,55 +17,23 @@ normalize_file <- function(dir,filename){
   path <- paste(path,".normalized.csv",sep="")
   write.csv(df, file=path, row.names=F)
   l <<- c(l,sum(is.na(df$prob)))
-  
 }
 
 
 
+
+# Read in the set of files passed in as arguments and normalize the probabilities column.
+# The files that are passed in should be the x_classprobs.csv files.
+# Arguments
+# 1 (string) directory
+# 2 (string) filename
+# ...
+# n (string) filename
+
 l <- c()
-
-
-# Files that need to be normalized from first testing set.
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/nb/set1/"
-f1 <- "outputs_test_ppn_pato/name.fold.classprobs.csv"
-f2 <- "outputs_test_ppn_po/name.fold.classprobs.csv"
-f3 <- "outputs_test_ppn_go/name.fold.classprobs.csv"
-f4 <- "outputs_test_ppn_chebi/name.fold.classprobs.csv"
-normalize_file(dir,f1)
-normalize_file(dir,f2)
-normalize_file(dir,f3)
-normalize_file(dir,f4)
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/me/set1/"
-f1 <- "outputs_test_ppn_pato/name.fold.classprobs.csv"
-f2 <- "outputs_test_ppn_po/name.fold.classprobs.csv"
-f3 <- "outputs_test_ppn_go/name.fold.classprobs.csv"   ##
-f4 <- "outputs_test_ppn_chebi/name.fold.classprobs.csv" ###
-normalize_file(dir,f1)
-normalize_file(dir,f2)
-normalize_file(dir,f3)
-normalize_file(dir,f4)
-
-# Files that need to be normalized from second testing set.
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/nb/set2/"
-f1 <- "outputs_test_ppn_pato/name.fold.classprobs.csv"
-f2 <- "outputs_test_ppn_po/name.fold.classprobs.csv"
-f3 <- "outputs_test_ppn_go/name.fold.classprobs.csv"
-f4 <- "outputs_test_ppn_chebi/name.fold.classprobs.csv"
-normalize_file(dir,f1)
-normalize_file(dir,f2)
-normalize_file(dir,f3)
-normalize_file(dir,f4)
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/me/set2/"
-f1 <- "outputs_test_ppn_pato/name.fold.classprobs.csv"
-f2 <- "outputs_test_ppn_po/name.fold.classprobs.csv"
-f3 <- "outputs_test_ppn_go/name.fold.classprobs.csv"  ###
-f4 <- "outputs_test_ppn_chebi/name.fold.classprobs.csv"
-normalize_file(dir,f1)
-normalize_file(dir,f2)
-normalize_file(dir,f3)
-normalize_file(dir,f4)
-
-
-
-
-
+args <- commandArgs(trailingOnly=T)
+dir <- args[1]
+for (i in 2:length(args)){
+  filename <- args[i]
+  normalize_file(dir,filename)
+}

@@ -20,3 +20,7 @@ path/tm.db
 path/populate_table.out
 path/pubmed/combined_abstracts.txt
 path/pubmed/split_sentences.txt
+r/deprecated/
+*.history
+*.Rhistory
+*.pyc
