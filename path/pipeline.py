@@ -269,7 +269,7 @@ for t in thresholds:
 
 
 # Aggregate a set of the output files from the semantic annotation step for comparison.
-aggregate_annotations()
+aggregate_annotations(dtype=dtype)
 files = ["output_pato/group1_eval.csv", "output_po/group1_eval.csv", "output_go/group1_eval.csv", "output_chebi/group1_eval.csv"]
 output = r"./output/aggregate"+dtype+".csv"
 get_metrics(output, dtype, r"./annotators/aggregate/", files)
@@ -297,7 +297,7 @@ preprocessing(dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/w
 do_doc_embeddings("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phenotype_network.csv", "./networks/phenotype_network_modified.csv")
 print "finished generating all the edge values for the phenotype network"
 preprocessing(dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype="phene")
-do_doc_embeddings("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phene_network.csv", ".networks/phene_network_modified.csv")
+do_doc_embeddings("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phene_network.csv", "./networks/phene_network_modified.csv")
 print "finished generating all the edge values for the phene network"
 
 

@@ -35,103 +35,40 @@ import uk.ac.ebi.brain.error.NewOntologyException;
 public class AggregateResults {
     
     
-    /**
-     * Produce ensemble versions of the complete class probability files.
-     * @throws SQLException
-     * @throws FileNotFoundException 
-     */
-    /*
-    public static void makeCombinedFilesSet1() throws SQLException, FileNotFoundException{
-        List<String> patoFiles = new ArrayList<>();
-        patoFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nc/outputs_species_ppn_pato/name.fold.classprobs.csv");
-        patoFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/na/outputs_species_ppn_pato/name.fold.classprobs.csv");
-        patoFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nb/set1/outputs_test_ppn_pato/name.fold.classprobs.csv");
-        patoFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/me/set1/outputs_test_ppn_pato/name.fold.classprobs.csv");
-        mergeFiles(patoFiles, "/work/dillpicl/irbraun/term-mapping/alpha2/nlp/aggregate/set1/outputs_all_ppn_pato/original_classprobs.csv");
 
-        List<String> poFiles = new ArrayList<>();
-        poFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nc/outputs_species_ppn_po/name.fold.classprobs.csv");
-        poFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/na/outputs_species_ppn_po/name.fold.classprobs.csv");
-        poFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nb/set1/outputs_test_ppn_po/name.fold.classprobs.csv");
-        poFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/me/set1/outputs_test_ppn_po/name.fold.classprobs.csv");
-        mergeFiles(poFiles, "/work/dillpicl/irbraun/term-mapping/alpha2/nlp/aggregate/set1/outputs_all_ppn_po/original_classprobs.csv");
-        
-        List<String> goFiles = new ArrayList<>();
-        goFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nc/outputs_species_ppn_go/name.fold.classprobs.csv");
-        goFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/na/outputs_species_ppn_go/name.fold.classprobs.csv");
-        goFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nb/set1/outputs_test_ppn_go/name.fold.classprobs.csv");
-        goFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/me/set1/outputs_test_ppn_go/name.fold.classprobs.csv");
-        mergeFiles(goFiles, "/work/dillpicl/irbraun/term-mapping/alpha2/nlp/aggregate/set1/outputs_all_ppn_go/original_classprobs.csv");
-        
-        List<String> chebiFiles = new ArrayList<>();
-        chebiFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/na/outputs_species_ppn_chebi/name.fold.classprobs.csv");
-        chebiFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nb/set1/outputs_test_ppn_chebi/name.fold.classprobs.csv");
-        chebiFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/me/set1/outputs_test_ppn_chebi/name.fold.classprobs.csv");
-        mergeFiles(chebiFiles, "/work/dillpicl/irbraun/term-mapping/alpha2/nlp/aggregate/set1/outputs_all_ppn_chebi/original_classprobs.csv");
-    }
-    */
+    
+    
     
     /**
      * Produce ensemble versions of the complete class probability files.
+     * @param dir
      * @throws SQLException
      * @throws FileNotFoundException 
      */
-    /*
-    public static void makeCombinedFilesSet2() throws SQLException, FileNotFoundException{
-        List<String> patoFiles = new ArrayList<>();
-        patoFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nc/outputs_random_ppn_pato/name.fold.classprobs.csv");
-        patoFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/na/outputs_random_ppn_pato/name.fold.classprobs.csv");
-        patoFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nb/set2/outputs_test_ppn_pato/name.fold.classprobs.csv");
-        patoFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/me/set2/outputs_test_ppn_pato/name.fold.classprobs.csv");
-        mergeFiles(patoFiles, "/work/dillpicl/irbraun/term-mapping/alpha2/nlp/aggregate/set2/outputs_all_ppn_pato/original_classprobs.csv");
-
-        List<String> poFiles = new ArrayList<>();
-        poFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nc/outputs_random_ppn_po/name.fold.classprobs.csv");
-        poFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/na/outputs_random_ppn_po/name.fold.classprobs.csv");
-        poFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nb/set2/outputs_test_ppn_po/name.fold.classprobs.csv");
-        poFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/me/set2/outputs_test_ppn_po/name.fold.classprobs.csv");
-        mergeFiles(poFiles, "/work/dillpicl/irbraun/term-mapping/alpha2/nlp/aggregate/set2/outputs_all_ppn_po/original_classprobs.csv");
-        
-        List<String> goFiles = new ArrayList<>();
-        goFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nc/outputs_random_ppn_go/name.fold.classprobs.csv");
-        goFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/na/outputs_random_ppn_go/name.fold.classprobs.csv");
-        goFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nb/set2/outputs_test_ppn_go/name.fold.classprobs.csv");
-        goFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/me/set2/outputs_test_ppn_go/name.fold.classprobs.csv");
-        mergeFiles(goFiles, "/work/dillpicl/irbraun/term-mapping/alpha2/nlp/aggregate/set2/outputs_all_ppn_go/original_classprobs.csv");
-        
-        List<String> chebiFiles = new ArrayList<>();
-        chebiFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/na/outputs_random_ppn_chebi/name.fold.classprobs.csv");
-        chebiFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/nb/set2/outputs_test_ppn_chebi/name.fold.classprobs.csv");
-        chebiFiles.add("/work/dillpicl/irbraun/term-mapping/alpha2/nlp/me/set2/outputs_test_ppn_chebi/name.fold.classprobs.csv");
-        mergeFiles(chebiFiles, "/work/dillpicl/irbraun/term-mapping/alpha2/nlp/aggregate/set2/outputs_all_ppn_chebi/original_classprobs.csv");
-    }
-    */
-    
-    
     public static void makeCombinedFilesSet(String dir) throws SQLException, FileNotFoundException{
                 
         List<String> patoFiles = new ArrayList<>();
-        patoFiles.add(dir+"/noble/output_pato/group1_classprobs.csv");
-        patoFiles.add(dir+"/naive/output_pato/merged_classprobs.csv");
-        patoFiles.add(dir+"/ncbo/output_pato/group1_classprobs.csv");
+        patoFiles.add(dir+"/noble/output_pato/group1_"+Config.format+"_classprobs.csv");
+        patoFiles.add(dir+"/naive/output_pato/merged_"+Config.format+"_classprobs.csv");
+        patoFiles.add(dir+"/ncbo/output_pato/group1_"+Config.format+"_classprobs.csv");
         mergeFiles(patoFiles, dir+"/aggregate/output_pato/classprobs.csv");
 
         List<String> poFiles = new ArrayList<>();
-        poFiles.add(dir+"/noble/output_po/group1_classprobs.csv");
-        poFiles.add(dir+"/naive/output_po/merged_classprobs.csv");
-        poFiles.add(dir+"/ncbo/output_po/group1_classprobs.csv");
+        poFiles.add(dir+"/noble/output_po/group1_"+Config.format+"_classprobs.csv");
+        poFiles.add(dir+"/naive/output_po/merged_"+Config.format+"_classprobs.csv");
+        poFiles.add(dir+"/ncbo/output_po/group1_"+Config.format+"_classprobs.csv");
         mergeFiles(poFiles, dir+"/aggregate/output_po/classprobs.csv");
         
         List<String> goFiles = new ArrayList<>();
-        goFiles.add(dir+"/noble/output_go/group1_classprobs.csv");
-        goFiles.add(dir+"/naive/output_go/merged_classprobs.csv");
-        goFiles.add(dir+"/ncbo/output_go/group1_classprobs.csv");
+        goFiles.add(dir+"/noble/output_go/group1_"+Config.format+"_classprobs.csv");
+        goFiles.add(dir+"/naive/output_go/merged_"+Config.format+"_classprobs.csv");
+        goFiles.add(dir+"/ncbo/output_go/group1_"+Config.format+"_classprobs.csv");
         mergeFiles(goFiles, dir+"/aggregate/output_go/classprobs.csv");
         
         List<String> chebiFiles = new ArrayList<>();
-        //chebiFiles.add(dir+"/noble/output_chebi/group1_classprobs.csv");
-        chebiFiles.add(dir+"/naive/output_chebi/merged_classprobs.csv");
-        chebiFiles.add(dir+"/ncbo/output_chebi/group1_classprobs.csv");
+        //chebiFiles.add(dir+"/noble/output_chebi/group1_"+Config.format+"_classprobs.csv");
+        chebiFiles.add(dir+"/naive/output_chebi/merged_"+Config.format+"_classprobs.csv");
+        chebiFiles.add(dir+"/ncbo/output_chebi/group1_"+Config.format+"_classprobs.csv");
         mergeFiles(chebiFiles, dir+"/aggregate/output_chebi/classprobs.csv");
     }
     
