@@ -74,7 +74,7 @@ check_edges <- function(d, output_path, retain_edge_quantity=F, doc2vec=F){
 
 # The file specifying the network edges.
 dir <- "/Users/irbraun/Desktop/droplet/path/networks/"
-file <- "phenotype_network_modified.csv"
+file <- "output_for_split_phenotypes/phenotype_network_modified.csv"
 
 # Read it in and assign unique IDs to each row.
 d <- read(dir,file)
@@ -87,3 +87,8 @@ colnames(d)[colnames(d)=="enwiki_dbow"] <- "d2v"
 check_edges(d, "/Users/irbraun/Desktop/droplet/path/networks/results_regular_edges.csv", retain_edge_quantity=F, doc2vec=F)
 check_edges(d, "/Users/irbraun/Desktop/droplet/path/networks/results_matched_edges.csv", retain_edge_quantity=T, doc2vec=F)
 check_edges(d, "/Users/irbraun/Desktop/droplet/path/networks/results_d2v_edges.csv", retain_edge_quantity=T, doc2vec=T)
+
+
+
+
+

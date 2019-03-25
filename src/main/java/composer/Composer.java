@@ -604,10 +604,8 @@ public class Composer {
                     predictedSim = Utils.getSimilarity(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
                 }
                 catch(Exception e){
+                    // Most likely there were not EQs predicted for one of those phenes?
                     predictedSim = -1;
-                    logger.info("no predicted eqs for one of the phenes");
-                    logger.info(e.getStackTrace().toString());
-                    logger.info(e.getMessage());
                 }
                 double curatedSim = Utils.getSimilarity(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
                 Object[] items = {atomID1, atomID2, associatedPhenotypeID1, associatedPhenotypeID2, predictedSim, curatedSim};
@@ -626,10 +624,8 @@ public class Composer {
                     predictedSim = Utils.getSimilarity(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
                 }
                 catch(Exception e){
+                    // Most likely there were no EQs predicted for one of those phenotypes?
                     predictedSim = -1;
-                    logger.info("no predicted eqs for one of the phenotypes");
-                    logger.info(e.getStackTrace().toString());
-                    logger.info(e.getMessage());
                     }
                 double curatedSim = Utils.getSimilarity(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
                 Object[] items = {phenotypeID1, phenotypeID2, predictedSim, curatedSim};
@@ -741,133 +737,144 @@ public class Composer {
      */
     private ArrayList<EQStatement> getPredictedEQs(int chunkID) throws ClassExpressionException, Exception{
 
-        // The starting lists of candidate EQs.
-        ArrayList<Term> predictedQs = (ArrayList<Term>) qTermProbabilityTable.getOrDefault(chunkID, new ArrayList<>());
-        ArrayList<Term> predictedEs = (ArrayList<Term>) eTermProbabilityTable.getOrDefault(chunkID, new ArrayList<>());
-        
-       
-        // Run the NLP pipeline to get depedencies, constituencies, POS, any other information.
-        Chunk chunk = text.getChunkFromIDWithDType(chunkID, utils.Util.inferTextType(Config.format));
-        
-        MyAnnotation annot = Modifier.getAnnotation(chunk);
+        // testing something
+        if (chunkID==3304){
         
         
-        // Retain only the most specific terms.
-        //predictedQs = collapse(predictedQs);
-        //predictedEs = collapse(predictedEs);
-        
-           
-        // Categorizing PATO terms broadly into those belonging to the relational slim, optional qualifiers, and other.
-        ArrayList<Term> predictedQsSimple = new ArrayList<>();
-        ArrayList<Term> predictedQsRelational = new ArrayList<>();
-        ArrayList<Term> predictedQualifiers = new ArrayList<>();
-        for (Term t: predictedQs){
-            if (patoInfo.relationalQualityIDs.contains(t.id)){
-                predictedQsRelational.add(t);
-            }
-            else if (patoInfo.qualifierIDs.contains(t.id)){
-                predictedQualifiers.add(t);
-            }
-            else {
-                predictedQsSimple.add(t);
-            }
-        }
-        
-        
-        
-        // Optional removal steps that try to pair down the possible terms.
-        logger.info(String.format("processing chunk %s (%s)\n",chunkID,text.getAtomChunkFromID(chunkID).getRawText()));
-        logger.info(String.format("%s candidate E",predictedEs.size()));
-        for (Term t: predictedEs){
-            logger.info(String.format("%s (%s)",t.id, ontoObjects.get(utils.Util.inferOntology(t.id)).getTermFromTermID(t.id).label));
-        }
-        logger.info(String.format("%s candidate Q",predictedQs.size()));
-        for (Term t: predictedQs){
-            logger.info(String.format("%s (%s)",t.id, ontoObjects.get(utils.Util.inferOntology(t.id)).getTermFromTermID(t.id).label));
-        }
-        
-        
-        // Optional removal step checking for redundant entities.
-        logDeleteTerms("removing %s redundant entity terms", Modifier.findRedundantEntities(predictedEs));
-        //predictedEs.removeAll(Modifier.findRedundantEntities(predictedEs));
-        //predictedQsSimple.removeAll(Modifier.findRedundantQualities(predictedQsSimple));
-        //predictedQsRelational.removeAll(Modifier.findRedundantQualities(predictedQsRelational));
-        //predictedQualifiers.removeAll(Modifier.findRedundantQualities(predictedQualifiers));
-        
-        
-        
-        // If no entity that could be the first primary entity is predicted at all, insert the term used as an implied subject.
-        int numEligiblePrimE1 = 0;
-        for (Term t: predictedEs){
-            if (!t.ontology.equals(Ontology.CHEBI) && !t.ontology.equals(Ontology.UNSUPPORTED)){
-                numEligiblePrimE1++;
-                break;
-            }
-        }
-        if (numEligiblePrimE1 == 0){
-            predictedEs.add(new Term("PO_0000003", 1.000,Ontology.PO, new HashSet<>()));
-        }
-         
-        
-        
-        
-        // If atleast one of the entities is a GO process, include 'process quality' as a possible Q. 
-        for (Term t: predictedEs){
-            if(t.ontology.equals(Ontology.GO)){
-                OntologyTerm term = ontoObjects.get(Ontology.GO).getTermFromTermID(t.id);
-                if (term.allNodes.contains("GO_0008150") || term.allNodes.contains("GO_0003674")){
-                    predictedQs.add(new Term("PATO_0001236",1.000,Ontology.PATO,new HashSet<>()));
+            // The starting lists of candidate EQs.
+            ArrayList<Term> predictedQs = (ArrayList<Term>) qTermProbabilityTable.getOrDefault(chunkID, new ArrayList<>());
+            ArrayList<Term> predictedEs = (ArrayList<Term>) eTermProbabilityTable.getOrDefault(chunkID, new ArrayList<>());
+
+
+            // Run the NLP pipeline to get depedencies, constituencies, POS, any other information.
+            Chunk chunk = text.getChunkFromIDWithDType(chunkID, utils.Util.inferTextType(Config.format));
+
+            MyAnnotation annot = Modifier.getAnnotation(chunk);
+
+
+            // Retain only the most specific terms.
+            //predictedQs = collapse(predictedQs);
+            //predictedEs = collapse(predictedEs);
+
+
+            // Categorizing PATO terms broadly into those belonging to the relational slim, optional qualifiers, and other.
+            ArrayList<Term> predictedQsSimple = new ArrayList<>();
+            ArrayList<Term> predictedQsRelational = new ArrayList<>();
+            ArrayList<Term> predictedQualifiers = new ArrayList<>();
+            for (Term t: predictedQs){
+                if (patoInfo.relationalQualityIDs.contains(t.id)){
+                    predictedQsRelational.add(t);
+                }
+                else if (patoInfo.qualifierIDs.contains(t.id)){
+                    predictedQualifiers.add(t);
+                }
+                else {
+                    predictedQsSimple.add(t);
                 }
             }
+
+
+
+            // Optional removal steps that try to pair down the possible terms.
+            logger.info(String.format("processing chunk %s (%s)\n",chunkID,text.getAtomChunkFromID(chunkID).getRawText()));
+            logger.info(String.format("%s candidate E",predictedEs.size()));
+            for (Term t: predictedEs){
+                logger.info(String.format("%s (%s)",t.id, ontoObjects.get(utils.Util.inferOntology(t.id)).getTermFromTermID(t.id).label));
+            }
+            logger.info(String.format("%s candidate Q",predictedQs.size()));
+            for (Term t: predictedQs){
+                logger.info(String.format("%s (%s)",t.id, ontoObjects.get(utils.Util.inferOntology(t.id)).getTermFromTermID(t.id).label));
+            }
+
+
+            // Optional removal step checking for redundant entities.
+            logDeleteTerms("removing %s redundant entity terms", Modifier.findRedundantEntities(predictedEs));
+            //predictedEs.removeAll(Modifier.findRedundantEntities(predictedEs));
+            //predictedQsSimple.removeAll(Modifier.findRedundantQualities(predictedQsSimple));
+            //predictedQsRelational.removeAll(Modifier.findRedundantQualities(predictedQsRelational));
+            //predictedQualifiers.removeAll(Modifier.findRedundantQualities(predictedQualifiers));
+
+
+
+            // If no entity that could be the first primary entity is predicted at all, insert the term used as an implied subject.
+            int numEligiblePrimE1 = 0;
+            for (Term t: predictedEs){
+                if (!t.ontology.equals(Ontology.CHEBI) && !t.ontology.equals(Ontology.UNSUPPORTED)){
+                    numEligiblePrimE1++;
+                    break;
+                }
+            }
+            if (numEligiblePrimE1 == 0){
+                predictedEs.add(new Term("PO_0000003", 1.000,Ontology.PO, new HashSet<>()));
+                logger.info("default entity was added");
+            }
+
+
+
+
+            // If atleast one of the entities is a GO process, include 'process quality' as a possible Q. 
+            for (Term t: predictedEs){
+                if(t.ontology.equals(Ontology.GO)){
+                    OntologyTerm term = ontoObjects.get(Ontology.GO).getTermFromTermID(t.id);
+                    if (term.allNodes.contains("GO_0008150") || term.allNodes.contains("GO_0003674")){
+                        predictedQs.add(new Term("PATO_0001236",1.000,Ontology.PATO,new HashSet<>()));
+                    }
+                }
+            }
+
+
+
+            // Get all possible permutations of the terms within an acceptable EQ statement structure.
+            ArrayList<EQStatement> predictedEQs = EQBuilder.getAllPermutations(ontoObjects, predictedEs, predictedQsSimple, predictedQsRelational, predictedQualifiers);
+
+
+
+
+            logger.info(String.format("there are %s candidate EQs",predictedEQs.size()));
+            for (EQStatement eq: predictedEQs){
+                logger.info(eq.toLabelText(ontoObjects));
+            }
+
+
+            // If an optional qualifier term is present always use it.
+            if (!predictedQualifiers.isEmpty()){
+                logDeleteEQs("removing %s EQs that are missing a found qualifier", Modifier.getNonQualifierEQs(predictedEQs));
+                predictedEQs.removeAll(Modifier.getNonQualifierEQs(predictedEQs));
+            }
+
+
+            // Check the dependencies between terms involved in post-composed (complex) entities, and remove problems.
+            logDeleteEQs("removing %s EQs with bad complex entities", Modifier.getInvalidComplexEQs(predictedEQs, annot));
+            //predictedEQs.removeAll(Modifier.getInvalidComplexEQs(predictedEQs, annot));
+
+
+            // Check for cases where one of the entity terms is overlapping with either the quality term or optional qualifier.
+            logDeleteEQs("removing %s EQs where an E overlaps with a Q", Modifier.getRedundantEQs(predictedEQs));
+            //predictedEQs.removeAll(Modifier.getRedundantEQs(predictedEQs));
+
+
+            logger.info(String.format("there are %s accepted EQs\n",predictedEQs.size()));
+
+
+            // Assign some score values to the predicted EQ statements based on other information.
+            checkCoverage(chunkID, predictedEQs);
+            checkDepGraph(annot, predictedEQs);
+
+
+            // Only take a maximum of 4 EQ statements as output for each input.
+            int threshold = 4;
+            predictedEQs.sort(new EQComparatorByMetricsMethod2());
+            predictedEQs = new ArrayList<>(predictedEQs.subList(0, Math.min(threshold, predictedEQs.size())));
+
+
+            return predictedEQs;
+
         }
-        
-        
-        
-        // Get all possible permutations of the terms within an acceptable EQ statement structure.
-        ArrayList<EQStatement> predictedEQs = EQBuilder.getAllPermutations(ontoObjects, predictedEs, predictedQsSimple, predictedQsRelational, predictedQualifiers);
-        
-        
-        
-        
-        logger.info(String.format("there are %s candidate EQs",predictedEQs.size()));
-        for (EQStatement eq: predictedEQs){
-            logger.info(eq.toLabelText(ontoObjects));
+        else {
+            ArrayList<EQStatement> l = new ArrayList<>();
+            return l;
         }
-       
-        
-        // If an optional qualifier term is present always use it.
-        if (!predictedQualifiers.isEmpty()){
-            logDeleteEQs("removing %s EQs that are missing a found qualifier", Modifier.getNonQualifierEQs(predictedEQs));
-            predictedEQs.removeAll(Modifier.getNonQualifierEQs(predictedEQs));
-        }
-
-        
-        // Check the dependencies between terms involved in post-composed (complex) entities, and remove problems.
-        logDeleteEQs("removing %s EQs with bad complex entities", Modifier.getInvalidComplexEQs(predictedEQs, annot));
-        predictedEQs.removeAll(Modifier.getInvalidComplexEQs(predictedEQs, annot));
-
-        
-        // Check for cases where one of the entity terms is overlapping with either the quality term or optional qualifier.
-        logDeleteEQs("removing %s EQs where an E overlaps with a Q", Modifier.getRedundantEQs(predictedEQs));
-        predictedEQs.removeAll(Modifier.getRedundantEQs(predictedEQs));
-
-        
-        logger.info(String.format("there are %s accepted EQs\n",predictedEQs.size()));
-        
-        
-        // Assign some score values to the predicted EQ statements based on other information.
-        checkCoverage(chunkID, predictedEQs);
-        checkDepGraph(annot, predictedEQs);
-        
-
-        // Only take a maximum of 4 EQ statements as output for each input.
-        int threshold = 4;
-        predictedEQs.sort(new EQComparatorByMetricsMethod2());
-        predictedEQs = new ArrayList<>(predictedEQs.subList(0, Math.min(threshold, predictedEQs.size())));
-        
-        
-        return predictedEQs;
-
+            
     }
     
     

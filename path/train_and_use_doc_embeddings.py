@@ -106,21 +106,91 @@ revised_network= open(revised_network_filename,"w")
 new_header = ",".join(df.columns)+",pubmed_dpmv,pubmed_dbow,enwiki_dbow"
 revised_network.write(new_header+"\n")
 
-for row in df.itertuples():
-    p1 = int(row[1])
-    p2 = int(row[2])
-    edge_value_1 = row[3]
-    edge_value_2 = row[4]
-    distances = []
-    for i in range(num_models):
-        v1 = dicts[i][p1]
-        v2 = dicts[i][p2]
-        dist = spatial.distance.cosine(v1,v2).round(3)
-        distances.append(dist)
-    items = [str(p1),str(p2),edge_value_1,edge_value_2,str(distances[0]),str(distances[1]),str(distances[2])]
-    revised_network.write(",".join(items)+"\n")
 
-revised_network.close()
+
+
+
+# big problem! 
+# those column indices are only correct for the phenotype network files.
+# in the phene network files their are 4 columns of IDs and then the next 5 should be the values from the old files and distances from this modification.
+
+
+
+# Notes about how this works.
+# The phenotype/phene ID numbers which are used to index into the dict of vectors above
+# always use either the phene descriptions when the phene network file is being modified
+# and the phenotype descriptions when the phenotype network file is being modified.
+# So in order to make this work with both 
+
+# The file refers to a phenotype network.
+if len(df.columns) == 4:
+    for row in df.itertuples():
+        p1 = int(row[1])
+        p2 = int(row[2])
+        edge_value_1 = row[3]
+        edge_value_2 = row[4]
+        distances = []
+        for i in range(num_models):
+            v1 = dicts[i][p1]
+            v2 = dicts[i][p2]
+            dist = spatial.distance.cosine(v1,v2).round(3)
+            distances.append(dist)
+        items = [str(p1),str(p2),edge_value_1,edge_value_2,str(distances[0]),str(distances[1]),str(distances[2])]
+        revised_network.write(",".join(items)+"\n")
+
+    revised_network.close()
+
+# The file refers to a phene network.
+elif len(df.columns) == 6:
+    for row in df.itertuples():
+        p1 = int(row[1])
+        p2 = int(row[2])
+        ph1 = int(row[3])
+        ph2 = int(row[4])
+        edge_value_1 = row[5]
+        edge_value_2 = row[6]
+        distances = []
+        for i in range(num_models):
+            v1 = dicts[i][p1]
+            v2 = dicts[i][p2]
+            dist = spatial.distance.cosine(v1,v2).round(3)
+            distances.append(dist)
+        items = [str(p1),str(p2),str(p3),str(p4),edge_value_1,edge_value_2,str(distances[0]),str(distances[1]),str(distances[2])]
+        revised_network.write(",".join(items)+"\n")
+        
+    revised_network.close()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -24,259 +24,58 @@ get_correlation <- function(df1, df2){
   return(rho)
 }
 
+# Naive Bayes files
+dir <- "/Users/irbraun/Desktop/droplet/path/annotators/naive/"
+df <- rbind(read(dir,"output_pato/merged_phene_eval.csv"), read(dir,"output_po/merged_phene_eval.csv"), read(dir,"output_go/merged_phene_eval.csv"), read(dir,"output_chebi/merged_phene_eval.csv"))
+df <- df[df$category %in% c("TP","FN"),]
+nb <- df
 
 
-############### set1
+# NCBO Annotator files
+dir <- "/Users/irbraun/Desktop/droplet/path/annotators/ncbo/"
+df <- rbind(read(dir,"output_pato/group1_phene_eval.csv"), read(dir,"output_po/group1_phene_eval.csv"), read(dir,"output_go/group1_phene_eval.csv"))
+df <- df[df$category %in% c("TP","FN"),]
+na <- df
 
 
+# NOBLE Coder files
+dir <- "/Users/irbraun/Desktop/droplet/path/annotators/noble/"
+df <- rbind(read(dir,"output_pato/group1_phene_eval.csv"), read(dir,"output_po/group1_phene_eval.csv"), read(dir,"output_go/group1_phene_eval.csv"))
+df <- df[df$category %in% c("TP","FN"),]
+nc <- df
 
 
-
-# Get the similarity scores for the target terms for one particular method.
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/nb/set1/"
-f1 <- "outputs_test_ppn_pato/name.fold.eval.csv"
-f2 <- "outputs_test_ppn_po/name.fold.eval.csv"
-f3 <- "outputs_test_ppn_go/name.fold.eval.csv"
-f4 <- "outputs_test_ppn_chebi/name.fold.eval.csv"
-d1 <- read(dir,f1)
-d2 <- read(dir,f2)
-d3 <- read(dir,f3)
-d4 <- read(dir,f4)
-d <- rbind(d1,d2,d3,d4)
-d <- d[d$category %in% c("TP","FN"),]
-nb <- d
-
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/me/set1/"
-f1 <- "outputs_test_ppn_pato/name.fold.eval.csv"
-f2 <- "outputs_test_ppn_po/name.fold.eval.csv"
-f3 <- "outputs_test_ppn_go/name.fold.eval.csv"
-f4 <- "outputs_test_ppn_chebi/name.fold.eval.csv"
-d1 <- read(dir,f1)
-d2 <- read(dir,f2)
-d3 <- read(dir,f3)
-d4 <- read(dir,f4)
-d <- rbind(d1,d2,d3,d4)
-d <- d[d$category %in% c("TP","FN"),]
-me <- d
-
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/na/"
-f1 <- "outputs_species_ppn_pato/name.fold.eval.csv"
-f2 <- "outputs_species_ppn_po/name.fold.eval.csv"
-f3 <- "outputs_species_ppn_go/name.fold.eval.csv"
-f4 <- "outputs_species_ppn_chebi/name.fold.eval.csv"
-d1 <- read(dir,f1)
-d2 <- read(dir,f2)
-d3 <- read(dir,f3)
-d4 <- read(dir,f4)
-d <- rbind(d1,d2,d3,d4)
-d <- d[d$category %in% c("TP","FN"),]
-na <- d
-
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/nc/"
-f1 <- "outputs_species_ppn_pato/name.fold.eval.csv"
-f2 <- "outputs_species_ppn_po/name.fold.eval.csv"
-f3 <- "outputs_species_ppn_go/name.fold.eval.csv"
-#f4 <- "outputs_species_ppn_chebi/chebi_species.fold.eval.csv"
-d1 <- read(dir,f1)
-d2 <- read(dir,f2)
-d3 <- read(dir,f3)
-#d4 <- read(dir,f4)
-d <- rbind(d1,d2,d3)
-d <- d[d$category %in% c("TP","FN"),]
-nc <- d
-
-
-
-
+# In between similar methods
 get_correlation(na,nc)
+# Between those and the word frequency method.
 get_correlation(na,nb)
-get_correlation(na,me)
 get_correlation(nc,nb)
-get_correlation(nc,me)
-get_correlation(nb,me)
 
 
 
 
 
 
-
-
-
-
-
-
-################ set2
-
-
-
-
-
-# Get the similarity scores for the target terms for one particular method.
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/nb/set2/"
-f1 <- "outputs_test_ppn_pato/name.fold.eval.csv"
-f2 <- "outputs_test_ppn_po/name.fold.eval.csv"
-f3 <- "outputs_test_ppn_go/name.fold.eval.csv"
-f4 <- "outputs_test_ppn_chebi/name.fold.eval.csv"
-d1 <- read(dir,f1)
-d2 <- read(dir,f2)
-d3 <- read(dir,f3)
-d4 <- read(dir,f4)
-d <- rbind(d1,d2,d3,d4)
-d <- d[d$category %in% c("TP","FN"),]
-nb <- d
-
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/me/set2/"
-f1 <- "outputs_test_ppn_pato/name.fold.eval.csv"
-f2 <- "outputs_test_ppn_po/name.fold.eval.csv"
-f3 <- "outputs_test_ppn_go/name.fold.eval.csv"
-f4 <- "outputs_test_ppn_chebi/name.fold.eval.csv"
-d1 <- read(dir,f1)
-d2 <- read(dir,f2)
-d3 <- read(dir,f3)
-d4 <- read(dir,f4)
-d <- rbind(d1,d2,d3,d4)
-d <- d[d$category %in% c("TP","FN"),]
-me <- d
-
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/na/"
-f1 <- "outputs_random_ppn_pato/name.fold.eval.csv"
-f2 <- "outputs_random_ppn_po/name.fold.eval.csv"
-f3 <- "outputs_random_ppn_go/name.fold.eval.csv"
-f4 <- "outputs_random_ppn_chebi/name.fold.eval.csv"
-d1 <- read(dir,f1)
-d2 <- read(dir,f2)
-d3 <- read(dir,f3)
-d4 <- read(dir,f4)
-d <- rbind(d1,d2,d3,d4)
-d <- d[d$category %in% c("TP","FN"),]
-na <- d
-
-dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/nc/"
-f1 <- "outputs_random_ppn_pato/name.fold.eval.csv"
-f2 <- "outputs_random_ppn_po/name.fold.eval.csv"
-f3 <- "outputs_random_ppn_go/name.fold.eval.csv"
-#f4 <- "outputs_species_ppn_chebi/chebi_species.fold.eval.csv"
-d1 <- read(dir,f1)
-d2 <- read(dir,f2)
-d3 <- read(dir,f3)
-#d4 <- read(dir,f4)
-d <- rbind(d1,d2,d3)
-d <- d[d$category %in% c("TP","FN"),]
-nc <- d
-
-
-get_correlation(na,nc)
-get_correlation(na,nb)
-get_correlation(na,me)
-get_correlation(nc,nb)
-get_correlation(nc,me)
-get_correlation(nb,me)
-
-
-
-
-
-
-
-
-
-
-
-# Find the terms that were highly recalled by ml but lowly recalled by string-based methods.
-
-
-preprocess_ml <- function(){
-  dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/nb/set1/"
-  f1 <- "outputs_test_ppn_pato/name.fold.eval.csv"
-  f2 <- "outputs_test_ppn_po/name.fold.eval.csv"
-  f3 <- "outputs_test_ppn_go/name.fold.eval.csv"
-  f4 <- "outputs_test_ppn_chebi/name.fold.eval.csv"
-  d1 <- read(dir,f1)
-  d2 <- read(dir,f2)
-  d3 <- read(dir,f3)
-  d4 <- read(dir,f4)
-  d <- rbind(d1,d2,d3,d4)
-  d <- d[d$category %in% c("TP","FN"),]
-  e <- d
-  dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/me/set1/"
-  f1 <- "outputs_test_ppn_pato/name.fold.eval.csv"
-  f2 <- "outputs_test_ppn_po/name.fold.eval.csv"
-  f3 <- "outputs_test_ppn_go/name.fold.eval.csv"
-  f4 <- "outputs_test_ppn_chebi/name.fold.eval.csv"
-  d1 <- read(dir,f1)
-  d2 <- read(dir,f2)
-  d3 <- read(dir,f3)
-  d4 <- read(dir,f4)
-  d <- rbind(d1,d2,d3,d4)
-  d <- d[d$category %in% c("TP","FN"),]
-  
-  # Combining the output files for those different methods.
-  joint <- full_join(e, d, by=c("chunk","term","text","label"))
-  
-  # Remove missing stuff.
-  sum(is.na(joint$similarity.x))
-  sum(is.na(joint$similarity.y))
-  joint <- joint[is.na(joint$similarity.y)==F,]
-  joint <- joint[is.na(joint$similarity.x)==F,]
-
-  return(joint)
-}
-
-preprocess_st <- function(){
-  
-  dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/na/"
-  f1 <- "outputs_species_ppn_pato/name.fold.eval.csv"
-  f2 <- "outputs_species_ppn_po/name.fold.eval.csv"
-  f3 <- "outputs_species_ppn_go/name.fold.eval.csv"
-  f4 <- "outputs_species_ppn_chebi/name.fold.eval.csv"
-  d1 <- read(dir,f1)
-  d2 <- read(dir,f2)
-  d3 <- read(dir,f3)
-  d4 <- read(dir,f4)
-  d <- rbind(d1,d2,d3,d4)
-  d <- d[d$category %in% c("TP","FN"),]
-  e <- d
-  dir <- "/Users/irbraun/Desktop/droplet/alpha2/nlp/nc/"
-  f1 <- "outputs_species_ppn_pato/name.fold.eval.csv"
-  f2 <- "outputs_species_ppn_po/name.fold.eval.csv"
-  f3 <- "outputs_species_ppn_go/name.fold.eval.csv"
-  #f4 <- "outputs_species_ppn_chebi/chebi_species.fold.eval.csv"
-  d1 <- read(dir,f1)
-  d2 <- read(dir,f2)
-  d3 <- read(dir,f3)
-  #d4 <- read(dir,f4)
-  d <- rbind(d1,d2,d3)
-  d <- d[d$category %in% c("TP","FN"),]
-  
-  # Combining the output files for those different methods.
-  joint <- full_join(e, d, by=c("chunk","term","text","label"))
-  
-  
-  # Remove missing stuff.
-  sum(is.na(joint$similarity.x))
-  sum(is.na(joint$similarity.y))
-  joint <- joint[is.na(joint$similarity.y)==F,]
-  joint <- joint[is.na(joint$similarity.x)==F,]
-
-  return(joint)
-  
-}
-
-
-joint <- preprocess_ml()
-joint$similarity <- joint$similarity.x+joint$similarity.y
-joint$similarity <- joint$similarity / 2
-joint$similarity <- pmax(joint$similarity.x,joint$similarity.y)
-joint <- joint[,c(1:4,15)]
-ml <- joint
-
-joint <- preprocess_st()
-joint$similarity <- joint$similarity.x+joint$similarity.y
-joint$similarity <- joint$similarity / 2
+# Combining string-based methods
+joint <- full_join(nc, na, by=c("chunk","term","text","label"))
+# Remove missing stuff.
+sum(is.na(joint$similarity.x))
+sum(is.na(joint$similarity.y))
+joint <- joint[is.na(joint$similarity.y)==F,]
+joint <- joint[is.na(joint$similarity.x)==F,]
+# Find the max similarity to target term obtained.
 joint$similarity <- pmax(joint$similarity.x,joint$similarity.y)
 joint <- joint[,c(1:4,15)]
 st <- joint
+
+
+
+
+# Combine the word frequency methods
+joint <- nb
+joint <- joint[,c(1:4,8)]
+ml <- joint
+
 
 # Combining the output files for those different methods.
 joint <- full_join(ml, st, by=c("chunk","term","text","label"))
@@ -290,15 +89,22 @@ mlm_good <- joint[joint$similarity.x>=high & joint$similarity.y<low,]
 str_good <- joint[joint$similarity.x<low & joint$similarity.y>=high,]
 both_bad <- joint[joint$similarity.x<low & joint$similarity.y<low,]
 
+
+
+
+
+
 # problem is that this still has one entry per each occurence of a target term.
 # want each term to only be placed in one bin, so it's average for the similarity
 # values from each method should be obtained for all occurences of the term.
 # Alternatively, check which terms are only present in one of those categories for example.
 # i.e. term X is only recalled well by this one method all the time, or normally.
 
+
 g <- aggregate(data.frame(count = mlm_good$label), list(value = mlm_good$label), length)
 h <- aggregate(data.frame(count = str_good$label), list(value = str_good$label), length)
 b <- aggregate(data.frame(count = both_good$label), list(value = both_good$label), length)
+
 
 # ^looks at how often terms appear in the sets, i.e. the most frequently occuring terms in the 
 # str_good set are things like, ChEBI and PO terms (fruit, seed, endosperm, yellow, green).

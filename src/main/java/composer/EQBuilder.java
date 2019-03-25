@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import static main.Main.logger;
 import ontology.Onto;
 import structure.OntologyTerm;
 import uk.ac.ebi.brain.error.ClassExpressionException;
@@ -41,6 +42,9 @@ public class EQBuilder {
         
         
         ArrayList<EQStatement> predictedEQs = new ArrayList<>();
+        
+        logger.info("get all permutations is looking at " + eTerms.size() + " entities");
+        
                 
         // using simple qualities
         for (Term predictedQ: qTermsSimple){
@@ -129,6 +133,7 @@ public class EQBuilder {
             }
         }
         
+        logger.info("there were " + predictedEQs.size() + " eqs sent back from EQ builder");
         return predictedEQs;
     }
     
