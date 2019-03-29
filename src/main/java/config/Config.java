@@ -39,6 +39,10 @@ public class Config {
     public static boolean useStemmer;
     public static boolean removeStopWords;
     
+    
+    public static boolean checkFuzzyScore;
+    public static String passedInName;
+    
     public static boolean undersample;
     public static int maxNegRetain;
     public static ArrayList<Integer> fullPartitions;

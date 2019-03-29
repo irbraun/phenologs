@@ -15,12 +15,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import main.Group;
 import static main.Main.logger;
 import main.Partitions;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
 import ontology.Onto;
 import org.json.simple.parser.ParseException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -39,6 +41,9 @@ import uk.ac.ebi.brain.error.NewOntologyException;
  */
 public class OutsideAnnotationReader {
     
+    
+
+  
     public static void run(String source) throws IOException, FileNotFoundException, ParseException, SQLException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
         
         
@@ -66,12 +71,19 @@ public class OutsideAnnotationReader {
             default:
                 throw new Exception();
         }
+        
+
+        
+        
+        
+        
        
         
         String baseDirectory = dir;
         
         // Strings identifying aspects of the testing sets of phenotypes.
         String fold = "fold";
+        String groupName = Config.passedInName;
        
         // Partition numbers for each testing set.
         List<Integer> allPartitionNumbers = utils.Util.range(0, 31);
@@ -90,32 +102,32 @@ public class OutsideAnnotationReader {
         String outputPath = String.format("%s/%s",baseDirectory,"output_pato");
         String dtypeTag = String.format("_%s",utils.Util.inferTextType(Config.format).toString().toLowerCase());
         List<Group> patoGroups = new ArrayList<>();
-        patoGroups.add(new Group("group1"+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
-        patoGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-        patoGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+        patoGroups.add(new Group(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
+        //patoGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
+        //patoGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
         populateFilesForTestSets(text, Ontology.PATO, patoGroups, patosrc);
 
         List<Group> poGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_po");
-        poGroups.add(new Group("group1"+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
-        poGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-        poGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+        poGroups.add(new Group(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
+        //poGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
+        //poGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
         populateFilesForTestSets(text, Ontology.PO, poGroups, posrc);
 
         List<Group> goGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_go");
-        goGroups.add(new Group("group1"+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
-        goGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-        goGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+        goGroups.add(new Group(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
+        //goGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
+        //goGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
         populateFilesForTestSets(text, Ontology.GO, goGroups, gosrc);
         
         // Not currently using the ChEBI ontology with NOBLE Coder.
         if (!source.equals("nc")){
             List<Group> chebiGroups = new ArrayList<>();
             outputPath = String.format("%s/%s",baseDirectory,"output_chebi");
-            chebiGroups.add(new Group("group1"+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
-            chebiGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-            chebiGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+            chebiGroups.add(new Group(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
+            //chebiGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
+            //chebiGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
             populateFilesForTestSets(text, Ontology.CHEBI, chebiGroups, chebisrc);
         }
 
@@ -319,6 +331,18 @@ public class OutsideAnnotationReader {
                         if (onto.getTermFromTermID(id)!=null){
                             String joined = result.nodes;
                             double score = toolFoundTermsMap.get(c.chunkID).get(allTermIDsFoundBySearching.indexOf(id)).score;
+                            
+                            // Calculate the score for this annotated term on the fly instead if this option was desired.
+                            if (Config.checkFuzzyScore){
+                                ArrayList<Double> scoresFromAllSyn = new ArrayList<>();
+                                for (String syn: onto.getTermFromTermID(id).getAllSynonyms()){
+                                    double scoreForThisSyn = FuzzySearch.ratio(joined, syn);
+                                    scoresFromAllSyn.add(scoreForThisSyn);
+                                }
+                                score = Collections.max(scoresFromAllSyn); 
+                            }
+                            
+                            
                             String scoreStr = String.format("%.3f",score);
                             Object[] line = {c.chunkID, id, scoreStr,joined};
                             Utils.writeToClassProbFiles(line, c, groups);
@@ -380,6 +404,17 @@ public class OutsideAnnotationReader {
                         if (onto.getTermFromTermID(id)!=null){
                             String joined = result.nodes;
                             double score = toolFoundTermsMap.get(c.chunkID).get(allTermIDsFoundBySearching.indexOf(id)).score;
+                            
+                            // Calculate the score for this annotated term on the fly instead if this option was desired.
+                            if (Config.checkFuzzyScore){
+                                ArrayList<Double> scoresFromAllSyn = new ArrayList<>();
+                                for (String syn: onto.getTermFromTermID(id).getAllSynonyms()){
+                                    double scoreForThisSyn = FuzzySearch.ratio(joined, syn);
+                                    scoresFromAllSyn.add(scoreForThisSyn);
+                                }
+                                score = Collections.max(scoresFromAllSyn); 
+                            }
+                            
                             String scoreStr = String.format("%.3f",score);
                             Object[] line = {c.chunkID, id, scoreStr,joined};
                             Utils.writeToClassProbFiles(line, c, groups);

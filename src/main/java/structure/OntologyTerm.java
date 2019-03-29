@@ -128,7 +128,6 @@ public class OntologyTerm {
         return null;
     }
     
-    
     public List<String> getAllSynonymWords(){
         ArrayList<String> synonyms = new ArrayList<>();
         synonyms.addAll(this.getAllWords(Aspect.EXACT_SYN));
@@ -137,6 +136,16 @@ public class OntologyTerm {
         synonyms.addAll(this.getAllWords(Aspect.BROAD_SYN));
         return synonyms;
     }
+    
+    public List<String> getAllSynonyms(){
+        ArrayList<String> synonyms = new ArrayList<>();
+        synonyms.addAll(this.exactSynonyms);
+        synonyms.addAll(this.narrowSynonyms);
+        synonyms.addAll(this.relatedSynonyms);
+        synonyms.addAll(this.broadSynonyms);
+        return synonyms;
+    }
+    
     
     // Split the aspect into individual words. Handles empty lists as well.
     private List<String> tokenized(List<String> synonyms){

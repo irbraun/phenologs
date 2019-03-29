@@ -49,18 +49,21 @@ public class AggregateResults {
                 
         List<String> patoFiles = new ArrayList<>();
         patoFiles.add(dir+"/noble/output_pato/group1_"+Config.format+"_classprobs.csv");
+        patoFiles.add(dir+"/noble/output_pato/group2_"+Config.format+"_classprobs.csv");
         patoFiles.add(dir+"/naive/output_pato/merged_"+Config.format+"_classprobs.csv");
         patoFiles.add(dir+"/ncbo/output_pato/group1_"+Config.format+"_classprobs.csv");
         mergeFiles(patoFiles, dir+"/aggregate/output_pato/classprobs.csv");
 
         List<String> poFiles = new ArrayList<>();
         poFiles.add(dir+"/noble/output_po/group1_"+Config.format+"_classprobs.csv");
+        poFiles.add(dir+"/noble/output_po/group2_"+Config.format+"_classprobs.csv");
         poFiles.add(dir+"/naive/output_po/merged_"+Config.format+"_classprobs.csv");
         poFiles.add(dir+"/ncbo/output_po/group1_"+Config.format+"_classprobs.csv");
         mergeFiles(poFiles, dir+"/aggregate/output_po/classprobs.csv");
         
         List<String> goFiles = new ArrayList<>();
         goFiles.add(dir+"/noble/output_go/group1_"+Config.format+"_classprobs.csv");
+        goFiles.add(dir+"/noble/output_go/group2_"+Config.format+"_classprobs.csv");
         goFiles.add(dir+"/naive/output_go/merged_"+Config.format+"_classprobs.csv");
         goFiles.add(dir+"/ncbo/output_go/group1_"+Config.format+"_classprobs.csv");
         mergeFiles(goFiles, dir+"/aggregate/output_go/classprobs.csv");
@@ -155,79 +158,8 @@ public class AggregateResults {
         outputPath = String.format("%s/%s",baseDirectory,"output_chebi");
         chebiGroups.add(new Group("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
         populateFilesForTestSets(text, Ontology.CHEBI, chebiGroups, outputPath+"/classprobs.csv");
-        
-        
-        /*
-        // Annotated data available in the Plant PhenomeNET.
-        String dataset = "ppn";
-        List<Group> patoGroups = new ArrayList<>();
-        patoGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "pato/"), set1PartitionObj));
-        patoGroups.add(new Group("name", fold, set1PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set1, dataset, "pato/"), set1PartitionObj));
-        populateFilesForTestSets(text, Ontology.PATO, patoGroups, baseDirectory+"outputs_all_ppn_pato/original_classprobs.csv");
-
-        List<Group> poGroups = new ArrayList<>();
-        poGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "po/"), set1PartitionObj));
-        poGroups.add(new Group("name", fold, set1PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set1, dataset, "po/"), set1PartitionObj));
-        populateFilesForTestSets(text, Ontology.PO, poGroups, baseDirectory+"outputs_all_ppn_po/original_classprobs.csv");
-
-        List<Group> goGroups = new ArrayList<>();
-        goGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "go/"), set1PartitionObj));
-        goGroups.add(new Group("name", fold, set1PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set1, dataset, "go/"), set1PartitionObj));
-        populateFilesForTestSets(text, Ontology.GO, goGroups, baseDirectory+"outputs_all_ppn_go/original_classprobs.csv");
-        
-        List<Group> chebiGroups = new ArrayList<>();
-        chebiGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "chebi/"), set1PartitionObj));
-        chebiGroups.add(new Group("name", fold, set1PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set1, dataset, "chebi/"), set1PartitionObj));
-        populateFilesForTestSets(text, Ontology.CHEBI, chebiGroups, baseDirectory+"outputs_all_ppn_chebi/original_classprobs.csv");
-        /*
-        {
-        makeCombinedFilesSet2();
-        
-        String baseDirectory = "/work/dillpicl/irbraun/term-mapping/alpha2/nlp/aggregate/set2/";
-
-        // Strings identifying aspects of the testing sets of phenotypes.
-        String fold = "fold";
-        String set2 = Config.set2Name;
-        String all = "all";
-       
-        // Partition numbers for each testing set.
-        List<Integer> allPartitionNumbers = utils.Util.range(0, 31);
-        List<Integer> set2PartitionNumbers = utils.Util.range(0, 4);
-        
-        // Text data and partition objects for each testing set.
-        Text text = new Text();
-        Partitions set1PartitionObj = new Partitions(text, Config.set2Name); 
-       
-
-        // Annotated data available in the Plant PhenomeNET.
-        String dataset = "ppn";
-        List<Group> patoGroups = new ArrayList<>();
-        patoGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "pato/"), set1PartitionObj));
-        patoGroups.add(new Group("name", fold, set2PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set2, dataset, "pato/"), set1PartitionObj));
-        populateFilesForTestSets(text, Ontology.PATO, patoGroups, baseDirectory+"outputs_all_ppn_pato/original_classprobs.csv");
-
-        List<Group> poGroups = new ArrayList<>();
-        poGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "po/"), set1PartitionObj));
-        poGroups.add(new Group("name", fold, set2PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set2, dataset, "po/"), set1PartitionObj));
-        populateFilesForTestSets(text, Ontology.PO, poGroups, baseDirectory+"outputs_all_ppn_po/original_classprobs.csv");
-
-        List<Group> goGroups = new ArrayList<>();
-        goGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "go/"), set1PartitionObj));
-        goGroups.add(new Group("name", fold, set2PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set2, dataset, "go/"), set1PartitionObj));
-        populateFilesForTestSets(text, Ontology.GO, goGroups, baseDirectory+"outputs_all_ppn_go/original_classprobs.csv");
-        
-        List<Group> chebiGroups = new ArrayList<>();
-        chebiGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", all, dataset, "chebi/"), set1PartitionObj));
-        chebiGroups.add(new Group("name", fold, set2PartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", set2, dataset, "chebi/"), set1PartitionObj));
-        populateFilesForTestSets(text, Ontology.CHEBI, chebiGroups, baseDirectory+"outputs_all_ppn_chebi/original_classprobs.csv");
-        }
-        */
-        
-        
+         
     }
     
-    
    
-    
-    
 }

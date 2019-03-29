@@ -1,12 +1,8 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package composer;
 
 import composer.Utils.TermComparatorByLabelLength;
-import composer.Utils.TermComparatorByProb;
+import composer.Utils.TermComparatorByScore;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.semgraph.SemanticGraph;
@@ -24,10 +20,7 @@ import nlp.MyAnnotation.Token;
 import nlp.CoreNLP;
 import structure.Chunk;
 
-/**
- *
- * @author irbraun
- */
+
 public class Modifier {
     
     
@@ -51,7 +44,7 @@ public class Modifier {
 
         
     /**
-     * This method does not work. Goal is to detect when the subject is only implied using the
+     * This method does not work. Goal was to detect when the subject is only implied using the
      * NLP information rather than just a lack of finding other entities. That might not be the 
      * right approach because it's much more difficult that just seeing what else was found
      * during annotation and haven't found a reliable way to get that information out of the dG.
@@ -70,8 +63,9 @@ public class Modifier {
     }
     
     
-
-    // Find the EQ statements that don't use the implied subject term as the single primary entity.
+    
+    
+    // Find the EQ statements that are not using the term that is specified as the default primary entity. 
     public static List<EQStatement> getNonImpliedSubjEQs(List<EQStatement> eqs){
         List<EQStatement> toDelete = new ArrayList<>();
         for (EQStatement eq: eqs){
@@ -101,8 +95,6 @@ public class Modifier {
     
     
     
-    
-    
     // Find EQ statements that don't satisfy a dependency graph check.
     public static List<EQStatement> getInvalidComplexEQs(List<EQStatement> eqs, MyAnnotation annot){
         List<EQStatement> toDelete = new ArrayList<>();
@@ -123,12 +115,18 @@ public class Modifier {
     
     
     
+    
+    
     /**
-     * 
+     * Looks at the minimal undirected path lengths between the nodes mapping
+     * to the two input terms. This method is specific to looking for a path
+     * length of one between the relevant nodes and just returns false when this
+     * is not the case. This is for cases where the path length of one is an 
+     * enforced requirement such as between two terms in the same entity.
      * @param t1
      * @param t2
      * @param annot
-     * @return true=there is directed path length of 1 from t1 to t2, false=anything else.
+     * @return true when there is directed path length of 1 from t1 to t2, false when anything else.
      */
     private static boolean checkDependency(Term t1, Term t2, MyAnnotation annot){
         List<IndexedWord> nodesTerm1 = new ArrayList<>();
@@ -173,8 +171,6 @@ public class Modifier {
 
     
     
-    
-    
     // Find the minimum path length between two nodes in the dG.
     public static int getMinPathLength(HashSet<String> set1, HashSet<String> set2, MyAnnotation annot){
         set1 = CoreNLP.removeStopWords(set1);
@@ -210,8 +206,6 @@ public class Modifier {
     
     
     
-    
-   
     /**
      * Returns terms from a list of terms that share nodes (tokens) with the target
      * term. This counts all the nodes that are reported to be aligned with the 
@@ -239,12 +233,7 @@ public class Modifier {
     
     
     
-    /**
-     * Return entity terms that overlap with another entity term in the list but
-     * have lesser information content within the structure of their ontology.
-     * @param terms
-     * @return 
-     */
+    // Return entity terms that overlap with another entity term but are ranked lower.
     public static List<Term> findRedundantEntities(List<Term> terms){
         HashSet<Term> checked = new HashSet<>();
         List<Term> toDelete = new ArrayList<>();
@@ -252,19 +241,16 @@ public class Modifier {
             if (!checked.contains(target)){
                 List<Term> copyOther = new ArrayList<>(terms);
                 copyOther.remove(target);
-                List<Term> conflicts = getConflictsOrderedByOntoThenProb(target,copyOther);
+                List<Term> conflicts = getConflictsOrderedByOntologyAndScore(target,copyOther);
                 toDelete.addAll(conflicts.subList(1,conflicts.size()));
                 checked.addAll(conflicts);
             }
         }
         return toDelete;
     }
-    
-    
-    
-    
-    
-    private static List<Term> getConflictsOrderedByOntoThenProb(Term target, List<Term> other){
+
+    // Helper function to figure out which entity to remove in the case of redundant entities.
+    private static List<Term> getConflictsOrderedByOntologyAndScore(Term target, List<Term> other){
         
         // Figure out which terms are overlapping so that conflicts can be resolved.
         List<Term> conflicts = getOverlappingTerms(target,other);
@@ -276,13 +262,13 @@ public class Modifier {
             System.out.println(t.id);
         }
         
-        // Define default order for how ontology terms should be retained.
+// Define default order for how ontology terms should be retained.
         HashMap<Integer,Ontology> ontoOrder = new HashMap<>();
         ontoOrder.put(1,Ontology.PO);
         ontoOrder.put(2,Ontology.UBERON);
         ontoOrder.put(3,Ontology.GO);
         ontoOrder.put(4,Ontology.CHEBI);
-        
+     
         // Do the sorting based on those preferences.
         for (int order=1; order<=ontoOrder.keySet().size(); order++){
             List<Term> fromThisO = new ArrayList<>();
@@ -291,7 +277,7 @@ public class Modifier {
                     fromThisO.add(t);
                 }
             }
-            Collections.sort(fromThisO, new TermComparatorByProb());
+            Collections.sort(fromThisO, new TermComparatorByScore());
             conflictsSorted.addAll(fromThisO);
         }
         
@@ -305,15 +291,11 @@ public class Modifier {
         
     
     
-
     
     
     
     /**
-     * Return the quality terms that overlap with another quality term in the list
-     * but have short label strings. TODO the criteria of having longer label needs
-     * to be replaced by probability or information content, placeholder comparison
-     * which doesn't take into account any information found during annotation step.
+     * Return the quality terms that overlap with another quality term in the list.
      * @param terms
      * @return 
      */
@@ -335,10 +317,13 @@ public class Modifier {
         // Get the set of terms that is considered to be representing the same meaning as the target.
         List<Term> conflicts = getOverlappingTerms(target, other);
         conflicts.add(target);
-        // Get the terms that had the least label length in that group.
+        // Get the terms which had the minimal label length in that set.
         Collections.sort(conflicts, new TermComparatorByLabelLength());
         return conflicts.subList(1, conflicts.size());
     }
+    
+    
+    
     
     
     

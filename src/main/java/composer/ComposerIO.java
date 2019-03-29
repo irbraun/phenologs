@@ -91,7 +91,7 @@ public class ComposerIO {
             }   
                 
             // Limit the number of candidate terms from this ontology for each chunk.
-            Utils.TermComparatorByProb comparer = new Utils.TermComparatorByProb();
+            Utils.TermComparatorByScore comparer = new Utils.TermComparatorByScore();
             for (Integer chunkID: chunkToTermsMap.keySet()){
                 Collections.sort(chunkToTermsMap.get(chunkID), comparer);
                 chunkToTermsMap.put(chunkID, new ArrayList<>(chunkToTermsMap.get(chunkID).subList(0, Math.min(k, chunkToTermsMap.get(chunkID).size()))));           

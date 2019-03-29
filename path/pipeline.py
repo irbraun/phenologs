@@ -54,7 +54,7 @@ def do_doc_embeddings(training_data_path, split_chunks_path, original_network_pa
 # the directory of split sentences. Change the parameters here to test different methods
 # of using this annotation tool. The level parameter is a string specifying how the tool
 # should be run, the options are 'precise-match' and 'partial-match', among some others.
-def annotate_with_noblecoder(dtype, level="precise-match"):
+def annotate_with_noblecoder(dtype, fuzzy, group_name, level="precise-match", default_prob=1.000):
 	noblecoder_dir = r'./annotators/noble/'
 	ontologies = ["pato","po","go"]
 	split_chunks_path = r'./data/split_chunks/'
@@ -71,17 +71,22 @@ def annotate_with_noblecoder(dtype, level="precise-match"):
 		raw_output_filename = os.path.join(noble_output_path, "RESULTS.tsv")
 		processed_output_filename = os.path.join(noble_output_path, 'results.csv')
 		nc_parse_script_path = os.path.join(noblecoder_dir, r'nc_parse.py')
-		os.system("python "+nc_parse_script_path+" "+raw_output_filename+" "+processed_output_filename)
+		os.system("python "+nc_parse_script_path+" "+raw_output_filename+" "+processed_output_filename+" "+str(default_prob))
 
 	# This does have some hard-coded assumptions in it, fix these.
-	os.system("java -jar term-mapping.jar -n2 "+" -d "+dtype+" "+configs_path)
+	call = "java -jar term-mapping.jar -n2 "+" -d "+dtype+" -name "+group_name
+	if fuzzy==True:
+		call = call+" -fuzzy"
+	call = call+" "+configs_path
+	os.system(call)
+	#os.system("java -jar term-mapping.jar -n2 "+" -d "+dtype+" "+configs_path)
 
 
 
 
 # Repeat for the annotation tool NCBO Annotator. The actual call is generated from within
 # a python script that parsed the output returned from the server as well.
-def annotate_with_ncbo_annotator(dtype):
+def annotate_with_ncbo_annotator(dtype, fuzzy, group_name):
 	ncboannot_dir = r"./annotators/ncbo"
 	ontologies = ["pato","po","go","chebi"]
 	for onto in ontologies:
@@ -90,7 +95,14 @@ def annotate_with_ncbo_annotator(dtype):
 			os.makedirs(ncboannot_output_path)
 	# This is where ncbo_annot.py would be called if using it within the automated pipeline.
 	# This does have some hard-coded assumption in it, fix these.
-	os.system("java -jar term-mapping.jar -n22 "+" -d "+dtype+" "+configs_path)
+	call = "java -jar term-mapping.jar -n22 "+" -d "+dtype+" -name "+group_name
+	if fuzzy==True:
+		call = call+" -fuzzy"
+	call = call+" "+configs_path
+	os.system(call)
+	#os.system("java -jar term-mapping.jar -n22 "+" -d "+dtype+" "+configs_path)
+
+
 
 
 
@@ -106,6 +118,7 @@ def annotate_with_naivebayes(dtype, threshold=1.00):
 	os.system("bash "+os.path.join(naivebayes_dir,"merge_files.sh")+" "+dtype)
 
 
+
 def aggregate_annotations(dtype):
 	annotations_dir = r"./annotators/"
 	aggregated_dir = os.path.join(annotations_dir, "aggregate")
@@ -116,6 +129,7 @@ def aggregate_annotations(dtype):
 		path = os.path.join(aggregated_dir, r"output_"+onto)
 		if not os.path.exists(path):
 			os.makedirs(path)
+	# Which files to merge are specied in the java code.
 	os.system("java -jar term-mapping.jar -agg "+annotations_dir+" -d "+dtype+" "+configs_path)
 
 
@@ -129,8 +143,6 @@ def compose(networks_path, dtype):
 	if not os.path.exists(networks_path):
 		os.makedirs(networks_path)
 	os.system("java -jar term-mapping.jar -c "+" -d "+dtype+" "+configs_path)
-
-
 
 
 
@@ -163,6 +175,12 @@ def collect_documents(queryname, database="pubmed", doc_limit=1000):
 
 
 
+# Only have to run this once, fetches and preprocesses documents from Pubmed.
+# Runtime on Condo was ~3 hrs with a doc_limit of 100,000. 
+#collect_documents("search1", database="pubmed", doc_limit=100000)
+
+
+
 
 
 
@@ -175,9 +193,6 @@ configs_path = r"/work/dillpicl/irbraun/term-mapping/path/config/"
 dtype = sys.argv[1]
 
 
-# Only have to run this once, fetches and preprocesses documents from Pubmed.
-# Runtime on Condo was ~3 hrs with a doc_limit of 100,000. 
-#collect_documents("search1", database="pubmed", doc_limit=100000)
 
 
 
@@ -186,40 +201,38 @@ dtype = sys.argv[1]
 thresholds = [1.00]
 for t in thresholds:
 
+	# Using the domain-specific word embeddings model from pubmed abstracts. Incorrect now, old parameters.
 	'''
-	# Using the domain-specific word embeddings model from pubmed abstracts.
 	description = "'nc; threshold = "+str(t)+"; domain specific embeddings; partial matches; "+str(dtype)+"'"
 	output = r"./output/nc_thresh"+str(t).replace(".","d")+"_domain300_partial_"+dtype+".csv"
 	preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/300_size.model", dtype=dtype)
-	annotate_with_noblecoder(level="partial-match", dtype=dtype)
+	annotate_with_noblecoder(level="precise-match", default_prob=0.50, dtype=dtype)
 	files = ["output_pato/group1_"+dtype+"_eval.csv", "output_po/group1_"+dtype+"_eval.csv", "output_go/group1_"+dtype+"_eval.csv"]
 	get_metrics(output, description, r"./annotators/noble/", files)
+
+	# Using the domain-specific word embeddings model from pubmed abstracts. Incorrect now, old parameters.
+	description = "'nc; threshold = "+str(t)+"; domain specific embeddings; precise matches; "+str(dtype)+"'"
+	output = r"./output/nc_thresh"+str(t).replace(".","d")+"_domain300_precise_"+dtype+".csv"
+	preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/300_size.model", dtype=dtype)
+	annotate_with_noblecoder(level="precise-match", default_prob=1.00, dtype=dtype)
+	files = ["output_pato/group1_"+dtype+"_eval.csv", "output_po/group1_"+dtype+"_eval.csv", "output_go/group1_"+dtype+"_eval.csv"]
+	get_metrics(output, description, r"./annotators/noble/", files)
+	'''
 
 	# Using the pre-trained word embeddings from wikipedia.
 	description = "'nc; threshold = "+str(t)+"; pre-trained wikipedia embeddings; partial matches;"+str(dtype)+"'"
 	output = r"./output/nc_thresh"+str(t).replace(".","d")+"_enwiki_partial_"+dtype+".csv"
 	preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype=dtype)
-	annotate_with_noblecoder(level="partial-match", dtype=dtype)
+	annotate_with_noblecoder(level="precise-match", default_prob=0.50, dtype=dtype, fuzzy=True, group_name="group1")
 	files = ["output_pato/group1_"+dtype+"_eval.csv", "output_po/group1_"+dtype+"_eval.csv", "output_go/group1_"+dtype+"_eval.csv"]
 	get_metrics(output, description, r"./annotators/noble/", files)
 
-	# Using the domain-specific word embeddings model from pubmed abstracts.
-	description = "'nc; threshold = "+str(t)+"; domain specific embeddings; precise matches; "+str(dtype)+"'"
-	output = r"./output/nc_thresh"+str(t).replace(".","d")+"_domain300_precise_"+dtype+".csv"
-	preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/300_size.model", dtype=dtype)
-	annotate_with_noblecoder(level="precise-match", dtype=dtype)
-	files = ["output_pato/group1_"+dtype+"_eval.csv", "output_po/group1_"+dtype+"_eval.csv", "output_go/group1_"+dtype+"_eval.csv"]
-	get_metrics(output, description, r"./annotators/noble/", files)
-	'''
-
-
-	# Use this one.
 	# Using the pre-trained word embeddings from wikipedia.
 	description = "'nc; threshold = "+str(t)+"; pre-trained wikipedia embeddings; precise matches;"+str(dtype)+"'"
 	output = r"./output/nc_thresh"+str(t).replace(".","d")+"_enwiki_precise_"+dtype+".csv"
 	preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype=dtype)
-	annotate_with_noblecoder(level="precise-match", dtype=dtype)
-	files = ["output_pato/group1_"+dtype+"_eval.csv", "output_po/group1_"+dtype+"_eval.csv", "output_go/group1_"+dtype+"_eval.csv"]
+	annotate_with_noblecoder(level="precise-match", default_prob=1.00, dtype=dtype, fuzzy=False, group_name="group2")
+	files = ["output_pato/group2_"+dtype+"_eval.csv", "output_po/group2_"+dtype+"_eval.csv", "output_go/group2_"+dtype+"_eval.csv"]
 	get_metrics(output, description, r"./annotators/noble/", files)
 
 
@@ -234,7 +247,7 @@ for t in thresholds:
 	description = "'na; threshold = "+str(t)+"; pre-trained wikipedia embeddings; "+str(dtype)+"'"
 	output = r"./output/na_thresh"+str(t).replace(".","d")+"_enwiki_default_"+dtype+".csv"
 	preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype=dtype)
-	annotate_with_ncbo_annotator(dtype=dtype)
+	annotate_with_ncbo_annotator(dtype=dtype, fuzzy=False, group_name="group1")
 	files = ["output_pato/group1_"+dtype+"_eval.csv", "output_po/group1_"+dtype+"_eval.csv", "output_go/group1_"+dtype+"_eval.csv", "output_chebi/group1_"+dtype+"_eval.csv"]
 	get_metrics(output, dtype, r"./annotators/ncbo/", files)
 
@@ -244,7 +257,7 @@ for t in thresholds:
 
 
 # Running naive Bayes for semantic annotation with gridsearch for parameters. Each takes 10 single core minutes.
-thresholds = [1.00]
+thresholds = []
 for t in thresholds:
 
 	'''
@@ -268,19 +281,25 @@ for t in thresholds:
 
 
 
+'''
 # Aggregate a set of the output files from the semantic annotation step for comparison.
 aggregate_annotations(dtype=dtype)
 files = ["output_pato/group1_eval.csv", "output_po/group1_eval.csv", "output_go/group1_eval.csv", "output_chebi/group1_eval.csv"]
 output = r"./output/aggregate"+dtype+".csv"
 get_metrics(output, dtype, r"./annotators/aggregate/", files)
 print "finished semantic annotation"
+'''
+
 
 
 
 
 # Generate final output.
-compose(networks_path="./networks/", dtype=dtype)
-print "finished generating output file"
+#compose(networks_path="./networks/", dtype=dtype)
+#print "finished generating output file"
+
+
+
 
 # Provide the gathered text data that will be used to train domain-specific doc2vec models.
 # Those should have been obtained using collect_documents() with some doc number limit.
@@ -293,13 +312,14 @@ print "finished generating output file"
 # If obtaining doc2vec estimations for the graph where nodes are phenes, this has to be "python pipeline.py phene" and call preprocess().
 # Have to change it to phenotypes in the config/config.properties file in this case too!
 
+'''
 preprocessing(dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype="phenotype")
 do_doc_embeddings("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phenotype_network.csv", "./networks/phenotype_network_modified.csv")
 print "finished generating all the edge values for the phenotype network"
 preprocessing(dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype="phene")
 do_doc_embeddings("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phene_network.csv", "./networks/phene_network_modified.csv")
 print "finished generating all the edge values for the phene network"
-
+'''
 
 
 
@@ -317,9 +337,11 @@ print "finished generating all the edge values for the phene network"
 # Phenotype Descriptions.
 # 1. Change config.properties to use the correct (phenotype) source annotation files (only matters for NCBO Annotator).
 # 2. Run pipeline.py with 'phenotype' as the dtype but stop after semantic annotation.
-# 3. Change config.properties to use the correct (split) source annotation files (only matters for NCBO Annotator).
+# 3. Change config.properties to use the correct (splitphenotypes) source annotation files (only matters for NCBO Annotator).
 # 4. Change config.json to use the split phenotype annotations files as the sources for EQ statements.
-# 5. Run pipeline.py with 'split_phenotype' as the dtype and continue through the whole thing.
+# 5. Leave the phene annotation files as the one's used to estimate the dG path length probabilities.
+# 6. Run pipeline.py with 'split_phenotype' as the dtype and continue through the whole thing.
+# 7. There won't be any eval files or output semantic annotation output files for the split annotations run, just the graphs and annot file.
 
 
 

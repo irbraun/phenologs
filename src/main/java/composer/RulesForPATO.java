@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package composer;
 
 import config.Config;
@@ -18,13 +14,8 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
-import uk.ac.ebi.brain.core.Brain;
 import uk.ac.ebi.brain.error.NewOntologyException;
 
-/**
- *
- * @author irbraun
- */
 public class RulesForPATO {
     
     public HashSet<String> relationalQualityIDs;
@@ -38,7 +29,6 @@ public class RulesForPATO {
         relationalQualityIDs = new HashSet<>(); 
         OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
         OWLOntology patoOntology = manager.loadOntologyFromOntologyDocument(new File(Config.ontologyPaths.get(Ontology.PATO)));
-        Brain patoBrain = new Brain(patoOntology);
         
         // Determine if the given class is relational.
         for (OWLClass cls : patoOntology.getClassesInSignature()){

@@ -71,8 +71,8 @@ phene_network <- read(dir,phene_edges_file)
 # Notes about the c2 pathway example being used here.
 # c2: phenotype 1262, one phene is 2544
 # c1: phenotype 1261, one phene is 2543   
-# r1: phenotype 2599, one phene is 2545     
-# b1: phenotype 1584, one phene is 3304     
+# r1: phenotype 2599, one phene is 2545       
+# b1: phenotype 1584, one phene is 3304     not picking aleurone layer
 
 
 # Setup for the tables to output the results of this pathway example.
@@ -125,11 +125,6 @@ for (id in other_ids){
   table[nrow(table)+1,] <- c(query_id,id,phenotype_network_results,phene_network_results)
 }
 write.csv(table, file=output_path_d2v, row.names=F)
-
-
-
-
-
 
 
 

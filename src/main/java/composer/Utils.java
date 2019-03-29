@@ -131,7 +131,11 @@ public class Utils {
     }
     
     
-    // Makes sure that the term ID uses all 7 digits.
+    /**
+     * Converts an ontology ID to use a specific number of digits.
+     * @param id
+     * @return 
+     */
     public static String normalizeTermID(String id){
         int correctNumDigits = 7;
         
@@ -156,7 +160,7 @@ public class Utils {
             return normalizedID;
         }
         else {
-            logger.info("problem with " + id);   // happening when the IDs aren't actually IDs at all, things that are in the wrong column.
+            logger.info("problem with " + id);
             return id;
         }
 
@@ -168,7 +172,7 @@ public class Utils {
     
     
     
-    static class EQComparatorP implements Comparator<EQStatement>
+    static class EQComparatorAverageTermScore implements Comparator<EQStatement>
     {
         @Override
         public int compare(EQStatement eq1, EQStatement eq2){
@@ -182,7 +186,7 @@ public class Utils {
         }
     }
     
-    static class EQComparatorQ implements Comparator<EQStatement>
+    static class EQComparatorTotalScore implements Comparator<EQStatement>
     {
         @Override
         public int compare(EQStatement eq1, EQStatement eq2){
@@ -198,7 +202,7 @@ public class Utils {
     
     
     
-    static class TermComparatorByProb implements Comparator<Term>
+    static class TermComparatorByScore implements Comparator<Term>
     {
         @Override
         public int compare(Term term1, Term term2){
@@ -243,7 +247,7 @@ public class Utils {
     }
     
     
-    static class EQComparatorByMetrics implements Comparator<EQStatement>
+    static class EQComparatorByAllMetrics implements Comparator<EQStatement>
     {
         /**
          * Uses all three metrics corresponding to EQ statements to try and 
@@ -286,7 +290,7 @@ public class Utils {
     
     
     
-    static class EQComparatorByMetricsMethod2 implements Comparator<EQStatement>
+    static class EQComparatorByAllMetricsAlternateOrder implements Comparator<EQStatement>
     {
         /**
          * Uses all three metrics corresponding to EQ statements to try and 

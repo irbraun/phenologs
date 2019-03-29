@@ -64,6 +64,10 @@ public class Main {
     private boolean nceval;
     @Option(name="-n22", usage="ncbo annot eval")
     private boolean naeval;
+    @Option(name="-fuzzy", usage="use fuzzy matching to infer term scores on the fly")
+    private boolean fuzzy;
+    @Option(name="-name", usage="provides a name for a group object that is included in output files")
+    private String name = "default";
     @Option(name="-agg", usage="agg")
     private String agg = "";
     @Option(name="-w", usage="word file")
@@ -99,13 +103,19 @@ public class Main {
         
         
         
-        // Different option dependent methods that can be run.
+        // Anything that changes anything specified in the config objects.
         if (!dtype.equals("")){
             Config.format = dtype.trim();
         }
         else {
             throw new Exception();
         }
+        Config.checkFuzzyScore = fuzzy;
+        Config.passedInName = name;
+        
+        
+        
+        // Everything else.
         if (textprep){
             InputDataPreparer idp = new InputDataPreparer();
             idp.findAndWriteAtoms();

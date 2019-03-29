@@ -32,7 +32,7 @@ public class EQStatement {
     
     
     /**
-     * Used to generated objects for computationally predicted EQs.
+     * Used to generate objects for computationally predicted EQs.
      * @param terms
      * @param format
      * @throws Exception 
@@ -224,8 +224,7 @@ public class EQStatement {
     /**
      * Used to generate objects for curated EQs from the corpus.
      * In the corpus file unused components are represented as blank strings, handled here.
-     * Each term is assigned its known role.
-     * The different scores take on default values.
+     * Each term is assigned its known role. The different scores take on default values.
      * @param components 
      */
     public EQStatement (String[] components){
@@ -277,8 +276,6 @@ public class EQStatement {
         }
         termScore = 1.00;
         dGraphScore = "1.00";
-        //p2Scores = new ArrayList<>();
-        
         
     }
     

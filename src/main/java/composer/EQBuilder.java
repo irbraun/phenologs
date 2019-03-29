@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package composer;
 
 import enums.EQFormat;
@@ -12,15 +8,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import static main.Main.logger;
 import ontology.Onto;
 import structure.OntologyTerm;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 
-/**
- *
- * @author irbraun
- */
+
 public class EQBuilder {
     
     /**
@@ -41,19 +33,16 @@ public class EQBuilder {
     public static ArrayList<EQStatement> getAllPermutations(HashMap<Ontology,Onto> ontoObjects, List<Term> eTerms, List<Term> qTermsSimple, List<Term> qTermsRelational, List<Term> qlfrTerms) throws ClassExpressionException, Exception{
         
         
-        ArrayList<EQStatement> predictedEQs = new ArrayList<>();
-        
-        logger.info("get all permutations is looking at " + eTerms.size() + " entities");
-        
+        ArrayList<EQStatement> predictedEQs = new ArrayList<>();        
                 
-        // using simple qualities
+        // Using any simple qualities.
         for (Term predictedQ: qTermsSimple){
             for (Term predictedE: eTerms){
 
-                
+                boolean skipThisCombination = false;
                 // Primary entity 1 can't be a ChEBI term.
                 if (predictedE.ontology.equals(Ontology.CHEBI)){
-                    break;
+                    skipThisCombination = true;
                 }
                 
                 // If primary entity 1 is a GO:BP or GO:MF, the quality must be a child of process quality in PATO.
@@ -61,82 +50,85 @@ public class EQBuilder {
                     OntologyTerm pe1 = ontoObjects.get(Ontology.GO).getTermFromTermID(predictedE.id);
                     OntologyTerm q = ontoObjects.get(Ontology.PATO).getTermFromTermID(predictedQ.id);
                     if ((pe1.allNodes.contains("GO_0008150") || pe1.allNodes.contains("GO_0003674")) && (!q.allNodes.contains("PATO_0001236"))){
-                        break;
+                        skipThisCombination = true;
                     }
                 }    
                    
                 // Add EQ Statements in the different formats that all use non-relational qualities.
-                addEQ(predictedEQs, Arrays.asList(predictedE, predictedQ), EQFormat.EQ);
-                for (Term predictedQlfr: qlfrTerms){
-                    addEQ(predictedEQs, Arrays.asList(predictedE, predictedQ, predictedQlfr), EQFormat.EQq);
+                if (!skipThisCombination){
+                    addEQ(predictedEQs, Arrays.asList(predictedE, predictedQ), EQFormat.EQ);
+                    for (Term predictedQlfr: qlfrTerms){
+                        addEQ(predictedEQs, Arrays.asList(predictedE, predictedQ, predictedQlfr), EQFormat.EQq);
+                        for (Term predictedPrimaryE2: eTerms){
+                            addEQ(predictedEQs, Arrays.asList(predictedE, predictedPrimaryE2, predictedQ, predictedQlfr), EQFormat.EEQq);
+                        }
+                    }
                     for (Term predictedPrimaryE2: eTerms){
-                        addEQ(predictedEQs, Arrays.asList(predictedE, predictedPrimaryE2, predictedQ, predictedQlfr), EQFormat.EEQq);
+                        addEQ(predictedEQs, Arrays.asList(predictedE, predictedPrimaryE2, predictedQ), EQFormat.EEQ);
                     }
                 }
-                for (Term predictedPrimaryE2: eTerms){
-                    addEQ(predictedEQs, Arrays.asList(predictedE, predictedPrimaryE2, predictedQ), EQFormat.EEQ);
-                }
-                
             }
         }
 
         
         
-        // using relational qualities.
+        // Using any relational qualities.
         for (Term predictedQ: qTermsRelational){
             for (Term predictedPrE1: eTerms){
                 
+                
+                boolean skipThisCombination = false;
                 // Primary entity 1 can't be a ChEBI term.
                 if (predictedPrE1.ontology.equals(Ontology.CHEBI)){
-                    break;
+                    skipThisCombination = true;
                 }
                 // If primary entity 1 is a GO:BP or GO:MF, the quality must be a child of process quality in PATO.
                 if (predictedPrE1.ontology.equals(Ontology.GO)){
                     OntologyTerm pe1 = ontoObjects.get(Ontology.GO).getTermFromTermID(predictedPrE1.id);
                     OntologyTerm q = ontoObjects.get(Ontology.PATO).getTermFromTermID(predictedQ.id);
                     if ((pe1.allNodes.contains("GO_0008150") || pe1.allNodes.contains("GO_0003674")) && (!q.allNodes.contains("PATO_0001236"))){
-                        break;
+                        skipThisCombination = true;
                     }
                     
                 }    
                 
                 
                 // Add EQ Statements in the different format that all use relational qualities.
-                for (Term predictedSecE1: eTerms){
-                    addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedSecE1), EQFormat.EQE);
-                    for (Term predictedQlfr: qlfrTerms){
-                        addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedQlfr, predictedSecE1), EQFormat.EQqE);
-                    }
-                    // All the formats that add a primary entity 2.
-                    for (Term predictedPrE2: eTerms){
-                        addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedSecE1), EQFormat.EEQE);
+                if (!skipThisCombination){
+                    for (Term predictedSecE1: eTerms){
+                        addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedSecE1), EQFormat.EQE);
                         for (Term predictedQlfr: qlfrTerms){
-                            addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedQlfr, predictedSecE1), EQFormat.EEQqE);
+                            addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedQlfr, predictedSecE1), EQFormat.EQqE);
                         }
-                        
-                        // All the formats that also add a secondary entity 2.
-                        for (Term predictedSecE2: eTerms){
+                        // All the formats that add a primary entity 2.
+                        for (Term predictedPrE2: eTerms){
+                            addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedSecE1), EQFormat.EEQE);
                             for (Term predictedQlfr: qlfrTerms){
-                                addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedQlfr, predictedSecE1, predictedSecE2), EQFormat.EEQqEE);
+                                addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedQlfr, predictedSecE1), EQFormat.EEQqE);
+                            }
+
+                            // All the formats that also add a secondary entity 2.
+                            for (Term predictedSecE2: eTerms){
+                                for (Term predictedQlfr: qlfrTerms){
+                                    addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedQlfr, predictedSecE1, predictedSecE2), EQFormat.EEQqEE);
+                                }
                             }
                         }
-                    }
 
-                    // All the formats that add a secondary entity 2.
-                    for (Term predictedSecE2: eTerms){
-                        addEQ(predictedEQs, Arrays.asList(predictedPrE1,  predictedQ, predictedSecE1, predictedSecE2), EQFormat.EQEE);
-                        for (Term predictedQlfr: qlfrTerms){
-                            addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedQlfr, predictedSecE1, predictedSecE2), EQFormat.EQqEE);
+                        // All the formats that add a secondary entity 2.
+                        for (Term predictedSecE2: eTerms){
+                            addEQ(predictedEQs, Arrays.asList(predictedPrE1,  predictedQ, predictedSecE1, predictedSecE2), EQFormat.EQEE);
+                            for (Term predictedQlfr: qlfrTerms){
+                                addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedQlfr, predictedSecE1, predictedSecE2), EQFormat.EQqEE);
+                            }
                         }
                     }
                 }
             }
         }
         
-        logger.info("there were " + predictedEQs.size() + " eqs sent back from EQ builder");
         return predictedEQs;
     }
-    
     
     
 
