@@ -15,6 +15,7 @@ import edu.stanford.nlp.semgraph.SemanticGraph;
 import static edu.stanford.nlp.util.logging.RedwoodConfiguration.Handlers.file;
 import enums.Ontology;
 import enums.Role;
+import enums.Species;
 import enums.TextDatatype;
 import randomforest.index.FeatureIndices;
 import java.io.File;
@@ -95,6 +96,16 @@ public class NotCoverageTest {
     @Test
     public void testA() throws IOException, SQLException, FileNotFoundException, ParseException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
  
+        
+
+        
+  
+      
+        
+        
+        
+        
+        
         /*
         // sends all words from testing and training data to their own files.
         Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/path/config/");

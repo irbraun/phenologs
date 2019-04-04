@@ -8,10 +8,100 @@ library(DAAG)
 library(kSamples)
 
 
+
+
+
+
 read <- function(dir,filename){
   d <- read.csv(file=paste(dir,filename,sep=""), header=T, sep=",")
   return(d)
 }
+
+
+
+
+mean_similarity_within_and_between <- function(network_df, subsets_df, subset_name){
+  
+    # Identify the chunk IDs which are within or outside this subset category.
+  # Note that 'within' means the gene was mapped in this subset, 'without' means the gene was never mapped to this subset.
+  # Genes can belong to more than one subset, which is why the removal of the intersection is included here.
+  inside_df <- subsets_df[subsets_df$subset %in% c(subset_name),]
+  outside_df <- subsets_df[!(subsets_df$subset %in% c(subset_name)),]
+  inside_chunk_ids <- inside_df$chunk
+  outside_chunk_ids <- outside_df$chunk
+  intersecting_chunk_ids<- intersect(inside_chunk_ids,outside_chunk_ids)
+  outside_chunk_ids <- setdiff(outside_chunk_ids, intersecting_chunk_ids)
+  
+  # Calculating average similarity within the subset.
+  relevant_slice <- network_df[network_df$phenotype_1 %in% inside_chunk_ids & network_df$phenotype_2 %in% inside_chunk_ids,]
+  average_within_similarity <- mean(relevant_slice$p_edge)
+  
+  # Calculating average similarity between this and other subsets.
+  relevant_slice <- network_df[(network_df$phenotype_1 %in% inside_chunk_ids & network_df$phenotype_2 %in% outside_chunk_ids) | (network_df$phenotype_1 %in% outside_chunk_ids & network_df$phenotype_2 %in% inside_chunk_ids),]
+  average_between_similarity <- mean(relevant_slice$p_edge)
+  
+  # What were the sample sizes of chunks considered within and outside this subset?
+  n_in <- length(inside_chunk_ids)
+  n_out <- length(outside_chunk_ids)
+
+  result <- c(average_within_similarity, average_between_similarity, n_in, n_out)
+  return(result)
+}
+
+
+# Read in the categorization file for subsets of loci in Arabidopsis.
+categories <- read("/Users/irbraun/Desktop/","out.csv")
+
+
+# Read in the phenotype and phene network files output from the pipeline.
+dir <- "/Users/irbraun/Desktop/droplet/path/networks/"
+phenotype_edges_file <- "phenotype_network.csv"
+#phene_edges_file <- "phene_network.csv"
+phenotype_network <- read(dir,phenotype_edges_file)
+#phene_network <- read(dir,phene_edges_file)
+
+
+
+subsets <- unique(categories$subset)
+
+
+# Setup for the tables to output the results of this pathway example.
+table <- data.frame(matrix(ncol=5, nrow=0))
+cols <- c("subset","n1","n2","mean1","mean2")
+colnames(table) <- cols
+output_path_eqp = "/Users/irbraun/Desktop/summaries.csv"
+
+for (subset in subsets){
+  results <- mean_similarity_within_and_between(phenotype_network, categories, subset)
+  table[nrow(table)+1,] <- c(subset, results)
+}
+write.csv(table, file=output_path_eqp, row.names=F)
+
+
+
+
+
+
+
+
+
+
+
+df <- read("/Users/irbraun/Desktop/","out.csv")
+subset <- "HRM"
+inside_df <- df[df$subset %in% c(subset),]
+outside_df <- df[!(df$subset %in% c(subset)),]
+inside_chunk_ids <- inside_df$chunk
+outside_chunk_ids <- inside_df$chunk
+
+
+
+
+
+
+
+
+
 
 # Returns the similarity value between two phenotypes.
 # df: phenotype network file
@@ -125,28 +215,3 @@ for (id in other_ids){
   table[nrow(table)+1,] <- c(query_id,id,phenotype_network_results,phene_network_results)
 }
 write.csv(table, file=output_path_d2v, row.names=F)
-
-# # Using the phenotype network.
-# # Ranks here mean 'how many phenotypes of other genes are more similar to the phenotype of c2 than this gene are?'
-# c1_sim <- get_phenotype_similarity(phenotype_network,1262,1261)
-# c1_rank <- get_gene_ranking(phenotype_network,1262,c1_sim)
-# r1_sim <- get_phenotype_similarity(phenotype_network,1262,2599)
-# r1_rank <- get_gene_ranking(phenotype_network,1262,r1_sim)
-# b1_sim <- get_phenotype_similarity(phenotype_network,1262,1584)
-# b1_rank <- get_gene_ranking(phenotype_network,1262,b1_sim)
-# n_phenotypes <- length(unique(c(phenotype_network$phenotype_1,phenotype_network$phenotype_2)))
-# 
-# # Using the phene network
-# # Node ranks here mean 'how many phenes outside of c2 are more similar to any phene in c2 than any phene from this gene are?'
-# # Gene ranks here mean 'if I use the phenes of c2 as a query in the phene network, how many genes do I see before this one?'
-# c1_sim <- get_max_phene_similarity(phene_network,1262,1261)
-# c1_node_rank <- get_node_ranking(phene_network,1262,c1_sim)
-# c1_gene_rank <- get_gene_ranking(phene_network,1262,c1_sim)
-# r1_sim <- get_max_phene_similarity(phene_network,1262,2599)
-# r1_node_rank <- get_node_ranking(phene_network,1262,r1_sim)
-# r1_gene_rank <- get_gene_ranking(phene_network,1262,r1_sim)
-# b1_sim <- get_max_phene_similarity(phene_network,1262,1584)
-# b1_node_rank <- get_node_ranking(phene_network,1262,b1_sim)
-# b1_gene_rank <- get_gene_ranking(phene_network,1262,b1_sim)
-# n_phenes <- length(unique(c(phene_network$phene_1,phene_network$phene_2)))
-

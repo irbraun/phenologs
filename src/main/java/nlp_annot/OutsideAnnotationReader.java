@@ -335,11 +335,21 @@ public class OutsideAnnotationReader {
                             // Calculate the score for this annotated term on the fly instead if this option was desired.
                             if (Config.checkFuzzyScore){
                                 ArrayList<Double> scoresFromAllSyn = new ArrayList<>();
-                                for (String syn: onto.getTermFromTermID(id).getAllSynonyms()){
-                                    double scoreForThisSyn = FuzzySearch.ratio(joined, syn);
+                                
+                                
+                                ArrayList<String> labelAndSynonyms = new ArrayList<>();
+                                labelAndSynonyms.addAll(onto.getTermFromTermID(id).getAllSynonyms());
+                                labelAndSynonyms.add(onto.getTermFromTermID(id).label);
+                                for (String syn: labelAndSynonyms){
+                                    double scoreForThisSyn = FuzzySearch.ratio(joined, syn)/100.00;
                                     scoresFromAllSyn.add(scoreForThisSyn);
                                 }
-                                score = Collections.max(scoresFromAllSyn); 
+                                try {
+                                    score = Collections.max(scoresFromAllSyn); 
+                                }
+                                catch(Exception e){
+                                    score = 0.00;
+                                }
                             }
                             
                             
@@ -409,7 +419,7 @@ public class OutsideAnnotationReader {
                             if (Config.checkFuzzyScore){
                                 ArrayList<Double> scoresFromAllSyn = new ArrayList<>();
                                 for (String syn: onto.getTermFromTermID(id).getAllSynonyms()){
-                                    double scoreForThisSyn = FuzzySearch.ratio(joined, syn);
+                                    double scoreForThisSyn = FuzzySearch.ratio(joined, syn)/100.00;
                                     scoresFromAllSyn.add(scoreForThisSyn);
                                 }
                                 score = Collections.max(scoresFromAllSyn); 

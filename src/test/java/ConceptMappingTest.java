@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import nlp.CoreNLP;
 import ontology.Onto;
 import org.json.simple.parser.ParseException;
 import org.junit.After;
@@ -62,11 +63,7 @@ public class ConceptMappingTest {
     // public void hello() {}
     
     
-    
-    
-    
-    
-    
+
     
     
     

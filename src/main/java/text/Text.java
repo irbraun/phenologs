@@ -147,7 +147,7 @@ public class Text {
                 for (String s2: s1.split(";")){
                     s2 = s2.trim();
                     if (!s2.equals("")){
-                        Chunk spChunk = new Chunk(splitID, TextDatatype.SPLIT_PHENOTYPE, s2);
+                        Chunk spChunk = new Chunk(splitID, TextDatatype.SPLIT_PHENOTYPE, s2, c.species, c.geneIdentifier);
                         chunks.add(spChunk);
                         splitIDtoPhenotypeID.put(splitID, c.chunkID);
                         splitChunkIDsForThisPhenotype.add(spChunk.chunkID);
@@ -386,22 +386,23 @@ public class Text {
             rs = sqliteCall(String.format("SELECT Species,ppn_id,atomized_statement FROM %s WHERE Species=\"%s\"", data));
         }
         else {
-            rs = sqliteCall(String.format("SELECT Species,ppn_id,atomized_statement FROM %s", Config.dataTable));
+            rs = sqliteCall(String.format("SELECT Species,Gene_Identifier,ppn_id,atomized_statement FROM %s", Config.dataTable));
         }
         
         while (rs.next()){
             int chunkID = rs.getInt("ppn_id");
             String atomizedStatement = rs.getString("atomized_statement");
+            String geneIdentifier = rs.getString("Gene_Identifier");
             String speciesStr = rs.getString("Species");
             Species species = utils.Util.inferSpecies(speciesStr);
-            Chunk chunk = formUntaggedAtom(chunkID, atomizedStatement, species);
+            Chunk chunk = formUntaggedAtom(chunkID, atomizedStatement, species, geneIdentifier);
             chunks.add(chunk);
         }
         return chunks;
         
     }
-    private Chunk formUntaggedAtom(int chunkID, String atomizedStatement, Species species){
-        Chunk chunk = new Chunk(chunkID, TextDatatype.PHENE, atomizedStatement, species);
+    private Chunk formUntaggedAtom(int chunkID, String atomizedStatement, Species species, String geneIdentifier){
+        Chunk chunk = new Chunk(chunkID, TextDatatype.PHENE, atomizedStatement, species, geneIdentifier);
         return chunk;
         
     }
@@ -438,7 +439,7 @@ public class Text {
                 atomIDs.add(rs2.getInt("ppn_id"));
             }
             
-            Chunk chunk = formUntaggedPhenotype(chunkID, phenotypeDescription, species);
+            Chunk chunk = formUntaggedPhenotype(chunkID, phenotypeDescription, species, geneIdentifier);
             chunks.add(chunk);
             
             // Updating the ID maps.
@@ -449,13 +450,11 @@ public class Text {
         }
         return chunks;
     }
-    private Chunk formUntaggedPhenotype(int chunkID, String phenotypeDescription, Species species){
-        Chunk chunk = new Chunk(chunkID, TextDatatype.PHENOTYPE, phenotypeDescription, species);
+    private Chunk formUntaggedPhenotype(int chunkID, String phenotypeDescription, Species species, String geneIdentifier){
+        Chunk chunk = new Chunk(chunkID, TextDatatype.PHENOTYPE, phenotypeDescription, species, geneIdentifier);
         return chunk;
     }
         
-    
-    
     
     public Chunk getAtomChunkFromID(int atomID){
         return atChunkMap.get(atomID);

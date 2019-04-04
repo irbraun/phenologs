@@ -38,7 +38,8 @@ public class Config {
     public static int numPartitions;
     public static boolean useStemmer;
     public static boolean removeStopWords;
-    
+    public static String subsetsInputPath;
+    public static String subsetsOutputPath;
     
     public static boolean checkFuzzyScore;
     public static String passedInName;
@@ -137,9 +138,10 @@ public class Config {
         stopWordsPath = properties.getProperty("stopPath").trim();
         allWordsPath = properties.getProperty("allWordsPath").trim();
         allPairsPath = properties.getProperty("allPairsPath").trim();
-        
         numPartitions = Integer.valueOf(properties.getProperty("numPartitions"));
         seedValue = Integer.valueOf(properties.getProperty("seedValue"));
+        subsetsInputPath = properties.getProperty("categories_path").trim();
+        
         
         // Files containing the ontologies to be used.
         String owlPath = properties.getProperty("owlPath");

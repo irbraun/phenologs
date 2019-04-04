@@ -17,3 +17,10 @@ Things to fix tomorrow
 1. move the path contents to place that makes more sense in the git repository
 2. provide paths for all the kinds of text datatypes in the config file and then just use the format parameter to select which ones to use in a given call to some function in the jar.
 3. organize the helper funtions for eqpipe.py
+
+
+Things that need to be run
+make sure that the partial matching thing works, verify how the scores are being obtained.
+run the whole testing out different hyperparameters and methods for the doc2vec models.
+see how good each of the models does and how well the 
+Recapitulate the pathway example using doc2vec instead of the 

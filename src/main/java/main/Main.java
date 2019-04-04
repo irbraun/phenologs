@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
+import locus.LocusSubsets;
 import nlp.CoreNLP;
 import nlp.Learner;
 import nlp_annot.AggregateResults;
@@ -48,6 +49,8 @@ public class Main {
     private boolean compose;
     @Option(name="-p", usage="running nlp to generate parse trees")
     private boolean parse;
+    @Option(name="-l", usage="generating lists of locus subsets")
+    private String locus = "";
         
     // The additional argument -thresh is used for both these with the default of 0.00.
     // The threshold applies towards to what degree word-embeddings are taken into account.
@@ -77,7 +80,13 @@ public class Main {
     @Option(name="-d", usage="text datatype")
     private String dtype = "";
     
-   
+
+    
+    
+    
+
+    
+    
     @Argument
     private List<String> arguments = new ArrayList<String>();
     
@@ -112,10 +121,14 @@ public class Main {
         }
         Config.checkFuzzyScore = fuzzy;
         Config.passedInName = name;
+        Config.subsetsOutputPath = locus;
         
-        
+
         
         // Everything else.
+        if (!locus.equals("")){
+            LocusSubsets.find_subsets();
+        }
         if (textprep){
             InputDataPreparer idp = new InputDataPreparer();
             idp.findAndWriteAtoms();

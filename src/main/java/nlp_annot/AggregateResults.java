@@ -70,6 +70,7 @@ public class AggregateResults {
         
         List<String> chebiFiles = new ArrayList<>();
         //chebiFiles.add(dir+"/noble/output_chebi/group1_"+Config.format+"_classprobs.csv");
+        //chebiFiles.add(dir+"/noble/output_chebi/group2_"+Config.format+"_classprobs.csv");
         chebiFiles.add(dir+"/naive/output_chebi/merged_"+Config.format+"_classprobs.csv");
         chebiFiles.add(dir+"/ncbo/output_chebi/group1_"+Config.format+"_classprobs.csv");
         mergeFiles(chebiFiles, dir+"/aggregate/output_chebi/classprobs.csv");
