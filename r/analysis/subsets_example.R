@@ -9,9 +9,6 @@ library(kSamples)
 
 
 
-
-
-
 read <- function(dir,filename){
   d <- read.csv(file=paste(dir,filename,sep=""), header=T, sep=",")
   return(d)
@@ -34,43 +31,48 @@ mean_similarity_within_and_between <- function(network_df, subsets_df, subset_na
   
   # Calculating average similarity within the subset.
   relevant_slice <- network_df[network_df$phenotype_1 %in% inside_chunk_ids & network_df$phenotype_2 %in% inside_chunk_ids,]
+  dist_within <- relevant_slice$p_edge
   average_within_similarity <- mean(relevant_slice$p_edge)
   
   # Calculating average similarity between this and other subsets.
   relevant_slice <- network_df[(network_df$phenotype_1 %in% inside_chunk_ids & network_df$phenotype_2 %in% outside_chunk_ids) | (network_df$phenotype_1 %in% outside_chunk_ids & network_df$phenotype_2 %in% inside_chunk_ids),]
+  dist_between <- relevant_slice$p_edge
   average_between_similarity <- mean(relevant_slice$p_edge)
   
   # What were the sample sizes of chunks considered within and outside this subset?
   n_in <- length(inside_chunk_ids)
   n_out <- length(outside_chunk_ids)
+  
+  # Kolmogorov–Smirnov test, TODO figure out whether this is appropriate or how else these distributions should be treated/compared. 
+  p_value <- ks.test(dist_within,dist_between)$p.value
 
-  result <- c(average_within_similarity, average_between_similarity, n_in, n_out)
+  result <- c(n_in, n_out, average_within_similarity, average_between_similarity, p_value)
   return(result)
 }
 
 
+
+
+
 # Read in the categorization file for subsets of loci in Arabidopsis.
 categories <- read("/Users/irbraun/Desktop/","out.csv")
+subsets <- unique(categories$subset)
 
 
 # Read in the phenotype and phene network files output from the pipeline.
 dir <- "/Users/irbraun/Desktop/droplet/path/networks/"
 phenotype_edges_file <- "phenotype_network.csv"
-#phene_edges_file <- "phene_network.csv"
+phene_edges_file <- "phene_network.csv"
 phenotype_network <- read(dir,phenotype_edges_file)
-#phene_network <- read(dir,phene_edges_file)
-
-
-
-subsets <- unique(categories$subset)
+phene_network <- read(dir,phene_edges_file)
 
 
 # Setup for the tables to output the results of this pathway example.
-table <- data.frame(matrix(ncol=5, nrow=0))
-cols <- c("subset","n1","n2","mean1","mean2")
+cols <- c("subset","n1","n2","mean1","mean2","p")
+table <- data.frame(matrix(ncol=length(cols), nrow=0))
 colnames(table) <- cols
 output_path_eqp = "/Users/irbraun/Desktop/summaries.csv"
-
+# Produce the table, iterating through each loci subset.
 for (subset in subsets){
   results <- mean_similarity_within_and_between(phenotype_network, categories, subset)
   table[nrow(table)+1,] <- c(subset, results)
