@@ -35,6 +35,8 @@ public class LocusSubsets {
 
         Text text = new Text();
             
+        HashMap<String,String> subsetToGroupMap = new HashMap<>();
+        HashMap<String,String> subsetToClassMap = new HashMap<>();
         HashMap<String,ArrayList<String>> locusToSubsetMap = new HashMap<>();
 
         Reader in = new FileReader(Config.subsetsInputPath);
@@ -60,8 +62,15 @@ public class LocusSubsets {
             subsetsList.replaceAll(new LocusClean());
             locusToSubsetMap.put(locus,subsetsList);
             
-        }
+            // Infer from the data which subsets go under which classes and groups. Inefficient.
+            for (String subset: subsetsList){
+                subsetToGroupMap.put(subset,group.trim());
+                subsetToClassMap.put(subset,class_.trim());
+            }
+        } 
         in.close();
+        
+        
         
         // Sanity check to make sure all Arabidopsis gene identifiers in the dataset mapped to subsets specified in this file.
         int ctrNotMapped = 0;
@@ -98,12 +107,15 @@ public class LocusSubsets {
         // Produce a file which species which chunk IDs go with which subsets.
         File outf = new File(Config.subsetsOutputPath);
         PrintWriter writer = new PrintWriter(outf);
-        String header = "chunk,subset";
+        String header = "chunk,group,class,subset";
         writer.println(header);
         for (String subset: subsetToChunkIDMap.keySet()){
             ArrayList<Integer> chunkIDs = subsetToChunkIDMap.get(subset);
             for (Integer chunkID: chunkIDs){
-                writer.println(String.format("%s,%s",chunkID,subset));
+                String group = subsetToGroupMap.get(subset);
+                String class_ = subsetToClassMap.get(subset);
+                Object[] data = {chunkID, group, class_, subset};
+                writer.println(String.format("%s,%s,%s,%s",data));
             }
         }
         writer.close();
@@ -124,4 +136,26 @@ class LocusClean implements UnaryOperator<String>
 }
 
 
+
+
+/*
+processing:
+in R?
+
+Leave one out method. Change to leave m out if too slow.
+
+Look at k-1 phenotypes in their 'correct' subset groupings.
+What should a threshold for saying a new gene belongs to that group be?
+brute force: for each potential threshold, calculate all the FN, TP, FP to get an F score.
+then use that learned threshold to place the k'th phenotype.
+
+Repeat for all of the phenotypes to leave each thing out once.
+
+How did we do in placing new phenotypes into functional categories?
+
+
+
+Approach 1 asks: how similar are the representations we've generate to each other when grouped in to those categories? 
+Approach 2 asks: Are those similarities such that we can use them to accurately predict biological function given some training data?
+*/
 

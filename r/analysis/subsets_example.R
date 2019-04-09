@@ -8,7 +8,6 @@ library(DAAG)
 library(kSamples)
 
 
-
 read <- function(dir,filename){
   d <- read.csv(file=paste(dir,filename,sep=""), header=T, sep=",")
   return(d)
@@ -16,10 +15,9 @@ read <- function(dir,filename){
 
 
 
-
 mean_similarity_within_and_between <- function(network_df, subsets_df, subset_name){
   
-    # Identify the chunk IDs which are within or outside this subset category.
+  # Identify the chunk IDs which are within or outside this subset category.
   # Note that 'within' means the gene was mapped in this subset, 'without' means the gene was never mapped to this subset.
   # Genes can belong to more than one subset, which is why the removal of the intersection is included here.
   inside_df <- subsets_df[subsets_df$subset %in% c(subset_name),]
@@ -31,13 +29,13 @@ mean_similarity_within_and_between <- function(network_df, subsets_df, subset_na
   
   # Calculating average similarity within the subset.
   relevant_slice <- network_df[network_df$phenotype_1 %in% inside_chunk_ids & network_df$phenotype_2 %in% inside_chunk_ids,]
-  dist_within <- relevant_slice$p_edge
-  average_within_similarity <- mean(relevant_slice$p_edge)
+  dist_within <- relevant_slice$value_to_use
+  average_within_similarity <- mean(relevant_slice$value_to_use)
   
   # Calculating average similarity between this and other subsets.
   relevant_slice <- network_df[(network_df$phenotype_1 %in% inside_chunk_ids & network_df$phenotype_2 %in% outside_chunk_ids) | (network_df$phenotype_1 %in% outside_chunk_ids & network_df$phenotype_2 %in% inside_chunk_ids),]
-  dist_between <- relevant_slice$p_edge
-  average_between_similarity <- mean(relevant_slice$p_edge)
+  dist_between <- relevant_slice$value_to_use
+  average_between_similarity <- mean(relevant_slice$value_to_use)
   
   # What were the sample sizes of chunks considered within and outside this subset?
   n_in <- length(inside_chunk_ids)
@@ -46,33 +44,77 @@ mean_similarity_within_and_between <- function(network_df, subsets_df, subset_na
   # Kolmogorov–Smirnov test, TODO figure out whether this is appropriate or how else these distributions should be treated/compared. 
   p_value <- ks.test(dist_within,dist_between)$p.value
 
-  result <- c(n_in, n_out, average_within_similarity, average_between_similarity, p_value)
+  # Values to make the output easier to understand in a table row.
+  greater_similarity_grouping <- ifelse(average_within_similarity > average_between_similarity, "within", "between")
+  significance_threshold <- 0.05
+  significant <- ifelse(p_value <= significance_threshold, "yes", "no")
+  
+  # Things to return.
+  result <- c(n_in, n_out, round(average_within_similarity,3), round(average_between_similarity,3), round(p_value,3), greater_similarity_grouping, significant)
   return(result)
 }
 
 
 
+get_new_table <- function(){
+  # Setup for the tables to output the results of this loci subset analysis. 
+  cols <- c("subset","num_in","num_out","mean_within","mean_between","p_value","greater","significant")
+  table <- data.frame(matrix(ncol=length(cols), nrow=0))
+  colnames(table) <- cols
+  return(table)
+}
+
+
+
+######################################################### Approach 1
+
 
 
 # Read in the categorization file for subsets of loci in Arabidopsis.
-categories <- read("/Users/irbraun/Desktop/","out.csv")
+categories <- read("/Users/irbraun/Desktop/","out_phenotype.csv")
 subsets <- unique(categories$subset)
 
 
 # Read in the phenotype and phene network files output from the pipeline.
 dir <- "/Users/irbraun/Desktop/droplet/path/networks/"
-phenotype_edges_file <- "phenotype_network.csv"
-phene_edges_file <- "phene_network.csv"
+phenotype_edges_file <- "phenotype_network_modified.csv"
+phene_edges_file <- "phene_network_modified.csv"
 phenotype_network <- read(dir,phenotype_edges_file)
 phene_network <- read(dir,phene_edges_file)
 
 
-# Setup for the tables to output the results of this pathway example.
-cols <- c("subset","n1","n2","mean1","mean2","p")
-table <- data.frame(matrix(ncol=length(cols), nrow=0))
-colnames(table) <- cols
-output_path_eqp = "/Users/irbraun/Desktop/summaries.csv"
-# Produce the table, iterating through each loci subset.
+
+
+# Produce table iterating through each loci, using curated EQ statemnts.
+output_path_eqp = "/Users/irbraun/Desktop/summaries_cureq.csv"
+phenotype_network$value_to_use <- phenotype_network$c_edge
+table <- get_new_table()
+for (subset in subsets){
+  results <- mean_similarity_within_and_between(phenotype_network, categories, subset)
+  table[nrow(table)+1,] <- c(subset, results)
+}
+write.csv(table, file=output_path_eqp, row.names=F)
+
+
+# Produce table iterating through each loci, using predicted EQ statements.
+output_path_eqp = "/Users/irbraun/Desktop/summaries_predeq.csv"
+phenotype_network$value_to_use <- phenotype_network$p_edge
+
+# Edges with a value of -1 indicate that no edge was calculated due to missing data.
+# These should be replaced with 0 to indicate minimal semantic similarity.
+phenotype_network$value_to_use <- pmax(phenotype_network$value_to_use, 0.000)
+
+table <- get_new_table()
+for (subset in subsets){
+  results <- mean_similarity_within_and_between(phenotype_network, categories, subset)
+  table[nrow(table)+1,] <- c(subset, results)
+}
+write.csv(table, file=output_path_eqp, row.names=F)
+
+# Produce table iterating through each loci, using doc2vec.
+output_path_eqp = "/Users/irbraun/Desktop/summaries_doc2vec.csv"
+phenotype_network$value_to_use <- (1/phenotype_network$enwiki_dbow)
+table <- get_new_table()
 for (subset in subsets){
   results <- mean_similarity_within_and_between(phenotype_network, categories, subset)
   table[nrow(table)+1,] <- c(subset, results)
@@ -84,136 +126,71 @@ write.csv(table, file=output_path_eqp, row.names=F)
 
 
 
+######################################################### Approach 2
+
+# generate a table that looks like
+# rows = phenotype/gene ID
+# columns = subset names
+# internal cells = the predicted scores
+
+# generate a second table that looks like 
+# rows = phenotype/gene ID
+# columns = subset names
+# internal cells = 0 if not made, 1 is that's what Menke said.
 
 
-
-
-
-df <- read("/Users/irbraun/Desktop/","out.csv")
-subset <- "HRM"
-inside_df <- df[df$subset %in% c(subset),]
-outside_df <- df[!(df$subset %in% c(subset)),]
-inside_chunk_ids <- inside_df$chunk
-outside_chunk_ids <- inside_df$chunk
-
-
-
-
-
-
-
-
-
-
-# Returns the similarity value between two phenotypes.
-# df: phenotype network file
-# p1: phenotype ID1
-# p2: phenotype ID2
-get_phenotype_similarity <- function(df,p1,p2){
-  relevant_ids <- c(p1,p2)
-  x <- df[df$phenotype_1 %in% relevant_ids & df$phenotype_2 %in% relevant_ids,]
-  return(x[1,]$value_used)
+d <- phenotype_network
+pk <- 1
+scores = c()
+for (subset in subsets){
+  
+  dropped_network <- phenotype_network[!(phenotype_network$phenotype_1 %in% c(subset)) & !(phenotype_network$phenotype_2 %in% c(subset)),]
+  score <- get_similarity_to_cluster(dropped_network, categories, subset)
+  
+  
+  
+  
+  
+  
+  
+  
+  # Need a score specific to placing this pk within this subset.
+  # Drop the lines related to pk from 
+  score <- get_similarity_to_cluster()
+  # add a row that has {subset name, score}
+  
+  # What are the true subsets that this pk belongs in?
+  # look in the subsets df
 }
 
-# Returns maximum similarity between any of p1's phenes and p2's phenes.
-# df: a phene network file
-# p1: phenotype ID1
-# p2: phenotype ID2
-get_max_phene_similarity <- function(df,p1,p2){
-  relevant_ids <- c(p1,p2)
-  x <- df[df$phenotype_1 %in% relevant_ids & df$phenotype_2 %in% relevant_ids,]
-  return(max(x$value_used))
+
+# So that predicted table is made by dropping out one pk at a time.
+# Now estimate the threshold that would be found by dropping out that same on pk at a time.
+for (t in thresholds){
+  # calculate F1 given those matrices minus pk.
+  # use where F1 maxed to threshold the predictions for pk.
+  # (but take atleast one) if that results in no predictions being made.
 }
 
-# Returns the number of genes that have greater similarity to p1.
-# df: either a phenotype or phene network.
-# p1: phenotype ID1
-# sim: similarity value between p1 and something else.
-get_gene_ranking <- function(df,p1,sim){
-  relevant_ids <- c(p1)
-  relevant_slice <- df[df$phenotype_1 %in% relevant_ids | df$phenotype_2 %in% relevant_ids,]
-  x <- relevant_slice[relevant_slice$value_used>sim,]
-  ranked_ahead <- length(unique(c(x$phenotype_1,x$phenotype_2)))
-  return(ranked_ahead+1)
-}
 
-# Returns the number of nodes which are visited before this similarity is used.
-# df: either a phenotype or phene network.
-# p1: phenotype ID1
-# sim: similarity value between p1 and something else.
-get_node_ranking <- function(df,p1,sim){
-  relevant_ids <- c(p1)
-  relevant_slice <- df[df$phenotype_1 %in% relevant_ids | df$phenotype_2 %in% relevant_ids,]
-  ranked_ahead <- nrow(relevant_slice[relevant_slice$value_used>sim,])
-  return(ranked_ahead+1)
+# or instead of doing that, just generate precision recall graphs for each of the methods. wont work because 
+for (t in thresholds){
+  get precision and recall values for these points.
+  
+  )
 }
 
 
 
 
 
-# Read in the phenotype and phene network files output from the pipeline.
-dir <- "/Users/irbraun/Desktop/droplet/path/networks/"
-phenotype_edges_file <- "phenotype_network.csv"
-phene_edges_file <- "phene_network.csv"
-phenotype_network <- read(dir,phenotype_edges_file)
-phene_network <- read(dir,phene_edges_file)
-
-
-# Notes about the c2 pathway example being used here.
-# c2: phenotype 1262, one phene is 2544
-# c1: phenotype 1261, one phene is 2543   
-# r1: phenotype 2599, one phene is 2545       
-# b1: phenotype 1584, one phene is 3304     not picking aleurone layer
-
-
-# Setup for the tables to output the results of this pathway example.
-table <- data.frame(matrix(ncol=8, nrow=0))
-cols <- c("query","gene","ph_sim","ph_noderank","ph_generank","p_sim","p_noderank","p_generank")
-colnames(table) <- cols
-output_path_eqp = "/Users/irbraun/Desktop/table1.csv"
-output_path_d2v = "/Users/irbraun/Desktop/table2.csv"
-query_id <- 1262
-other_ids <- c(1262,1261,2599,1584)
 
 
 
-# Using the similarities obtained by running the eqpipe.
-phenotype_network$value_used <- phenotype_network$p_edge
-phene_network$value_used <- phene_network$p_edge
-for (id in other_ids){
-  # Using the phenotype network
-  sim <- get_phenotype_similarity(phenotype_network,query_id,id)
-  gene_rank <- get_gene_ranking(phenotype_network,query_id,sim)
-  node_rank <- get_node_ranking(phenotype_network,query_id,sim)
-  phenotype_network_results <- c(sim,gene_rank,node_rank)
-  # Using the phene network
-  sim <- get_max_phene_similarity(phene_network,query_id,id)
-  gene_rank <- get_gene_ranking(phene_network,query_id,sim)
-  node_rank <- get_node_ranking(phene_network,query_id,sim)
-  phene_network_results <- c(sim,gene_rank,node_rank)
-  # Report the output of searching the network to table row.
-  table[nrow(table)+1,] <- c(query_id,id,phenotype_network_results,phene_network_results)
-}
-write.csv(table, file=output_path_eqp, row.names=F)
 
 
 
-# Using the similarities obtained through sentence embedding.
-phenotype_network$value_used <- (1.00/phenotype_network$enwiki_dbow)
-phene_network$value_used <- (1.00/phene_network$enwiki_dbow)
-for (id in other_ids){
-  # Using the phenotype network
-  sim <- get_phenotype_similarity(phenotype_network,query_id,id)
-  gene_rank <- get_gene_ranking(phenotype_network,query_id,sim)
-  node_rank <- get_node_ranking(phenotype_network,query_id,sim)
-  phenotype_network_results <- c(sim,gene_rank,node_rank)
-  # Using the phene network
-  sim <- get_max_phene_similarity(phene_network,query_id,id)
-  gene_rank <- get_gene_ranking(phene_network,query_id,sim)
-  node_rank <- get_node_ranking(phene_network,query_id,sim)
-  phene_network_results <- c(sim,gene_rank,node_rank)
-  # Report the output of searching the network to table row.
-  table[nrow(table)+1,] <- c(query_id,id,phenotype_network_results,phene_network_results)
-}
-write.csv(table, file=output_path_d2v, row.names=F)
+
+
+
+
