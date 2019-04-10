@@ -6,10 +6,11 @@ library(car)
 library(bootstrap)
 library(DAAG)
 library(kSamples)
+library(data.table)
 
 
 read <- function(dir,filename){
-  d <- read.csv(file=paste(dir,filename,sep=""), header=T, sep=",")
+  d <- read.csv(file=paste(dir,filename,sep=""), header=T, sep=",", stringsAsFactors=FALSE)
   return(d)
 }
 
@@ -55,7 +56,7 @@ mean_similarity_within_and_between <- function(network_df, subsets_df, subset_na
 }
 
 
-
+# Setup for the tables that are output for the loci subset analysis (approach 1).
 get_new_table <- function(){
   # Setup for the tables to output the results of this loci subset analysis. 
   cols <- c("subset","num_in","num_out","mean_within","mean_between","p_value","greater","significant")
@@ -63,6 +64,60 @@ get_new_table <- function(){
   colnames(table) <- cols
   return(table)
 }
+
+# Setup for the tables that are output for the loci subset analysis (approach 2).
+get_new_subsets_table <- function(){
+  cols <- c("phenotype_id",unique(categories$subset))
+  table <- data.frame(matrix(ncol=length(cols), nrow=0))
+  colnames(table) <- cols
+  return(table)
+}
+
+
+membership_func <- function(subset,subset_membership){
+  return (ifelse(subset %in% subset_membership, 1, 0))
+}
+
+
+# In
+# subset-->p_number mapping df
+# pairwise similarity df
+# phenotype that's dropped out
+# subset (name of subset/cluster)
+# Out
+# Sim(this phenotype, that cluster)
+get_similarity_to_cluster <- function(network_df, subsets_df, subset, phenotype_id){
+  
+  # Get the list of phenotype IDs that are in this subset/cluster.
+  phenotype_ids_in_subset <- subsets_df[subsets_df$subset %in% c(subset),]$chunk
+  
+  # Get the network edges connecting this phenotype's node to any node in the subset/cluster.
+  slice <- network_df[(network_df$phenotype_1 == phenotype_id & network_df$phenotype_2 %in% phenotype_ids_in_subset) | (network_df$phenotype_2 == phenotype_id & network_df$phenotype_1 %in% phenotype_ids_in_subset),]
+  
+  # Measure similarity between the phenotype and the cluster. Could do mean to all nodes or maximum to any node?
+  similarity <- mean(slice$value_to_use)
+  return(similarity)
+}
+
+
+# function to get binary decisions from the pred df given a threshold.
+get_binary_decisions <- function(value,threshold){
+  output <- ifelse(value>=threshold,1,0)
+  return(output)
+}
+
+# function to get F-score given binary decision matrix.
+get_f_score <- function(pred_matrix, target_matrix){
+  tp <- length(which(pred_matrix==1 & target_matrix==1))
+  fp <- length(which(pred_matrix==1 & target_matrix==0))
+  fn <- length(which(pred_matrix==0 & target_matrix==1))
+  tn <- length(which(pred_matrix==0 & target_matrix==0))
+  prec <- tp/(tp+fp)
+  rec <- tp/(tp+fn)
+  f1 <- (2*prec*rec)/(prec+rec)
+  return(f1)
+}
+
 
 
 
@@ -126,59 +181,112 @@ write.csv(table, file=output_path_eqp, row.names=F)
 
 
 
+
 ######################################################### Approach 2
 
-# generate a table that looks like
-# rows = phenotype/gene ID
-# columns = subset names
-# internal cells = the predicted scores
-
-# generate a second table that looks like 
-# rows = phenotype/gene ID
-# columns = subset names
-# internal cells = 0 if not made, 1 is that's what Menke said.
 
 
-d <- phenotype_network
-pk <- 1
-scores = c()
-for (subset in subsets){
+
+
+phenotype_network$value_to_use <- phenotype_network$enwiki_dbow
+
+# Get the phenotype ID's that refer to phenotypes for genes in Arabidopsis.
+phenotype_ids <- unique(categories$chunk)
+
+# for testing
+phenotype_ids <- phenotype_ids[1:5]
+phenotype_network_table <- data.table(phenotype_network)
+
+
+
+
+# Get a dataframe of the similarity predictions dropping out one phenotype at a time.
+table <- get_new_subsets_table()
+for (p in phenotype_ids){
+  # Apply the similarity to cluster function to each subset for this phenotype.
+  scores_for_each_subset <- sapply(subsets, get_similarity_to_cluster, network_df=phenotype_network_table, subsets_df=categories, phenotype_id=p)
+  row_values <- c(p, scores_for_each_subset)
+  table[nrow(table)+1,] <- row_values
+}
+pred <- table
+
+
+
+# Get a dataframe of the existing categorizations that are the targets for prediction.
+table <- get_new_subsets_table()
+for (p in phenotype_ids){
+  subset_membership <- categories[categories$chunk == p,]$subset
+  membership_for_each_subset <- sapply(subsets, membership_func, subset_membership=subset_membership)
+  row_values <- c(p, membership_for_each_subset)
+  table[nrow(table)+1,] <- row_values
+}
+truth <- table
+
+
+
+
+# Loop through the the phenotypes, dropping them out and treating remainder as training data.
+table <- get_new_subsets_table()
+for (p in phenotype_ids){
   
-  dropped_network <- phenotype_network[!(phenotype_network$phenotype_1 %in% c(subset)) & !(phenotype_network$phenotype_2 %in% c(subset)),]
-  score <- get_similarity_to_cluster(dropped_network, categories, subset)
+  #Get version of the pred and target matrices that don't have this phenotype in them.
+  
+  
+  
+  # Estimate the best threshold from the training data.
+  best_threshold = 1.000
+  best_f1 = 0.000
+  thresholds_to_test = seq(0.5,1.0,0.1)
+  for (t in thresholds_to_test){
+    
+    # What are the binary predictions at this threshold?
+    binary_pred <- sapply(pred[,2:ncol(pred)], get_binary_decisions, threshold=t)
+    binary_pred <- data.frame(binary_pred)
+    binary_pred_matrix <- data.matrix(binary_pred)
+    
+    # What are the true categories for these genes?
+    binary_target_matrix <- data.matrix(truth[,2:ncol(truth)])
+    
+    # Get the resulting F-score and update.
+    f1 <- get_f_score(binary_pred_matrix, binary_target_matrix)
+    best_f1 <- ifelse(f1>=best_f1, f1, best_f1)
+    best_threshold <- ifelse(f1>=best_f1, threshold, best_threshold)
+  }
   
   
   
   
-  
-  
-  
-  
-  # Need a score specific to placing this pk within this subset.
-  # Drop the lines related to pk from 
-  score <- get_similarity_to_cluster()
-  # add a row that has {subset name, score}
-  
-  # What are the true subsets that this pk belongs in?
-  # look in the subsets df
 }
 
 
-# So that predicted table is made by dropping out one pk at a time.
-# Now estimate the threshold that would be found by dropping out that same on pk at a time.
-for (t in thresholds){
-  # calculate F1 given those matrices minus pk.
-  # use where F1 maxed to threshold the predictions for pk.
-  # (but take atleast one) if that results in no predictions being made.
-}
 
 
-# or instead of doing that, just generate precision recall graphs for each of the methods. wont work because 
-for (t in thresholds){
-  get precision and recall values for these points.
-  
-  )
-}
+
+
+# Get a matrix from the target data.
+m1 <- data.matrix(truth[,2:ncol(truth)])
+
+# Get a matrix from the predicted data.
+binary_pred <- sapply(pred[,2:ncol(pred)], get_binary_decisions, threshold=0.5)
+binary_pred <- data.frame(binary_pred)
+m2 <- data.matrix(binary_pred)
+
+
+
+
+
+
+
+
+
+# For each phenotype, estimate the optimal threshold from the training portion of the data.
+
+
+
+
+
+
+
 
 
 
