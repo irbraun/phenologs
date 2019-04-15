@@ -5,6 +5,7 @@ import static composer.Utils.normalizeTermID;
 import enums.Ontology;
 import enums.Role;
 import java.util.HashSet;
+import structure.OntologyTerm;
 
 
 public class Term {
@@ -86,6 +87,13 @@ public class Term {
         this.probability = probability;
         this.ontology = ontology;
         this.nodes = nodes;
+    }
+    
+    
+    
+    // Used when inheriting EQ statements.
+    public Term (OntologyTerm t){
+        this.id = t.termID;
     }
     
     

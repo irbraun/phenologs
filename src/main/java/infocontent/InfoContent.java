@@ -23,14 +23,19 @@ public class InfoContent {
     
     private static CorpusWordIC cwic;
     private static CorpusTermIC ctic;    
+    private static CorpusEQIC ceqic;
     private static HashMap<Ontology,OntologyWordIC> owicMap;
     private static HashMap<Ontology,OntologyTermIC> oticMap;
     private static HashMap<Ontology,Onto> ontoObjects;
+
     
-    public static void setup(HashMap<Ontology,Onto> ontoObjects, Text text) throws SQLException, ClassExpressionException{
+    
+    
+    public static void setup(HashMap<Ontology,Onto> ontoObjects, Text text) throws SQLException, ClassExpressionException, Exception{
         InfoContent.ontoObjects = ontoObjects;
         cwic = new CorpusWordIC(text, TextDatatype.PHENE);
         ctic = new CorpusTermIC(ontoObjects);
+        ceqic = new CorpusEQIC(text, ontoObjects);
         owicMap = new HashMap<>();
         oticMap = new HashMap<>();
         for (Ontology ontology: ontoObjects.keySet()){
@@ -56,6 +61,14 @@ public class InfoContent {
     public static double getICofWordInOntology(Ontology o, String word){
         return owicMap.get(o).getIC(word);
     }
+    
+    public static double getICofEQInCorpus(String eqStr){
+        return ceqic.getIC(eqStr);
+    }
+    
+    
+    
+    
     
     
     

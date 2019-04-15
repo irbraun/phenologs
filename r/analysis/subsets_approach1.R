@@ -12,14 +12,12 @@ source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
 source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/subset_functions.R")
 
 
-
-
 # Read in the phenotype and phene network files output from the pipeline.
 dir <- "/Users/irbraun/Desktop/droplet/path/networks/"
 phenotype_edges_file <- "phenotype_network_modified.csv"
 phene_edges_file <- "phene_network_modified.csv"
 phenotype_network <- read(dir,phenotype_edges_file)
-phene_network <- read(dir,phene_edges_file)
+#phene_network <- read(dir,phene_edges_file)
 
 
 

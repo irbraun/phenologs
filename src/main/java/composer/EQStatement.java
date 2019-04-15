@@ -28,6 +28,7 @@ public class EQStatement {
     public double coverage;
     public ArrayList<Term> termChain;
     public EQFormat format;
+    public String[] componentStrings;
     
     
     
@@ -211,6 +212,7 @@ public class EQStatement {
         default:
             throw new Exception();
         }        
+        
     }
     
     
@@ -235,6 +237,7 @@ public class EQStatement {
         String secondaryEntity1ID = components[4];
         String secondaryEntity2ID = components[5];
         String developmentalStageID = components[6];    
+        componentStrings = components;
         termChain = new ArrayList<>();
         
         // Primary Entities
@@ -276,8 +279,18 @@ public class EQStatement {
         }
         termScore = 1.00;
         dGraphScore = "1.00";
+        format = EQFormat.NOT_SPECIFIED;
         
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -363,6 +376,17 @@ public class EQStatement {
     
     public EQFormat getFormat(){
         return format;
+    }
+    
+    
+    /**
+     * This is the representation that is used for both calculating overlap between
+     * EQ statements and calculating Information Content of particular EQ statements 
+     * in the corpus.
+     * @return 
+     */
+    public String getStandardizedRepresentation(){
+        return toIDText();
     }
     
     

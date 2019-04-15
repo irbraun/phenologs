@@ -5,6 +5,7 @@
  */
 
 import composer.ComposerIO;
+import composer.EQStatement;
 import composer.Modifier;
 import composer.Term;
 import config.Config;
@@ -96,17 +97,23 @@ public class NotCoverageTest {
     @Test
     public void testA() throws IOException, SQLException, FileNotFoundException, ParseException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
  
-        
-
-        
-  
-      
-        
-        
-        
-        
-        
         /*
+        Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/path/config/");
+        Connect conn = new Connect();
+        CoreNLP.setup(); 
+        
+        
+        Text text = new Text();
+        
+        EQStatement eq = text.getCuratedEQStatementFromAtomID(3);
+        
+        
+        HashMap<Ontology,Onto> ontoObjects = utils.Util.buildOntoObjects(Ontology.getSmallOntologies());
+        for (EQStatement x: composer.Utils.getInheritedCuratedEQs(eq, ontoObjects)){
+            System.out.println(x.toIDText());
+            System.out.println(x.toLabelText(ontoObjects));
+        }
+
         // sends all words from testing and training data to their own files.
         Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/path/config/");
         Connect conn = new Connect();

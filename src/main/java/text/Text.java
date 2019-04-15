@@ -538,6 +538,10 @@ public class Text {
         return getCuratedEQStatementsFromAtomIDs(atomIDs);
     }
     
+    public ArrayList<EQStatement> getAllCuratedEQStatements(){
+        return new ArrayList<>(atomIDtoEQStatement.values());
+    }
+    
     
     
     

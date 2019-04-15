@@ -30,6 +30,7 @@ public class OntologyTerm {
     public List<String> relatedSynonyms;
     public List inheritedNodes;
     public List siblingNodes;
+    public List parentNodes;
     public List allNodes;
     
     
@@ -66,6 +67,10 @@ public class OntologyTerm {
             }
             siblingNodes.remove(this.termID);
         }
+        
+        // Get the parent terms of this term.
+        parentNodes = new ArrayList<>();
+        parentNodes = brain.getSuperClasses(unnormalizedTermID, true);
 
         
         // Synonyms are represented by emtpy lists if they are not used by this term.
