@@ -27,22 +27,30 @@ public class Utils {
     
     public static double getEQSimilarity(EQStatement eq1, EQStatement eq2, HashMap<Ontology,Onto> ontoObjects) throws Exception{
         
+        System.out.println("HERE");
+        
         HashSet<String> eqSet1 = new HashSet<>();
         HashSet<String> eqSet2 = new HashSet<>();
         
-        try{
-            for (EQStatement eq: getInheritedEQs(eq1, ontoObjects)){
-                eqSet1.add(eq.toIDText());
-            }
-            for (EQStatement eq: getInheritedEQs(eq2, ontoObjects)){
-                eqSet2.add(eq.toIDText());
-            }
+
+        
+        
+        ArrayList<EQStatement> l = getInheritedEQs(eq1,ontoObjects);
+        System.out.println(String.format("therer were %s eqs inherited by %s",  l.size(), eq1.toIDText()));
+        
+        
+        for (EQStatement eq: getInheritedEQs(eq1, ontoObjects)){
+            eqSet1.add(eq.getStandardizedRepresentation());
         }
+        for (EQStatement eq: getInheritedEQs(eq2, ontoObjects)){
+            eqSet2.add(eq.getStandardizedRepresentation());
+        }
+        /*
         catch(Exception e){
             logger.info("problem getting standardized representations of EQs");
             return -1;
         }
-            
+         */  
         
         HashSet<String> intersection = new HashSet<>(eqSet1);
         intersection.retainAll(eqSet2);
@@ -51,6 +59,13 @@ public class Utils {
         double sumIntersection = 0.000;
         double sumUnion = 0.000;
         
+        
+        return 6;
+        //return eqSet1.size();
+        
+        
+        
+        /*
         try{
             for (String eqStr: (HashSet<String>) intersection){
                 sumIntersection += InfoContent.getICofEQInCorpus(eqStr);
@@ -65,6 +80,7 @@ public class Utils {
             logger.info("problem getting the corpus-based information content of an EQ statement");
             return -1;
         }
+        */
     }
     
     
@@ -79,12 +95,12 @@ public class Utils {
         try{
             for (EQStatement eq1: eqList1){
                 for (EQStatement eq: getInheritedEQs(eq1, ontoObjects)){
-                    eqSet1.add(eq.toIDText());
+                    eqSet1.add(eq.getStandardizedRepresentation());
                 }
             }
             for (EQStatement eq2: eqList2){
                 for (EQStatement eq: getInheritedEQs(eq2, ontoObjects)){
-                    eqSet2.add(eq.toIDText());
+                    eqSet2.add(eq.getStandardizedRepresentation());
                 }
             }
         }
@@ -127,7 +143,10 @@ public class Utils {
     
     
     public static ArrayList<EQStatement> getInheritedEQs(EQStatement eq, HashMap<Ontology,Onto> ontoObjects) throws Exception{
+        
+        
         if (eq.format.equals(EQFormat.NOT_SPECIFIED)){
+            logger.info("calling get inherited eqs");
             return getInheritedCuratedEQs(eq, ontoObjects);
         }
         else {
@@ -185,11 +204,15 @@ public class Utils {
      */
     private static ArrayList<EQStatement> getInheritedCuratedEQs(EQStatement eq, HashMap<Ontology,Onto> ontoObjects) throws Exception{
         
+        
+        System.out.println(String.format("looking at %s", eq.toLabelText(ontoObjects)));
+        
         // Get the term ID strings for this EQ and start a list of inherited ones to be returned.
         ArrayList<EQStatement> inheritedEQs = new ArrayList<>();
         String[] components = eq.componentStrings;
 
         // Iterate through the term IDs in this EQ.
+        System.out.println(String.format("iterating through %s ids", components.length));
         for (String termID: components){
             // Check that A) this role in the EQ is used, and B) we haven't reached the root.
             if (!termID.equals("") &&  !termID.trim().equals("Thing")){
@@ -213,6 +236,7 @@ public class Utils {
                 }
             }
         }
+        System.out.println(String.format("returning %s inherited eqs", inheritedEQs.size()));
         return inheritedEQs;
     }
     
