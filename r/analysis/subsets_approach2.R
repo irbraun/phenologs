@@ -3,31 +3,35 @@ library(tidyr)
 library(dplyr)
 library(data.table)
 library(car)
-library(bootstrap)
-library(DAAG)
-library(kSamples)
 library(data.table)
 
 source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
-source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/subset_functions.R")
+source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_subsets.R")
+
+
+
+
+# Network files.
+NETWORKS_DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
+PHENOTYPE_EDGES_FILE <- "phenotype_network_modified.csv"
+# Function categorization files.
+SUBSETS_DIR <- "/Users/irbraun/Desktop/"
+SUBSETS_FILENAME <- "out.csv"
+# Output files.
+OUT_THRESHOLDS_FILE <- "/Users/irbraun/Desktop/outA.csv"
+OUT_PREDICTIONS_FILE <- "/Users/irbraun/Desktop/outB.csv"
+
 
 
 
 
 # Read in the phenotype and phene network files output from the pipeline.
-dir <- "/Users/irbraun/Desktop/droplet/path/networks/"
-phenotype_edges_file <- "phenotype_network_modified.csv"
-phene_edges_file <- "phene_network_modified.csv"
-phenotype_network <- read(dir,phenotype_edges_file)
-phene_network <- read(dir,phene_edges_file)
-
-
+phenotype_network <- read(NETWORKS_DIR,PHENOTYPE_EDGES_FILE)
 
 # Read in the categorization file for functional subsets of Arabidopsis genes.
-dir <- "/Users/irbraun/Desktop/"
-subsets_filename <- "out_phenotype.csv"
-subsets_df <- read(dir, subsets_filename)
+subsets_df <- read(SUBSETS_DIR, SUBSETS_FILENAME)
 subset_name_list <- unique(subsets_df$subset)
+
 
 
 
@@ -36,11 +40,16 @@ phenotype_network$value_to_use <- (1/phenotype_network$enwiki_dbow)
 
 
 
+
+
 # Get the phenotype ID's that refer to phenotypes for genes in Arabidopsis.
 phenotype_ids <- unique(subsets_df$chunk)
 # Reduce the number of phenotypes for testing purposes.
 phenotype_ids <- phenotype_ids[1:20]
 phenotype_network_table <- data.table(phenotype_network)
+
+
+
 
 
 
@@ -63,6 +72,8 @@ for (p in phenotype_ids){
   row_values <- c(p, membership_for_each_subset)
   all_targets_df[nrow(all_targets_df)+1,] <- row_values
 }
+
+
 
 
 
@@ -103,20 +114,32 @@ for (p in phenotype_ids){
   # Using this learned threshold, make binary predictions for this particular phenotype alone.
   pred_alone <- all_predictions_df[all_predictions_df$phenotype_id == p,]
   binary_pred <- sapply(pred_alone[,2:ncol(pred_alone)], get_binary_decision, threshold=t)
-  #binary_pred <- data.frame(binary_pred)
   binary_pred_matrix <- data.matrix(binary_pred)
   row_values <- c(p, binary_pred)
   final_predictions_table[nrow(final_predictions_table)+1,] <- row_values
 }
 
-# Results of estimating the threshold for each phenotype and predicting subset membership.
-final_thresholds_table
-final_predictions_table 
-
 # What is the performance when combining each membership prediction?
 final_binary_target_matrix <- data.matrix(all_targets_df[,2:ncol(all_targets_df)])
 final_binary_pred_matrix <- data.matrix(final_predictions_table[,2:ncol(final_predictions_table)])
 final_f1 <- get_f_score(final_binary_pred_matrix, final_binary_target_matrix)
+
+# Results of estimating the threshold for each phenotype and predicting subset membership.
+write.csv(final_thresholds_table, file=OUT_THRESHOLDS_FILE, row.names=F)
+write.csv(final_predictions_table, file=OUT_PREDICTIONS_FILE, row.names=F)
+paste(final_f1)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

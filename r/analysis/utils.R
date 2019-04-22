@@ -10,16 +10,14 @@ read <- function(dir,filename){
 
 
 
-# Normalization function for numerical values.
+# Adjust the range of a vector of values to be from 0 to 1.
 range01 <- function(x, ...){
   (x - min(x, ...)) / (max(x, ...) - min(x, ...))
 }
 
 
 
-
-
-# Get a blank dataframe with 0 rows and columns that match the input list.
+# Get a blank dataframe with 0 rows and a number of columns which matches the input list.
 get_empty_table <- function(cols){
   table <- data.frame(matrix(ncol=length(cols), nrow=0))
   colnames(table) <- cols

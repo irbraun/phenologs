@@ -1,14 +1,14 @@
 
-# Normalization function for numerical values.
-range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
 
 
-read <- function(dir,filename){
-  d <- read.csv(file=paste(dir,filename,sep=""), header=T, sep=",")
-  return(d)
-}
+source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
 
-normalize_file <- function(dir,filename){
+
+
+# Creates a new file with normalized scores in the prob 
+# dir: a directory
+# filename: a csv file in that directory with a 'prob' column.
+adjust_range_in_file <- function(dir,filename){
   df <- read(dir,filename)
   df$prob <- range01(df$prob)
   df$prob <- round(df$prob, 3)
@@ -21,19 +21,16 @@ normalize_file <- function(dir,filename){
 
 
 
-
 # Read in the set of files passed in as arguments and normalize the probabilities column.
 # The files that are passed in should be the x_classprobs.csv files.
 # Arguments
 # 1 (string) directory
 # 2 (string) filename
 # ...
-# n (string) filename
-
-l <- c()
+# k (string) filename
 args <- commandArgs(trailingOnly=T)
 dir <- args[1]
 for (i in 2:length(args)){
   filename <- args[i]
-  normalize_file(dir,filename)
+  adjust_range_in_file(dir,filename)
 }

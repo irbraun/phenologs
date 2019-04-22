@@ -3,13 +3,24 @@
 
 
 # Return 1 if subset is in this membership group, 0 else.
+# -- parameters --
+# subset: the name of a particular subset
+# subset_membership: a list of subset names
+# -- returns --
+# whether or not the subset is in the list of subsets.
 membership_func <- function(subset,subset_membership){
   return (ifelse(subset %in% subset_membership, 1, 0))
 }
 
 
 
-# Return data relevant to similarities within and between a specific subset in a network.
+# Find the average similarity between a phenotype and all phenotypes in a certain functional subset.
+# -- parameters --
+# network_df: the dataframe defining all edges between all nodes
+# subsets_df: the dataframe defining which phenotype are in which subsets
+# subset_name: the name of a particular subset
+# -- returns --
+# a vector of values that are relevant to assessing whether similarity was greater within or between this functional subset.
 mean_similarity_within_and_between <- function(network_df, subsets_df, subset_name){
   
   # Identify the chunk IDs which are within or outside this subset category.
@@ -52,22 +63,21 @@ mean_similarity_within_and_between <- function(network_df, subsets_df, subset_na
 
 
 
-# In
-# subset-->p_number mapping df
-# pairwise similarity df
-# phenotype that's dropped out
-# subset (name of subset/cluster)
-# Out
-# Sim(this phenotype, that cluster)
+# Find the average similarity between a phenotype and all phenotypes in a certain functional subset.
+# -- parameters --
+# network_df: the dataframe defining all edges between all nodes
+# subsets_df: the dataframe defining which phenotype are in which subsets
+# subset: the name of a particular subset
+# phenotype_id: the integer for a particular phenotype
+# -- returns --
+# the mean similarity value between this phenotype and all other phenotypes in the subset/cluster.
 get_similarity_to_cluster <- function(network_df, subsets_df, subset, phenotype_id){
   
   # Get the list of phenotype IDs that are in this subset/cluster.
   phenotype_ids_in_subset <- subsets_df[subsets_df$subset %in% c(subset),]$chunk
   
   # Get the network edges connecting this phenotype's node to any node in the subset/cluster.
-  # This is too slow.
-  #slice <- network_df[(network_df$phenotype_1 == phenotype_id & network_df$phenotype_2 %in% phenotype_ids_in_subset) | (network_df$phenotype_2 == phenotype_id & network_df$phenotype_1 %in% phenotype_ids_in_subset),]
-  # This seems to be much faster, separating the subsetting steps into separate calls.
+  # Note that separating the subsetting into two calls then rowbinding is faster than using an or statement.
   phenotype_ids_in_subset <- phenotype_ids_in_subset[!phenotype_ids_in_subset %in% c(phenotype_id)]
   slice_part1 <- network_df[network_df$phenotype_1 == phenotype_id,]
   slice_part2 <- network_df[network_df$phenotype_2 == phenotype_id,]

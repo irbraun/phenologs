@@ -3,15 +3,12 @@ library(tidyr)
 library(dplyr)
 library(data.table)
 library(car)
-library(bootstrap)
-library(DAAG)
-library(kSamples)
 
 
-read <- function(dir,filename){
-  d <- read.csv(file=paste(dir,filename,sep=""), header=T, sep=",")
-  return(d)
-}
+source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
+
+
+
 
 
 # Produces a file of results for evaluating one network against another at a range of thresholds.
