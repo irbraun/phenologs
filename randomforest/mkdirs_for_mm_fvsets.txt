@@ -1,0 +1,33 @@
+From the Sets directory (root for all the feature vector files)
+Copies over matching config and slurm submit files from existing directories.
+Makes the required structure for holding the output feature vector files.
+
+CHANGE JOB NAMES
+CHANGE csv PATHS
+UPLOAD THE RIGHT JAR FILE
+
+mkdir -p pato_atom_mm/data/full
+mkdir -p pato_phen_mm/data/full
+mkdir -p po_atom_mm/data/full
+mkdir -p po_phen_mm/data/full
+mkdir -p go_atom_mm/data/full
+mkdir -p go_phen_mm/data/full
+mkdir -p pato_atom_mm/data/undersampled
+mkdir -p pato_phen_mm/data/undersampled
+mkdir -p po_atom_mm/data/undersampled
+mkdir -p po_phen_mm/data/undersampled
+mkdir -p go_atom_mm/data/undersampled
+mkdir -p go_phen_mm/data/undersampled
+
+cp pato_atom_xx/config.properties pato_atom_mm/
+cp pato_atom_xx/tm.sub pato_atom_mm/
+cp pato_phen_xx/config.properties pato_phen_mm/
+cp pato_phen_xx/tm.sub pato_phen_mm/
+cp po_atom_xx/config.properties po_atom_mm/
+cp po_atom_xx/tm.sub po_atom_mm/
+cp po_phen_xx/config.properties po_phen_mm/
+cp po_phen_xx/tm.sub po_phen_mm/
+cp go_atom_xx/config.properties go_atom_mm/
+cp go_atom_xx/tm.sub go_atom_mm/
+cp go_phen_xx/config.properties go_phen_mm/
+cp go_phen_xx/tm.sub go_phen_mm/

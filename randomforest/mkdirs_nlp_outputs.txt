@@ -1,0 +1,33 @@
+mkdir outputs_all_gs_chars_uberon
+mkdir outputs_all_gs_states_pato
+mkdir outputs_all_ppn_chebi
+mkdir outputs_all_ppn_go
+mkdir outputs_all_ppn_pato
+mkdir outputs_all_ppn_po
+mkdir outputs_test_ppn_chebi
+mkdir outputs_test_ppn_go
+mkdir outputs_test_ppn_pato
+mkdir outputs_test_ppn_po
+mkdir outputs_train_ppn_chebi
+mkdir outputs_train_ppn_go
+mkdir outputs_train_ppn_pato
+mkdir outputs_train_ppn_po
+
+
+mkdir outputs_all_gs_chars_uberon
+mkdir outputs_all_gs_states_pato
+mkdir outputs_all_ppn_chebi
+mkdir outputs_all_ppn_go
+mkdir outputs_all_ppn_pato
+mkdir outputs_all_ppn_po
+mkdir outputs_species_ppn_chebi
+mkdir outputs_species_ppn_go
+mkdir outputs_species_ppn_pato
+mkdir outputs_species_ppn_po
+mkdir outputs_random_ppn_chebi
+mkdir outputs_random_ppn_go
+mkdir outputs_random_ppn_pato
+mkdir outputs_random_ppn_po
+
+
+

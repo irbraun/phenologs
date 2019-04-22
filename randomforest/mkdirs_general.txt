@@ -1,0 +1,27 @@
+mkdir pato_atom_xx
+mkdir pato_atom_mm
+mkdir pato_atom_xm
+mkdir pato_atom_mx
+mkdir pato_phen_xx
+mkdir pato_phen_mm
+mkdir pato_phen_xm
+mkdir pato_phen_mx
+
+mkdir po_atom_xx
+mkdir po_atom_mm
+mkdir po_atom_xm
+mkdir po_atom_mx
+mkdir po_phen_xx
+mkdir po_phen_mm
+mkdir po_phen_xm
+mkdir po_phen_mx
+
+mkdir go_atom_xx
+mkdir go_atom_mm
+mkdir go_atom_xm
+mkdir go_atom_mx
+mkdir go_phen_xx
+mkdir go_phen_mm
+mkdir go_phen_xm
+mkdir go_phen_mx
+

@@ -1,1 +1,2 @@
 # eqpipe
+The contents of this repository consists of code for evaluating the utility of using automated methods to generate computable representations of biological phenotypes descriptions, in this case in plants. Computable representations of phenotypes include EQ statements comprised of ontology terms, or numerical vectors generated using natural language processing (NLP) tools such as doc2vec.
