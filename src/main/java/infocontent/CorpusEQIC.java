@@ -28,17 +28,11 @@ public class CorpusEQIC {
         infoContent = new HashMap<>();
         
 
+        
+        
+        /*
         // Update the counts for all EQs in the corpus, based on a standardized representation of EQs defined in their class.
-        
-        int ctr = 0;
-        
         for (EQStatement explicitEQ: text.getAllCuratedEQStatements()){
-            
-            
-            System.out.println(ctr);
-            ctr++;
-            
-            
             
             HashSet<String> allEQsForThisExplicitEQ = new HashSet<>();
             allEQsForThisExplicitEQ.add(explicitEQ.getStandardizedRepresentation());
@@ -56,35 +50,27 @@ public class CorpusEQIC {
                 }
             }
         }
-        
-        System.out.println("done building dict");
-        
-        
+
         // Get the total number of EQs in the corpus.
         int sum = 0;
         for (Integer value : counts.values()){
             sum += value;
         }
-        
-        System.out.println("done getting sum");
-        
+
         // Get the information content of all the unique EQs in the corpus.
         for (String eqStr : counts.keySet()){
             double frequency = (double) counts.get(eqStr) / (double) sum;
             double ic = (double) -1 * (double) Math.log(frequency);
             infoContent.put(eqStr, ic);
         }
-        
-        System.out.println("done calculating freqs");
+        */
+
+
     }
     
-    
-    
-    
-    
-    // change this so that things that weren't represented don't have low IC, that's incorrect.
-    
- 
+   
+    // TODO this is incorrect, things that aren't in the dictionary should have either high IC (0 freq)
+    // or there should be a baseline frequency that is assumed for things that aren't observe.
     double getIC(String eqStr){
         try{
             return infoContent.get(eqStr);

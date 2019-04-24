@@ -109,15 +109,11 @@ public class NotCoverageTest {
         EQStatement eq1 = text.getCuratedEQStatementFromAtomID(3);
         EQStatement eq2 = text.getCuratedEQStatementFromAtomID(4);
 
-        // this takes forever now?
         InfoContent.setup(ontoObjects,text);
-       
-        
-        System.out.println("done with ic setup");
-        
+
         
         System.out.println("similarity is");
-        System.out.println(composer.Utils.getEQSimilarity(eq1, eq2, ontoObjects));
+        System.out.println(composer.Utils.getEQSimilarityNoWeighting(eq1, eq2, ontoObjects));
         
         
         //InfoContent.setup(ontoObjects,text);

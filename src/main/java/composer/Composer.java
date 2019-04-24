@@ -599,9 +599,9 @@ public class Composer {
                 int associatedPhenotypeID1 = text.getPhenotypeIDfromAtomID(atomID1);
                 int associatedPhenotypeID2 = text.getPhenotypeIDfromAtomID(atomID2);
                 // Don't need to use try catch here because the -1 is already returned if there is an acceptable problem.
-                double predictedSim = Utils.getEQSimilarity(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
+                double predictedSim = Utils.getEQSimilarityNoWeighting(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
                 // Don't need to use try catch here for the same reason.
-                double curatedSim = Utils.getEQSimilarity(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
+                double curatedSim = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
                 Object[] items = {atomID1, atomID2, associatedPhenotypeID1, associatedPhenotypeID2, predictedSim, curatedSim};
                 pheneWriter.println(String.format("%s,%s,%s,%s,%.3f,%.3f",items));
             }
@@ -612,8 +612,8 @@ public class Composer {
             for (int j=i+1; j<phenotypeIDs.size(); j++){
                 int phenotypeID1 = phenotypeIDs.get(i);
                 int phenotypeID2 = phenotypeIDs.get(j);
-                double predictedSim = Utils.getEQSimilarity(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
-                double curatedSim = Utils.getEQSimilarity(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
+                double predictedSim = Utils.getEQSimilarityNoWeighting(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
+                double curatedSim = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
                 Object[] items = {phenotypeID1, phenotypeID2, predictedSim, curatedSim};
                 phenotypeWriter.println(String.format("%s,%s,%.3f,%.3f",items));
             }

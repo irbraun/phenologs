@@ -15,7 +15,7 @@ public enum EQFormat {
     EQqEE,
     EEQEE,
     EEQqEE,
-    NOT_SPECIFIED;
+    UNKNOWN;
     
     public static boolean hasComplexPrimaryEntity(EQFormat format){
         return EnumSet.of(EEQ,EEQq,EEQE,EEQEE,EEQqE,EEQqEE).contains(format);
@@ -28,5 +28,11 @@ public enum EQFormat {
     public static boolean hasOptionalQualifier(EQFormat format){
         return EnumSet.of(EQq,EEQq,EQqE,EEQqE,EQqEE,EEQqEE).contains(format);
     }
+    
+    
+    
+    
+    
+    
     
 }

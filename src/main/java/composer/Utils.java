@@ -25,7 +25,147 @@ public class Utils {
     
     
     
+   
     
+    
+    /**
+     * Not currently used, just for testing.
+     * @param eq
+     * @param ontoObjects
+     * @return 
+     */
+    public static int getNumInheritedEQs(EQStatement eq, HashMap<Ontology,Onto> ontoObjects){
+        ArrayList<Integer> termDepths = new ArrayList<>();
+        for (Term t: eq.termChain){
+            termDepths.add(ontoObjects.get(t.ontology).getTermFromTermID(t.id).inheritedNodes.size()+1);
+        }
+        return utils.Util.product(termDepths);
+    }
+    
+    
+    
+    
+    
+    
+    /**
+     * A method of calculating similarity that uses commonly inherited EQ statements. 
+     * Enforces the fact that the formats of the two EQ statements has to be the same,
+     * i.e. that have to be using the same quantity of terms with the same roles such
+     * as quality and optional qualifier. The inherited EQ statements are not weighted
+     * based on their information content, that process was extremely computationally
+     * expensive because the space of possible EQ statements grows exponentially with 
+     * additional terms added to the statements (such as complex ones with multi-part
+     * entities and qualities and terms with many ancestors such as those in GO and 
+     * ChEBI).
+     * @param eq1
+     * @param eq2
+     * @param ontoObjects
+     * @return
+     * @throws Exception 
+     */
+    public static double getEQSimilarityNoWeighting(EQStatement eq1, EQStatement eq2, HashMap<Ontology,Onto> ontoObjects) throws Exception{
+        
+        // Check if these EQ statements have the same components.
+        if (!eq1.format.equals(eq2.format)){
+            return 0.00;
+        }
+        
+        // These two EQ statements have the same componenets. That should always mean they have the same number of terms.
+        if (eq1.termChain.size() != eq2.termChain.size()){
+            throw new Exception();
+        }
+        
+        // How many EQ statements are inherited by both of these EQs? How many are inherited by only one of them?
+        ArrayList<Integer> quantityOfCommonTermsAtEachComponent = new ArrayList<>();
+        ArrayList<Integer> quantityOfTermsAtEachComponentInEQ1 = new ArrayList<>();
+        ArrayList<Integer> quantityOfTermsAtEachComponentInEQ2 = new ArrayList<>();
+        for (int i=0; i<eq1.termChain.size(); i++){
+            HashSet<String> s1 = new HashSet<>(ontoObjects.get(eq1.termChain.get(i).ontology).getTermFromTermID(eq1.termChain.get(i).id).allNodes);
+            HashSet<String> s2 = new HashSet<>(ontoObjects.get(eq2.termChain.get(i).ontology).getTermFromTermID(eq2.termChain.get(i).id).allNodes);
+            HashSet intersect = new HashSet<>(s1);
+            intersect.retainAll(s2);
+            quantityOfCommonTermsAtEachComponent.add(intersect.size());
+            quantityOfTermsAtEachComponentInEQ1.add(s1.size());
+            quantityOfTermsAtEachComponentInEQ2.add(s2.size());
+        }
+        int numIntersectionEQs = utils.Util.product(quantityOfCommonTermsAtEachComponent);
+        int numEQ1Inherited = utils.Util.product(quantityOfTermsAtEachComponentInEQ1);
+        int numEQ2Inherited = utils.Util.product(quantityOfTermsAtEachComponentInEQ2);        
+        int numEQ1Exclusive = numEQ1Inherited-numIntersectionEQs;
+        int numEQ2Exclusive = numEQ2Inherited-numIntersectionEQs;
+        int numInUnion = numIntersectionEQs+numEQ1Exclusive+numEQ2Exclusive;
+        return (double)numIntersectionEQs / (double)numInUnion;
+    }
+    
+    public static double getEQSimilarityNoWeighting(ArrayList<EQStatement> eqList1, ArrayList<EQStatement> eqList2, HashMap<Ontology,Onto> ontoObjects) throws Exception{
+        
+        // Check to make sure that neither of the lists has zero EQs in it.
+        if (eqList1.isEmpty() || eqList2.isEmpty()){
+            return -1;
+        }
+        
+        
+       
+        // Placeholder method for comparison while figuring out how to reproduce the exact values.
+        ArrayList<EQStatement> shorterEQsList;
+        ArrayList<EQStatement> longerEQsList;
+        if (eqList1.size() >= eqList2.size()){
+            shorterEQsList = new ArrayList<>(eqList1);
+            longerEQsList = new ArrayList<>(eqList2);
+        }
+        else{
+            shorterEQsList = new ArrayList<>(eqList2);
+            longerEQsList = new ArrayList<>(eqList1);
+        }
+        ArrayList<Double> maxSimilarities = new ArrayList<>();
+        for (EQStatement eq1: shorterEQsList){
+            double maxSim = 0.00;
+            for (EQStatement eq2: longerEQsList){
+                maxSim = Math.max(maxSim, getEQSimilarityNoWeighting(eq1, eq2, ontoObjects));            
+            }
+            maxSimilarities.add(maxSim);
+        }
+        return utils.Util.mean(maxSimilarities);
+        
+        
+        /*
+        // Find the number of EQ statements which are uniquely inherited by those in list 1.
+        int numEQsIn1ButNot2 = 0;
+        for (EQStatement eq1: eqList1){
+            // Loop through the terms for this EQ statement.
+            ArrayList<Integer> quantityOfUniqueTermsAtEachComponent = new ArrayList<>();
+            for (int i=0; i<eq1.termChain.size(); i++){
+                HashSet<String> s1 = new HashSet<>(ontoObjects.get(eq1.termChain.get(i).ontology).getTermFromTermID(eq1.termChain.get(i).id).allNodes);
+                for (EQStatement eq2: eqList2){
+                    if (eq1.format.equals(eq2.format)){
+                        HashSet<String> s2 = new HashSet<>(ontoObjects.get(eq2.termChain.get(i).ontology).getTermFromTermID(eq2.termChain.get(i).id).allNodes);
+                        s1.removeAll(s2);
+                    }
+                }    
+                quantityOfUniqueTermsAtEachComponent.add(s1.size());
+            }
+            numEQsIn1ButNot2 += utils.Util.product(quantityOfUniqueTermsAtEachComponent);
+        }
+        
+        // Find the number of EQ statements which are inherited by those in both lists 1 and 2.
+        
+        // Find the number of EQ statements which are uniquely inherited by those in list 2.
+        
+        // Idea
+        for each EQ in list 1:
+            how many inherited EQs are there that aren't covered by anything in list2?
+            alg,
+            throw out every eq that doesn't match formatting of this eq
+            for all the ones that do match.
+                remove all terms from that are present in any of the comparison ones.
+                your left with some amount of terms in each slot for this eq
+                use that to generate the number of possible ones.
+
+            how many inherited EQs are there that aren't covered by anything in list1?
+            repeat this process.
+        */
+        
+    }
     
     
     
@@ -114,6 +254,7 @@ public class Utils {
      * @param eqList2
      * @param ontoObjects
      * @return 
+     * @throws java.lang.Exception 
      */
     public static double getEQSimilarity(ArrayList<EQStatement> eqList1, ArrayList<EQStatement> eqList2, HashMap<Ontology,Onto> ontoObjects) throws Exception{
         
@@ -181,7 +322,7 @@ public class Utils {
      * @throws Exception 
      */
     public static ArrayList<EQStatement> getInheritedEQs(EQStatement eq, HashMap<Ontology,Onto> ontoObjects) throws Exception{
-        if (eq.format.equals(EQFormat.NOT_SPECIFIED)){
+        if (eq.isFromCuratedDataSet()){
             return getInheritedCuratedEQs(eq, ontoObjects);
         }
         else {

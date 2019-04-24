@@ -29,6 +29,7 @@ public class EQStatement {
     public ArrayList<Term> termChain;
     public EQFormat format;
     private String[] componentStrings;
+    private boolean fromCuratedDataSet;
     
     
     
@@ -213,6 +214,8 @@ public class EQStatement {
             throw new Exception();
         }        
         
+        fromCuratedDataSet = false;
+        
     }
     
     
@@ -227,6 +230,8 @@ public class EQStatement {
      * Used to generate objects for curated EQs from the corpus.
      * In the corpus file unused components are represented as blank strings, handled here.
      * Each term is assigned its known role. The different scores take on default values.
+     * Assumes that the formatting for EQs is followed correctly, does not enforce that any
+     * of the components are not missing for example.
      * @param components 
      */
     public EQStatement (String[] components){
@@ -239,37 +244,50 @@ public class EQStatement {
         String developmentalStageID = components[6];    
         componentStrings = components;
         termChain = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        
+        
+        // The StringBuilder keeps track of which components are here to find the right enumerated format type.
+        // In order for that to work the characters must be added in the order specified for the EQFormat class.
+        
+        
         
         // Primary Entities
         if (!primaryEntity1ID.equals("")){
             primaryEntity1 = new Term(primaryEntity1ID, utils.Util.inferOntology(primaryEntity1ID), Role.PRIMARY_ENTITY1_ID);
             termChain.add(primaryEntity1);
+            sb.append("E");
         }
         if (!primaryEntity2ID.equals("")){
             primaryEntity2 = new Term(primaryEntity2ID, utils.Util.inferOntology(primaryEntity2ID), Role.PRIMARY_ENTITY2_ID);
             termChain.add(primaryEntity2);
+            sb.append("E");
         }
         
         // Quality
         if (!qualityID.equals("")){
             quality = new Term(qualityID, utils.Util.inferOntology(qualityID), Role.QUALITY_ID);
             termChain.add(quality);
+            sb.append("Q");
+        }
+        // Optional qualifier
+        if (!qualifierID.equals("")){
+            qualifier = new Term(qualifierID, utils.Util.inferOntology(qualifierID), Role.QUALIFIER_ID);
+            termChain.add(qualifier);
+            sb.append("q");
         }
         
         // Secondary Entities
         if (!secondaryEntity1ID.equals("")){
             secondaryEntity1 = new Term(secondaryEntity1ID, utils.Util.inferOntology(secondaryEntity1ID), Role.SECONDARY_ENTITY1_ID);
             termChain.add(secondaryEntity1);
+            sb.append("E");
         }
+        
         if (!secondaryEntity2ID.equals("")){
             secondaryEntity2 = new Term(secondaryEntity2ID, utils.Util.inferOntology(secondaryEntity2ID), Role.SECONDARY_ENTITY2_ID);
             termChain.add(secondaryEntity2);
-        }
-        
-        // Optional qualifier
-        if (!qualifierID.equals("")){
-            qualifier = new Term(qualifierID, utils.Util.inferOntology(qualifierID), Role.QUALIFIER_ID);
-            termChain.add(qualifier);
+            sb.append("E");
         }
         
         // Developmental Stage
@@ -279,7 +297,13 @@ public class EQStatement {
         }
         termScore = 1.00;
         dGraphScore = "1.00";
-        format = EQFormat.NOT_SPECIFIED;
+        fromCuratedDataSet = true;
+        try{
+            format = EQFormat.valueOf(sb.toString());
+        }
+        catch(IllegalArgumentException e){
+            format = EQFormat.UNKNOWN;
+        }
     }
     
     
@@ -391,6 +415,9 @@ public class EQStatement {
         return toIDText();
     }
     
+    public boolean isFromCuratedDataSet(){
+        return fromCuratedDataSet;
+    }
     
     
     

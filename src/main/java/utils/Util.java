@@ -49,7 +49,21 @@ public class Util {
         r.addAll(IntStream.rangeClosed(min2,max2).boxed().collect(Collectors.toList()));
         return r;
     }
-    
+    public static int product(ArrayList<Integer> l){
+        int product = 1;
+        for (int i: l){
+            product = product*i;
+        }
+        return product;
+    }
+    public static double mean(ArrayList<Double> l){
+        double sum = 0.00;
+        for (double d: l){
+            sum = sum + d;
+        }
+        double mean = sum / (double) l.size();
+        return mean;
+    }
     
     
     
