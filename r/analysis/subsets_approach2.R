@@ -36,7 +36,7 @@ subset_name_list <- unique(subsets_df$subset)
 
 
 # Define which similarity metric from the network edge file to use.
-phenotype_network$value_to_use <- (1/phenotype_network$enwiki_dbow)
+phenotype_network$value_to_use <- range01((1/phenotype_network$enwiki_dbow))
 
 
 
@@ -113,7 +113,7 @@ for (p in phenotype_ids){
   
   # Using this learned threshold, make binary predictions for this particular phenotype alone.
   pred_alone <- all_predictions_df[all_predictions_df$phenotype_id == p,]
-  binary_pred <- sapply(pred_alone[,2:ncol(pred_alone)], get_binary_decision, threshold=t)
+  binary_pred <- sapply(pred_alone[,2:ncol(pred_alone)], get_binary_decision, threshold=best_threshold)
   binary_pred_matrix <- data.matrix(binary_pred)
   row_values <- c(p, binary_pred)
   final_predictions_table[nrow(final_predictions_table)+1,] <- row_values

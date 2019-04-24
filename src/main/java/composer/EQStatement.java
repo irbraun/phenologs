@@ -28,7 +28,7 @@ public class EQStatement {
     public double coverage;
     public ArrayList<Term> termChain;
     public EQFormat format;
-    public String[] componentStrings;
+    private String[] componentStrings;
     
     
     
@@ -280,7 +280,6 @@ public class EQStatement {
         termScore = 1.00;
         dGraphScore = "1.00";
         format = EQFormat.NOT_SPECIFIED;
-        
     }
     
     
@@ -378,6 +377,9 @@ public class EQStatement {
         return format;
     }
     
+    public String[] getComponentStrings(){
+        return componentStrings;
+    }
     
     /**
      * This is the representation that is used for both calculating overlap between

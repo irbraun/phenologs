@@ -8,6 +8,7 @@ import composer.ComposerIO;
 import composer.EQStatement;
 import composer.Modifier;
 import composer.Term;
+import static composer.Utils.getInheritedEQs;
 import config.Config;
 import config.Connect;
 import edu.stanford.nlp.pipeline.CoreDocument;
@@ -18,6 +19,7 @@ import enums.Ontology;
 import enums.Role;
 import enums.Species;
 import enums.TextDatatype;
+import infocontent.InfoContent;
 import randomforest.index.FeatureIndices;
 import java.io.File;
 import randomforest.process.SimilarityFinder;
@@ -97,6 +99,33 @@ public class NotCoverageTest {
     @Test
     public void testA() throws IOException, SQLException, FileNotFoundException, ParseException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
  
+        Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/path/config/");
+        Connect conn = new Connect();
+        CoreNLP.setup(); 
+        
+        HashMap<Ontology,Onto> ontoObjects = utils.Util.buildOntoObjects(Ontology.getPlantOntologies());
+        Text text = new Text();
+        
+        EQStatement eq1 = text.getCuratedEQStatementFromAtomID(3);
+        EQStatement eq2 = text.getCuratedEQStatementFromAtomID(4);
+
+        // this takes forever now?
+        InfoContent.setup(ontoObjects,text);
+       
+        
+        System.out.println("done with ic setup");
+        
+        
+        System.out.println("similarity is");
+        System.out.println(composer.Utils.getEQSimilarity(eq1, eq2, ontoObjects));
+        
+        
+        //InfoContent.setup(ontoObjects,text);
+        
+        
+        
+        
+        
         /*
         Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/path/config/");
         Connect conn = new Connect();

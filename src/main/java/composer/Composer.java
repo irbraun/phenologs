@@ -51,13 +51,11 @@ public class Composer {
         text = new Text();
         Partitions parts = new Partitions(text);
         //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
-        
         //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0,1,text.getAllChunksOfDType(Config.format));
-        chunkIDs = utils.Util.range(1, 50);
+        chunkIDs = utils.Util.range(3,4);
         
         logger.info("building ontology representations");
-        
-        ontoObjects = utils.Util.buildOntoObjects(Ontology.getSmallOntologies());
+        ontoObjects = utils.Util.buildOntoObjects(Ontology.getPlantOntologies());
         //ontoObjects = utils.Util.buildOntoObjects(Ontology.getAllOntologies());
         InfoContent.setup(ontoObjects,text);
        
@@ -89,6 +87,10 @@ public class Composer {
         eTermProbabilityTable = ComposerIO.readClassProbFiles(entityClassProbPaths, 6);
         qTermProbabilityTable = ComposerIO.readClassProbFiles(qualityClassProbPaths, 4);
         makeTable();
+        
+        
+        System.out.println("MAKING NETWORK");
+        
         
         // Look at network similarity.
         logger.info("building gene network files");
@@ -589,9 +591,6 @@ public class Composer {
         ArrayList<Integer> phenotypeIDs = new ArrayList<>(phenotypeIDsSet);
         
         
-        
-       
-      
         // Phene network.
         for (int i=0; i<atomIDs.size(); i++){
             for (int j=i+1; j<atomIDs.size(); j++){
@@ -599,34 +598,21 @@ public class Composer {
                 int atomID2 = atomIDs.get(j);
                 int associatedPhenotypeID1 = text.getPhenotypeIDfromAtomID(atomID1);
                 int associatedPhenotypeID2 = text.getPhenotypeIDfromAtomID(atomID2);
-                double predictedSim;
-                try{
-                    predictedSim = Utils.getEQSimilarity(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
-                }
-                catch(Exception e){
-                    // Most likely there were not EQs predicted for one of those phenes?
-                    predictedSim = -1;
-                }
+                // Don't need to use try catch here because the -1 is already returned if there is an acceptable problem.
+                double predictedSim = Utils.getEQSimilarity(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
+                // Don't need to use try catch here for the same reason.
                 double curatedSim = Utils.getEQSimilarity(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
                 Object[] items = {atomID1, atomID2, associatedPhenotypeID1, associatedPhenotypeID2, predictedSim, curatedSim};
                 pheneWriter.println(String.format("%s,%s,%s,%s,%.3f,%.3f",items));
             }
         }
 
-        
         // Phenotype network.
         for (int i=0; i<phenotypeIDs.size(); i++){
             for (int j=i+1; j<phenotypeIDs.size(); j++){
                 int phenotypeID1 = phenotypeIDs.get(i);
                 int phenotypeID2 = phenotypeIDs.get(j);
-                double predictedSim;
-                try{
-                    predictedSim = Utils.getEQSimilarity(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
-                }
-                catch(Exception e){
-                    // Most likely there were no EQs predicted for one of those phenotypes?
-                    predictedSim = -1;
-                    }
+                double predictedSim = Utils.getEQSimilarity(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
                 double curatedSim = Utils.getEQSimilarity(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
                 Object[] items = {phenotypeID1, phenotypeID2, predictedSim, curatedSim};
                 phenotypeWriter.println(String.format("%s,%s,%.3f,%.3f",items));

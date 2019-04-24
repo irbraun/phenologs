@@ -8,8 +8,8 @@ package infocontent;
 import composer.EQStatement;
 import enums.Ontology;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import static main.Main.logger;
 import ontology.Onto;
 import text.Text;
@@ -20,8 +20,8 @@ import text.Text;
  */
 public class CorpusEQIC {
         
-    private HashMap<String, Integer> counts;
-    private HashMap<String, Double> infoContent;
+    private final HashMap<String, Integer> counts;
+    private final HashMap<String, Double> infoContent;
     
     public CorpusEQIC(Text text, HashMap<Ontology,Onto> ontoObjects) throws SQLException, Exception{
         counts = new HashMap<>();
@@ -29,8 +29,18 @@ public class CorpusEQIC {
         
 
         // Update the counts for all EQs in the corpus, based on a standardized representation of EQs defined in their class.
+        
+        int ctr = 0;
+        
         for (EQStatement explicitEQ: text.getAllCuratedEQStatements()){
-            ArrayList<String> allEQsForThisExplicitEQ = new ArrayList<>();
+            
+            
+            System.out.println(ctr);
+            ctr++;
+            
+            
+            
+            HashSet<String> allEQsForThisExplicitEQ = new HashSet<>();
             allEQsForThisExplicitEQ.add(explicitEQ.getStandardizedRepresentation());
             for (EQStatement inheritedEQ: composer.Utils.getInheritedEQs(explicitEQ, ontoObjects)){
                 allEQsForThisExplicitEQ.add(inheritedEQ.getStandardizedRepresentation());
@@ -47,11 +57,16 @@ public class CorpusEQIC {
             }
         }
         
+        System.out.println("done building dict");
+        
+        
         // Get the total number of EQs in the corpus.
         int sum = 0;
         for (Integer value : counts.values()){
             sum += value;
         }
+        
+        System.out.println("done getting sum");
         
         // Get the information content of all the unique EQs in the corpus.
         for (String eqStr : counts.keySet()){
@@ -60,7 +75,14 @@ public class CorpusEQIC {
             infoContent.put(eqStr, ic);
         }
         
+        System.out.println("done calculating freqs");
     }
+    
+    
+    
+    
+    
+    // change this so that things that weren't represented don't have low IC, that's incorrect.
     
  
     double getIC(String eqStr){

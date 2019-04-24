@@ -5,6 +5,7 @@ import enums.EQFormat;
 import enums.Ontology;
 import infocontent.InfoContent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,33 +26,52 @@ public class Utils {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /**
+     * Get the weighted Jaccard similarity of two EQ statements. These two EQ statements
+     * must exist in order for this function to be called, it does not check. Also does
+     * not indicate whether the EQ statements were actually found in the original dataset
+     * and able to have a measured frequency. The frequency is just assumed to the baseline
+     * frequency defined in the information content classes.
+     * @param eq1
+     * @param eq2
+     * @param ontoObjects
+     * @return
+     * @throws Exception 
+     */
     public static double getEQSimilarity(EQStatement eq1, EQStatement eq2, HashMap<Ontology,Onto> ontoObjects) throws Exception{
-        
-        System.out.println("HERE");
-        
+
+        // The sets of EQ statements which comprise representations of those inherited by the ones passed in.
         HashSet<String> eqSet1 = new HashSet<>();
         HashSet<String> eqSet2 = new HashSet<>();
         
-
-        
-        
-        ArrayList<EQStatement> l = getInheritedEQs(eq1,ontoObjects);
-        System.out.println(String.format("therer were %s eqs inherited by %s",  l.size(), eq1.toIDText()));
-        
-        
+        // Populate those sets of representations of inherited EQ statements.
         for (EQStatement eq: getInheritedEQs(eq1, ontoObjects)){
             eqSet1.add(eq.getStandardizedRepresentation());
         }
         for (EQStatement eq: getInheritedEQs(eq2, ontoObjects)){
             eqSet2.add(eq.getStandardizedRepresentation());
         }
-        /*
-        catch(Exception e){
-            logger.info("problem getting standardized representations of EQs");
-            return -1;
-        }
-         */  
-        
+
+        // Define which EQ statements are in the union and interestion of those passed in.
         HashSet<String> intersection = new HashSet<>(eqSet1);
         intersection.retainAll(eqSet2);
         HashSet<String> union = new HashSet<>(eqSet1);
@@ -59,57 +79,66 @@ public class Utils {
         double sumIntersection = 0.000;
         double sumUnion = 0.000;
         
-        
-        return 6;
-        //return eqSet1.size();
-        
-        
-        
-        /*
-        try{
-            for (String eqStr: (HashSet<String>) intersection){
-                sumIntersection += InfoContent.getICofEQInCorpus(eqStr);
-            }
-            for (String eqStr: (HashSet<String>) union){
-                sumUnion += InfoContent.getICofEQInCorpus(eqStr);
-            }
-            double similarity = sumIntersection / sumUnion;
-            return similarity;
+        // Calculate and return the weighted Jaccard similarity between these EQ statements.
+        // Note that each statement is weighted as it's information content based on frequency in the original dataset.
+        for (String eqStr: (HashSet<String>) intersection){
+            sumIntersection += InfoContent.getICofEQInCorpus(eqStr);
         }
-        catch(Exception e){
-            logger.info("problem getting the corpus-based information content of an EQ statement");
-            return -1;
+        for (String eqStr: (HashSet<String>) union){
+            sumUnion += InfoContent.getICofEQInCorpus(eqStr);
         }
-        */
+        double similarity = sumIntersection / sumUnion;
+        return similarity;
     }
     
     
     
     
     
-    public static double getEQSimilarity(ArrayList<EQStatement> eqList1, ArrayList<EQStatement> eqList2, HashMap<Ontology,Onto> ontoObjects){
+    
+    
+    
+    
+    
+    /**
+     * Get the weighted Jaccard similarity of two sets of EQ statements. Checks to make
+     * sure that the lists of EQ statements are not empty, if one of them is then this 
+     * method returns -1, which indicates that the similarity between these two EQ statements
+     * could not be calculated. This is important for this method because it is receiving 
+     * EQ statements are the result of predictions, where there can be any number of predicted
+     * EQ statements for some input ranging from 0 and upwards. Does not indicate whether the 
+     * EQ statements were actually found in the original dataset and able to have a measured 
+     * frequency. The frequency is just assumed to the baseline frequency defined in the 
+     * information content classes.
+     * @param eqList1
+     * @param eqList2
+     * @param ontoObjects
+     * @return 
+     */
+    public static double getEQSimilarity(ArrayList<EQStatement> eqList1, ArrayList<EQStatement> eqList2, HashMap<Ontology,Onto> ontoObjects) throws Exception{
         
+        // Check to make sure that neither of the lists has zero EQs in it.
+        if (eqList1.isEmpty() || eqList2.isEmpty()){
+            return -1;
+        }
+        
+        // The sets of EQ statements which comprise representations of those inherited by the ones passed in.
         HashSet<String> eqSet1 = new HashSet<>();
         HashSet<String> eqSet2 = new HashSet<>();
         
-        try{
-            for (EQStatement eq1: eqList1){
-                for (EQStatement eq: getInheritedEQs(eq1, ontoObjects)){
-                    eqSet1.add(eq.getStandardizedRepresentation());
-                }
-            }
-            for (EQStatement eq2: eqList2){
-                for (EQStatement eq: getInheritedEQs(eq2, ontoObjects)){
-                    eqSet2.add(eq.getStandardizedRepresentation());
-                }
+        // Populate those sets of representations of inherited EQ statements.
+        for (EQStatement eq1: eqList1){
+            for (EQStatement eq: getInheritedEQs(eq1, ontoObjects)){
+                eqSet1.add(eq.getStandardizedRepresentation());
             }
         }
-        catch(Exception e){
-            logger.info("problem getting standardized representations of EQs");
-            return -1;
+        for (EQStatement eq2: eqList2){
+            for (EQStatement eq: getInheritedEQs(eq2, ontoObjects)){
+                eqSet2.add(eq.getStandardizedRepresentation());
+            }
         }
-            
-        
+
+        // Define which EQ statements are in the union and interestion of those passed in.
         HashSet<String> intersection = new HashSet<>(eqSet1);
         intersection.retainAll(eqSet2);
         HashSet<String> union = new HashSet<>(eqSet1);
@@ -117,20 +146,17 @@ public class Utils {
         double sumIntersection = 0.000;
         double sumUnion = 0.000;
         
-        try{
-            for (String eqStr: (HashSet<String>) intersection){
-                sumIntersection += InfoContent.getICofEQInCorpus(eqStr);
-            }
-            for (String eqStr: (HashSet<String>) union){
-                sumUnion += InfoContent.getICofEQInCorpus(eqStr);
-            }
-            double similarity = sumIntersection / sumUnion;
-            return similarity;
+        
+        // Calculate and return the weighted Jaccard similarity between these EQ statements.
+        // Note that each statement is weighted as it's information content based on frequency in the original dataset.
+        for (String eqStr: (HashSet<String>) intersection){
+            sumIntersection += InfoContent.getICofEQInCorpus(eqStr);
         }
-        catch(Exception e){
-            logger.info("problem getting the corpus-based information content of an EQ statement");
-            return -1;
-        } 
+        for (String eqStr: (HashSet<String>) union){
+            sumUnion += InfoContent.getICofEQInCorpus(eqStr);
+        }
+        double similarity = sumIntersection / sumUnion;
+        return similarity;
     }
     
     
@@ -142,17 +168,32 @@ public class Utils {
     
     
     
+    
+    
+    /**
+     * Returns a list of standard string representations of EQ statements which are inherited
+     * by that passed in. Differentiates between EQ statements that come from the curated
+     * dataset and those that have been predicted by other methods and uses the appropriate
+     * function.
+     * @param eq
+     * @param ontoObjects
+     * @return
+     * @throws Exception 
+     */
     public static ArrayList<EQStatement> getInheritedEQs(EQStatement eq, HashMap<Ontology,Onto> ontoObjects) throws Exception{
-        
-        
         if (eq.format.equals(EQFormat.NOT_SPECIFIED)){
-            logger.info("calling get inherited eqs");
             return getInheritedCuratedEQs(eq, ontoObjects);
         }
         else {
             return getInheritedPredictedEQs(eq, ontoObjects);
         }
     }
+    
+    
+    
+    
+    
+    
     
     /**
      * Get all the EQ statements that are inherited by the EQ statement passed in. This is a
@@ -174,7 +215,13 @@ public class Utils {
         
         // Iterate through the terms in this EQ.
         for (Term t: terms){
-            List<String> parentIDs = ontoObjects.get(utils.Util.inferOntology(t.id)).getTermFromTermID(t.id).parentNodes;
+            List<String> parentIDs = new ArrayList<>();
+            try{
+                parentIDs = ontoObjects.get(utils.Util.inferOntology(t.id)).getTermFromTermID(t.id).parentNodes;
+            }
+            catch(Exception e){
+                logger.info(String.format("problem obtaining parents of %s", t.id));
+            }
             int position = terms.indexOf(t);
             for (String parentTermID: parentIDs){
                 OntologyTerm parentTerm = ontoObjects.get(utils.Util.inferOntology(parentTermID)).getTermFromTermID(parentTermID);
@@ -204,15 +251,11 @@ public class Utils {
      */
     private static ArrayList<EQStatement> getInheritedCuratedEQs(EQStatement eq, HashMap<Ontology,Onto> ontoObjects) throws Exception{
         
-        
-        System.out.println(String.format("looking at %s", eq.toLabelText(ontoObjects)));
-        
         // Get the term ID strings for this EQ and start a list of inherited ones to be returned.
         ArrayList<EQStatement> inheritedEQs = new ArrayList<>();
-        String[] components = eq.componentStrings;
+        String[] components = Arrays.copyOf(eq.getComponentStrings(), eq.getComponentStrings().length);
 
         // Iterate through the term IDs in this EQ.
-        System.out.println(String.format("iterating through %s ids", components.length));
         for (String termID: components){
             // Check that A) this role in the EQ is used, and B) we haven't reached the root.
             if (!termID.equals("") &&  !termID.trim().equals("Thing")){
@@ -222,7 +265,7 @@ public class Utils {
                     parentIDs = ontoObjects.get(utils.Util.inferOntology(termID)).getTermFromTermID(termID).parentNodes;
                 }
                 catch(NullPointerException e){
-                    System.out.println("could not get parent terms for " + termID);
+                    logger.info(String.format("problem obtaining parents of %s", termID));
                 }
                 int position = ArrayUtils.indexOf(components, termID);
                 // Iterate through the parent terms, replacing the child term with them and recursively calling this method.
@@ -236,9 +279,12 @@ public class Utils {
                 }
             }
         }
-        System.out.println(String.format("returning %s inherited eqs", inheritedEQs.size()));
         return inheritedEQs;
     }
+    
+    
+    
+    
     
     
     
@@ -265,8 +311,6 @@ public class Utils {
      */
     public static double getTermSetSimilarity(EQStatement eq1, EQStatement eq2, HashMap<Ontology,Onto> ontoObjects){
         
-        
-        
         HashSet<String> termSetP1 = new HashSet<>();
         HashSet<String> termSetP2 = new HashSet<>();
         
@@ -279,7 +323,7 @@ public class Utils {
             }
         }
         catch (Exception e){
-            System.out.println("problem getting supported terms from the eq statement objects");
+            logger.info("problem getting supported terms from the eq statement objects");
             return -1;
         }
         
@@ -367,6 +411,15 @@ public class Utils {
             return -1;
         }
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     /**
