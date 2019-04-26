@@ -1,8 +1,5 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
+
 package nlp_annot;
 
 import composer.ComposerIO;
@@ -19,7 +16,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import main.Group;
+import utils.DataGroup;
 import main.Partitions;
 import static nlp_annot.OutsideAnnotationReader.populateFilesForTestSets;
 import org.json.simple.parser.ParseException;
@@ -28,14 +25,12 @@ import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
 
-/**
- *
- * @author irbraun
- */
+
 public class AggregateResults {
     
     
 
+    // TODO don't hardcode all the paths to the output files to be aggregated.
     
     
     
@@ -124,7 +119,6 @@ public class AggregateResults {
      */
     public static void run(String annotDir) throws IOException, FileNotFoundException, ParseException, SQLException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
         
-        
         makeCombinedFilesSet(annotDir);
         
         String baseDirectory = annotDir+"aggregate/";
@@ -133,31 +127,31 @@ public class AggregateResults {
         String fold = "fold";
        
         // Partition numbers for each testing set.
-        List<Integer> allPartitionNumbers = utils.Util.range(0, 31);
-        List<Integer> set1PartitionNumbers = utils.Util.range(0, 4);
+        List<Integer> allPartitionNumbers = utils.Utils.range(0, 31);
+        List<Integer> set1PartitionNumbers = utils.Utils.range(0, 4);
         
         // Text data and partition objects for each testing set.
         Text text = new Text();
         Partitions set1PartitionObj = new Partitions(text); 
        
         String outputPath = String.format("%s/%s",baseDirectory,"output_pato");
-        List<Group> patoGroups = new ArrayList<>();
-        patoGroups.add(new Group("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
+        List<DataGroup> patoGroups = new ArrayList<>();
+        patoGroups.add(new DataGroup("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
         populateFilesForTestSets(text, Ontology.PATO, patoGroups, outputPath+"/classprobs.csv");
 
-        List<Group> poGroups = new ArrayList<>();
+        List<DataGroup> poGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_po");
-        poGroups.add(new Group("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
+        poGroups.add(new DataGroup("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
         populateFilesForTestSets(text, Ontology.PO, poGroups, outputPath+"/classprobs.csv");
 
-        List<Group> goGroups = new ArrayList<>();
+        List<DataGroup> goGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_go");
-        goGroups.add(new Group("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
+        goGroups.add(new DataGroup("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
         populateFilesForTestSets(text, Ontology.GO, goGroups, outputPath+"/classprobs.csv");
 
-        List<Group> chebiGroups = new ArrayList<>();
+        List<DataGroup> chebiGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_chebi");
-        chebiGroups.add(new Group("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
+        chebiGroups.add(new DataGroup("group1", fold, allPartitionNumbers, outputPath, set1PartitionObj));
         populateFilesForTestSets(text, Ontology.CHEBI, chebiGroups, outputPath+"/classprobs.csv");
          
     }

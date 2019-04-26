@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
 
 /**

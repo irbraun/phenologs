@@ -7,7 +7,7 @@ package unused;
 
 import java.util.List;
 import ontology.Onto;
-import structure.OntologyTerm;
+import objects.OntologyTerm;
 
 /**
  *
@@ -19,7 +19,7 @@ public class MeanSubgraphOverlaps {
     
     
     public static void getMeanOverlap() throws Exception{
-        Onto onto = new Onto(utils.Util.pickOntologyPath("po"));
+        Onto onto = new Onto(utils.Utils.pickOntologyPath("po"));
         List<OntologyTerm> terms = onto.getTermList();
         double sumOfAverages = 0.00;
         for (OntologyTerm curatedTerm: terms){

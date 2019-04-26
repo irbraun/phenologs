@@ -1,32 +1,25 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package nlp_annot;
 
 import java.util.List;
-import main.Group;
+import utils.DataGroup;
 import static main.Main.logger;
-import structure.Chunk;
+import objects.Chunk;
 
-/**
- *
- * @author irbraun
- */
+
 public class Utils {
     
     
     
-    public static void writeToEvalFiles(Object[] line, int part, List<Group> groups){
-        for (Group g: groups){
+    public static void writeToEvalFiles(Object[] line, int part, List<DataGroup> groups){
+        for (DataGroup g: groups){
             if (g.partitionNumbers.contains(part)){
                 g.evalPrinter.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",line));
             }
         }
     }
-    public static void writeToClassProbFiles(Object[] line, int part, List<Group> groups){
-        for (Group g: groups){
+    public static void writeToClassProbFiles(Object[] line, int part, List<DataGroup> groups){
+        for (DataGroup g: groups){
             if (g.partitionNumbers.contains(part)){
                 g.classProbsPrinter.println(String.format("%s,%s,%s,%s",line));
             }
@@ -36,15 +29,15 @@ public class Utils {
     
     
 
-    public static void writeToEvalFiles(Object[] line, Chunk c, List<Group> groups) throws Exception{
-        for (Group g: groups){
+    public static void writeToEvalFiles(Object[] line, Chunk c, List<DataGroup> groups) throws Exception{
+        for (DataGroup g: groups){
             if (g.partitionNumbers.contains(g.p.getPartitionNumber(c))){
                 g.evalPrinter.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",line));
             }
         }
     }
-    public static void writeToClassProbFiles(Object[] line, Chunk c, List<Group> groups) throws Exception{
-        for (Group g: groups){
+    public static void writeToClassProbFiles(Object[] line, Chunk c, List<DataGroup> groups) throws Exception{
+        for (DataGroup g: groups){
             if (g.partitionNumbers.contains(g.p.getPartitionNumber(c))){
                 g.classProbsPrinter.println(String.format("%s,%s,%s,%s",line));
             }

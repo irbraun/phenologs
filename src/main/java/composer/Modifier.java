@@ -1,8 +1,6 @@
 
 package composer;
 
-import composer.Utils.TermComparatorByLabelLength;
-import composer.Utils.TermComparatorByScore;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.semgraph.SemanticGraph;
@@ -18,7 +16,9 @@ import static main.Main.logger;
 import nlp.MyAnnotation;
 import nlp.MyAnnotation.Token;
 import nlp.CoreNLP;
-import structure.Chunk;
+import objects.Chunk;
+import utils.Comparators.TermComparatorByLabelLength;
+import utils.Comparators.TermComparatorByScore;
 
 
 public class Modifier {
@@ -43,7 +43,7 @@ public class Modifier {
     
 
         
-    /**
+    /*
      * This method does not work. Goal was to detect when the subject is only implied using the
      * NLP information rather than just a lack of finding other entities. That might not be the 
      * right approach because it's much more difficult that just seeing what else was found
@@ -53,6 +53,7 @@ public class Modifier {
      * @param annot
      * @return 
      */
+    /*
     public static boolean hasImpliedSubject(MyAnnotation annot){
         for (SemanticGraphEdge edge: annot.dependencyGraph.edgeListSorted()){
             if (edge.getRelation().getShortName().equals("nsubj")){
@@ -61,6 +62,9 @@ public class Modifier {
         }     
         return true;     
     }
+    */
+    
+    
     
     
     
@@ -69,7 +73,7 @@ public class Modifier {
     public static List<EQStatement> getNonImpliedSubjEQs(List<EQStatement> eqs){
         List<EQStatement> toDelete = new ArrayList<>();
         for (EQStatement eq: eqs){
-            if (EQFormat.hasComplexPrimaryEntity(eq.format)){
+            if (EQFormat.hasComplexPrimaryEntity(eq.getFormat())){
                 toDelete.add(eq);
             }
             else if (!eq.primaryEntity1.id.equals("PO_0000003")){
@@ -85,7 +89,7 @@ public class Modifier {
     public static List<EQStatement> getNonQualifierEQs(List<EQStatement> eqs){
         List<EQStatement> toDelete = new ArrayList<>();
         for (EQStatement eq: eqs){
-            if (!EQFormat.hasOptionalQualifier(eq.format)){
+            if (!EQFormat.hasOptionalQualifier(eq.getFormat())){
                 toDelete.add(eq);
             }
         }
@@ -93,18 +97,18 @@ public class Modifier {
     }
     
     
-    
+
     
     // Find EQ statements that don't satisfy a dependency graph check.
     public static List<EQStatement> getInvalidComplexEQs(List<EQStatement> eqs, MyAnnotation annot){
         List<EQStatement> toDelete = new ArrayList<>();
         for (EQStatement eq: eqs){
-            if (EQFormat.hasComplexPrimaryEntity(eq.format)){
+            if (EQFormat.hasComplexPrimaryEntity(eq.getFormat())){
                 if (!checkDependency(eq.primaryEntity1, eq.primaryEntity2, annot)){
                     toDelete.add(eq);
                 }
             }
-            if (EQFormat.hasComplexSecondaryEntity(eq.format)){
+            if (EQFormat.hasComplexSecondaryEntity(eq.getFormat())){
                 if (checkDependency(eq.secondaryEntity1, eq.secondaryEntity2, annot)){
                     toDelete.add(eq);
                 }
@@ -129,6 +133,7 @@ public class Modifier {
      * @return true when there is directed path length of 1 from t1 to t2, false when anything else.
      */
     private static boolean checkDependency(Term t1, Term t2, MyAnnotation annot){
+        int arbitrarilyLargePathLength = 100;
         List<IndexedWord> nodesTerm1 = new ArrayList<>();
         List<IndexedWord> nodesTerm2 = new ArrayList<>();
         SemanticGraph dG = annot.dependencyGraph;
@@ -140,7 +145,7 @@ public class Modifier {
                 nodesTerm2.add(token.idxWord);
             }
         }
-        int minPathLength = 100;
+        int minPathLength = arbitrarilyLargePathLength;
         boolean correctDirection = false;
         for (IndexedWord w1: nodesTerm1){
             for (IndexedWord w2: nodesTerm2){
@@ -173,6 +178,7 @@ public class Modifier {
     
     // Find the minimum path length between two nodes in the dG.
     public static int getMinPathLength(HashSet<String> set1, HashSet<String> set2, MyAnnotation annot){
+        int arbitrarilyLargePathLength = 100;
         set1 = CoreNLP.removeStopWords(set1);
         set2 = CoreNLP.removeStopWords(set2);
         List<IndexedWord> nodesTerm1 = new ArrayList<>();
@@ -186,7 +192,7 @@ public class Modifier {
                 nodesTerm2.add(token.idxWord);
             }
         }
-        int minPathLength = 100;
+        int minPathLength = arbitrarilyLargePathLength;
         for (IndexedWord w1: nodesTerm1){
             for (IndexedWord w2: nodesTerm2){
                 try{
@@ -249,6 +255,8 @@ public class Modifier {
         return toDelete;
     }
 
+    
+    
     // Helper function to figure out which entity to remove in the case of redundant entities.
     private static List<Term> getConflictsOrderedByOntologyAndScore(Term target, List<Term> other){
         
@@ -262,7 +270,8 @@ public class Modifier {
             System.out.println(t.id);
         }
         
-// Define default order for how ontology terms should be retained.
+        
+        // Define default order for how ontology terms should be retained.
         HashMap<Integer,Ontology> ontoOrder = new HashMap<>();
         ontoOrder.put(1,Ontology.PO);
         ontoOrder.put(2,Ontology.UBERON);
@@ -273,7 +282,7 @@ public class Modifier {
         for (int order=1; order<=ontoOrder.keySet().size(); order++){
             List<Term> fromThisO = new ArrayList<>();
             for(Term t: conflicts){
-                if (utils.Util.inferOntology(t.id).equals(ontoOrder.get(order))){
+                if (utils.Utils.inferOntology(t.id).equals(ontoOrder.get(order))){
                     fromThisO.add(t);
                 }
             }
@@ -328,7 +337,6 @@ public class Modifier {
     
     
     
-    
     /**
      * Return EQs where an entity term is overlapping with either the quality term or 
      * a term being used as an optional qualifier.
@@ -338,7 +346,7 @@ public class Modifier {
     public static List<EQStatement> getRedundantEQs(List<EQStatement> eqs){
         List<EQStatement> toDelete = new ArrayList<>();
         for (EQStatement eq: eqs){
-            if (EQFormat.hasOptionalQualifier(eq.format)){
+            if (EQFormat.hasOptionalQualifier(eq.getFormat())){
                 Term q = eq.quality;
                 Term ql = eq.qualifier;
                 List<Term> other = new ArrayList<>(eq.termChain);
@@ -365,10 +373,6 @@ public class Modifier {
     
    
     
-   
-    
-    
-    
-    
+  
     
 }

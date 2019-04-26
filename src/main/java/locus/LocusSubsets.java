@@ -1,8 +1,5 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
+
 package locus;
 
 import config.Config;
@@ -22,13 +19,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
-import structure.Chunk;
+import objects.Chunk;
 import text.Text;
 
-/**
- *
- * @author irbraun
- */
+
+
 public class LocusSubsets {
     
     public static void find_subsets() throws SQLException, FileNotFoundException, IOException, Exception{
@@ -137,38 +132,4 @@ class LocusClean implements UnaryOperator<String>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-processing:
-in R?
-
-Leave one out method. Change to leave m out if too slow.
-
-Look at k-1 phenotypes in their 'correct' subset groupings.
-What should a threshold for saying a new gene belongs to that group be?
-brute force: for each potential threshold, calculate all the FN, TP, FP to get an F score.
-then use that learned threshold to place the k'th phenotype.
-
-Repeat for all of the phenotypes to leave each thing out once.
-
-How did we do in placing new phenotypes into functional categories?
-
-
-
-Approach 1 asks: how similar are the representations we've generate to each other when grouped in to those categories? 
-Approach 2 asks: Are those similarities such that we can use them to accurately predict biological function given some training data?
-*/
 

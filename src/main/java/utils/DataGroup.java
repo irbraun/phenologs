@@ -1,20 +1,15 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
-package main;
+
+package utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.List;
+import main.Partitions;
 
-/**
- *
- * @author irbraun
- */
-public class Group {
+
+
+public class DataGroup {
     public String name;
     public String fold;
     public String outputPath;
@@ -28,7 +23,7 @@ public class Group {
     
     // The output path should not include the trailing slash, the name can be anything.
     // TODO just use libraries that join paths instead of assuming their formatted correctly.
-    public Group(String name, String fold, List<Integer> parts, String outputPath) throws FileNotFoundException{
+    public DataGroup(String name, String fold, List<Integer> parts, String outputPath) throws FileNotFoundException{
         this.name = name;
         this.fold = fold;
         this.partitionNumbers = parts;
@@ -39,8 +34,9 @@ public class Group {
         this.evalPrinter = new PrintWriter(this.evalFile);
     }
     
+    
     // Version for when the different groups might actually be using different partition objects rather than different partition numbers.
-    public Group(String name, String fold, List<Integer> parts, String outputPath, Partitions p) throws FileNotFoundException{
+    public DataGroup(String name, String fold, List<Integer> parts, String outputPath, Partitions p) throws FileNotFoundException{
         this.name = name;
         this.fold = fold;
         this.partitionNumbers = parts;

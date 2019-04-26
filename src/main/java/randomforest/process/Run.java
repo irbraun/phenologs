@@ -5,12 +5,12 @@ import enums.Metric;
 import enums.Ontology;
 import enums.TextDatatype;
 import randomforest.index.FeatureIndices;
-import structure.OntologyTerm;
-import structure.FeatureArray;
-import structure.Chunk;
+import objects.OntologyTerm;
+import randomforest.objects.FeatureArray;
+import objects.Chunk;
 import randomforest.index.PairIndices;
 import infocontent.InfoContent;
-import structure.SimilarityStore;
+import randomforest.objects.SimilarityStore;
 import java.io.FileNotFoundException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,11 +22,11 @@ import static main.Main.logger;
 import nlp.CoreNLP;
 import ontology.Onto;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import structure.Attributes;
-import structure.FeatureVector;
+import objects.Attributes;
+import randomforest.objects.FeatureVector;
 import text.Text;
 import uk.ac.ebi.brain.error.NewOntologyException;
-import utils.Util;
+import utils.Utils;
 
 
 
@@ -50,7 +50,7 @@ public class Run {
 
         testCtr = 0;
         unsupportedTerms = new HashSet<>();
-        format = Util.inferTextType(Config.format);
+        format = Utils.inferTextType(Config.format);
 
         logger.info("initial setup");
         logger.info("creating indexing structures");
@@ -59,7 +59,7 @@ public class Run {
         
         
         
-        ontoObjects = utils.Util.buildOntoObjects(Ontology.getAllOntologies());
+        ontoObjects = utils.Utils.buildOntoObjects(Ontology.getAllOntologies());
         
         
         
@@ -76,7 +76,7 @@ public class Run {
             InfoContent.setup(ontoObjects, text);
             chunks = text.getAllChunksOfDType(format);
 
-            terms = ontoObjects.get(utils.Util.inferOntology(Config.ontologyName)).getTermList();
+            terms = ontoObjects.get(utils.Utils.inferOntology(Config.ontologyName)).getTermList();
             // Currently hardcoded to group the chunks (of any kind) into partitions based on phenotype.
             logger.info("partitioning");
             partitions = new Partitions(text);
@@ -462,9 +462,9 @@ public class Run {
         for (String curatedTermID: (List<String>) text.getAllTermIDs(chunk.chunkID, chunk.textType)){
             // Check to make sure this curated term a) applies to this ontology b) is supported.
             if (curatedTermID.contains(Config.ontologyName)){   
-                OntologyTerm curatedTerm = ontoObjects.get(utils.Util.inferOntology(curatedTermID)).getTermFromTermID(curatedTermID);
+                OntologyTerm curatedTerm = ontoObjects.get(utils.Utils.inferOntology(curatedTermID)).getTermFromTermID(curatedTermID);
                 if (curatedTerm != null){
-                    double[] hierVals = ontoObjects.get(utils.Util.inferOntology(curatedTerm.termID)).getHierarchicalEvals(term, curatedTerm);
+                    double[] hierVals = ontoObjects.get(utils.Utils.inferOntology(curatedTerm.termID)).getHierarchicalEvals(term, curatedTerm);
                     double hPrec = hierVals[0];
                     double hRec = hierVals[1];
                     double hF1 = hierVals[2];

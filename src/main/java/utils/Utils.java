@@ -24,9 +24,9 @@ import java.util.stream.IntStream;
 import main.Partitions;
 import ontology.Onto;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import structure.Attributes;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Attributes;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
@@ -35,7 +35,7 @@ import uk.ac.ebi.brain.error.NewOntologyException;
  *
  * @author irbraun
  */
-public class Util {
+public class Utils {
     
     
     

@@ -13,7 +13,7 @@ import java.util.List;
 import static main.Main.logger;
 import ontology.Onto;
 import org.apache.commons.lang3.ArrayUtils;
-import structure.OntologyTerm;
+import objects.OntologyTerm;
 
 
 
@@ -42,7 +42,7 @@ public class Utils {
         for (Term t: eq.termChain){
             termDepths.add(ontoObjects.get(t.ontology).getTermFromTermID(t.id).inheritedNodes.size()+1);
         }
-        return utils.Util.product(termDepths);
+        return utils.Utils.product(termDepths);
     }
     
     
@@ -69,7 +69,7 @@ public class Utils {
     public static double getEQSimilarityNoWeighting(EQStatement eq1, EQStatement eq2, HashMap<Ontology,Onto> ontoObjects) throws Exception{
         
         // Check if these EQ statements have the same components.
-        if (!eq1.format.equals(eq2.format)){
+        if (!eq1.getFormat().equals(eq2.getFormat())){
             return 0.00;
         }
         
@@ -91,9 +91,9 @@ public class Utils {
             quantityOfTermsAtEachComponentInEQ1.add(s1.size());
             quantityOfTermsAtEachComponentInEQ2.add(s2.size());
         }
-        int numIntersectionEQs = utils.Util.product(quantityOfCommonTermsAtEachComponent);
-        int numEQ1Inherited = utils.Util.product(quantityOfTermsAtEachComponentInEQ1);
-        int numEQ2Inherited = utils.Util.product(quantityOfTermsAtEachComponentInEQ2);        
+        int numIntersectionEQs = utils.Utils.product(quantityOfCommonTermsAtEachComponent);
+        int numEQ1Inherited = utils.Utils.product(quantityOfTermsAtEachComponentInEQ1);
+        int numEQ2Inherited = utils.Utils.product(quantityOfTermsAtEachComponentInEQ2);        
         int numEQ1Exclusive = numEQ1Inherited-numIntersectionEQs;
         int numEQ2Exclusive = numEQ2Inherited-numIntersectionEQs;
         int numInUnion = numIntersectionEQs+numEQ1Exclusive+numEQ2Exclusive;
@@ -126,7 +126,7 @@ public class Utils {
             }
             maxSimilarities.add(maxSim);
         }
-        return utils.Util.mean(maxSimilarities);
+        return utils.Utils.mean(maxSimilarities);
         
         
         /*
@@ -352,21 +352,21 @@ public class Utils {
         
         // Get the list of terms for this EQ and start a list of inherited ones to be returned.
         ArrayList<EQStatement> inheritedEQs = new ArrayList<>();
-        EQFormat format = eq.format;
+        EQFormat format = eq.getFormat();
         ArrayList<Term> terms = eq.termChain;
         
         // Iterate through the terms in this EQ.
         for (Term t: terms){
             List<String> parentIDs = new ArrayList<>();
             try{
-                parentIDs = ontoObjects.get(utils.Util.inferOntology(t.id)).getTermFromTermID(t.id).parentNodes;
+                parentIDs = ontoObjects.get(utils.Utils.inferOntology(t.id)).getTermFromTermID(t.id).parentNodes;
             }
             catch(Exception e){
                 logger.info(String.format("problem obtaining parents of %s", t.id));
             }
             int position = terms.indexOf(t);
             for (String parentTermID: parentIDs){
-                OntologyTerm parentTerm = ontoObjects.get(utils.Util.inferOntology(parentTermID)).getTermFromTermID(parentTermID);
+                OntologyTerm parentTerm = ontoObjects.get(utils.Utils.inferOntology(parentTermID)).getTermFromTermID(parentTermID);
                 terms.remove(position);
                 Term parentTermCopy = new Term(parentTerm);
                 terms.add(position, parentTermCopy);
@@ -404,7 +404,7 @@ public class Utils {
                 // Get the immediate parent terms.
                 List<String> parentIDs = new ArrayList<>();
                 try{
-                    parentIDs = ontoObjects.get(utils.Util.inferOntology(termID)).getTermFromTermID(termID).parentNodes;
+                    parentIDs = ontoObjects.get(utils.Utils.inferOntology(termID)).getTermFromTermID(termID).parentNodes;
                 }
                 catch(NullPointerException e){
                     logger.info(String.format("problem obtaining parents of %s", termID));
@@ -515,7 +515,7 @@ public class Utils {
         for (EQStatement eq1: eqList1){
             for (Term term: (ArrayList<Term>)eq1.getSupportedTermChain()){
                 try{
-                    termSetP1.addAll(ontoObjects.get(utils.Util.inferOntology(term.id)).getTermFromTermID(term.id).allNodes);  
+                    termSetP1.addAll(ontoObjects.get(utils.Utils.inferOntology(term.id)).getTermFromTermID(term.id).allNodes);  
                 }
                 catch(NullPointerException e){
                     logger.info(String.format("problem retrieving ancestor nodes for %s", term.id));
@@ -525,7 +525,7 @@ public class Utils {
         for (EQStatement eq2: eqList2){
             for (Term term: (ArrayList<Term>)eq2.getSupportedTermChain()){
                 try{
-                    termSetP2.addAll(ontoObjects.get(utils.Util.inferOntology(term.id)).getTermFromTermID(term.id).allNodes);
+                    termSetP2.addAll(ontoObjects.get(utils.Utils.inferOntology(term.id)).getTermFromTermID(term.id).allNodes);
                 }
                 catch(NullPointerException e){
                     logger.info(String.format("problem retrieving ancestor nodes for %s", term.id));
@@ -601,177 +601,6 @@ public class Utils {
         }
 
     }
-    
-    
-    
-    
-    
-    
-    
-    static class EQComparatorAverageTermScore implements Comparator<EQStatement>
-    {
-        @Override
-        public int compare(EQStatement eq1, EQStatement eq2){
-            if (eq1.termScore < eq2.termScore){
-                return 1;
-            }
-            else if(eq1.termScore > eq2.termScore){
-                return -1;
-            }
-            return 0;
-        }
-    }
-    
-    static class EQComparatorTotalScore implements Comparator<EQStatement>
-    {
-        @Override
-        public int compare(EQStatement eq1, EQStatement eq2){
-            if (eq1.termScore < eq2.termScore){
-                return 1;
-            }
-            else if(eq1.termScore > eq2.termScore){
-                return -1;
-            }
-            return 0;
-        }
-    }
-    
-    
-    
-    static class TermComparatorByScore implements Comparator<Term>
-    {
-        @Override
-        public int compare(Term term1, Term term2){
-            if (term1.probability < term2.probability){
-                return 1;
-            }
-            else if (term1.probability > term2.probability){
-                return -1;
-            }
-            return 0;
-        }  
-    }
-    
-    static class TermComparatorByLabelLength implements Comparator<Term>
-    {
-        @Override
-        public int compare(Term term1, Term term2){
-            if (InfoContent.getLabelLength(term1.id) < InfoContent.getLabelLength(term2.id)){
-                return 1;
-            }
-            else if (InfoContent.getLabelLength(term1.id) > InfoContent.getLabelLength(term2.id)){
-                return -1;
-            }
-            return 0;
-        }  
-    }
-    
-    
-    
-    static class TermComparatorByIC implements Comparator<Term>
-    {
-        @Override
-        public int compare(Term term1, Term term2){
-            if (InfoContent.getICofTermInOntology(utils.Util.inferOntology(term1.id), term1.id) < InfoContent.getICofTermInOntology(utils.Util.inferOntology(term2.id),term2.id)){
-                return 1;
-            }
-            else if (InfoContent.getICofTermInOntology(utils.Util.inferOntology(term1.id), term1.id) > InfoContent.getICofTermInOntology(utils.Util.inferOntology(term2.id),term2.id)){
-                return -1;
-            }
-            return 0;
-        }  
-    }
-    
-    
-    static class EQComparatorByAllMetrics implements Comparator<EQStatement>
-    {
-        /**
-         * Uses all three metrics corresponding to EQ statements to try and 
-         * order them. Then the list of EQ statements can be appropriately
-         * thresholded to reduce the number of low quality outputs.
-         * @param eq1
-         * @param eq2
-         * @return 
-         */
-        @Override
-        public int compare(EQStatement eq1, EQStatement eq2){
-            if (eq1.termScore < eq2.termScore){
-                return 1;
-            }
-            else if (eq1.termScore > eq2.termScore){
-                return -1;
-            }
-            // The EQ's are equivalent in terms of average term score.
-            else {
-                if (eq1.coverage < eq2.coverage){
-                    return 1;
-                }
-                else if (eq1.coverage > eq2.coverage){
-                    return -1;
-                }
-                // The EQ's are also tied in terms of token coverage.
-                else {
-                    if (Double.valueOf(eq1.dGraphScore) < Double.valueOf(eq2.dGraphScore)){
-                        return 1;
-                    }
-                    else if (Double.valueOf(eq1.dGraphScore) > Double.valueOf(eq2.dGraphScore)){
-                        return -1;
-                    }
-                }
-            }
-            // The EQ's are equivalent in terms of everything.
-            return 0;
-        }  
-    }
-    
-    
-    
-    static class EQComparatorByAllMetricsAlternateOrder implements Comparator<EQStatement>
-    {
-        /**
-         * Uses all three metrics corresponding to EQ statements to try and 
-         * order them. Then the list of EQ statements can be appropriately
-         * thresholded to reduce the number of low quality outputs.
-         * @param eq1
-         * @param eq2
-         * @return 
-         */
-        @Override
-        public int compare(EQStatement eq1, EQStatement eq2){
-            if (eq1.coverage < eq2.coverage){
-                return 1;
-            }
-            else if (eq1.coverage > eq2.coverage){
-                return -1;
-            }
-            // The EQ's are equivalent in terms of average term score.
-            else {
-                if (Double.valueOf(eq1.dGraphScore) < Double.valueOf(eq2.dGraphScore)){
-                    return 1;
-                }
-                else if (Double.valueOf(eq1.dGraphScore) > Double.valueOf(eq2.dGraphScore)){
-                    return -1;
-                }
-                // The EQ's are also tied in terms of token coverage.
-                else {
-                    if (eq1.termScore < eq2.termScore){
-                        return 1;
-                    }
-                    else if (eq1.termScore > eq2.termScore){
-                        return -1;
-                    }
-                }
-            }
-            // The EQ's are equivalent in terms of everything.
-            return 0;
-        }  
-    }
-    
-    
-        
-    
-    
-    
     
     
     

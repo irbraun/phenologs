@@ -1,4 +1,4 @@
-package structure;
+package randomforest.objects;
 
 import enums.Aspect;
 import enums.Context;

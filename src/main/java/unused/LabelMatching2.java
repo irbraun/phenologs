@@ -13,8 +13,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import ontology.Onto;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
 
 /**
@@ -38,7 +38,7 @@ public class LabelMatching2 {
     private void search(Ontology ontology, Text text, String outputPath) throws SQLException, Exception{
         
         List<Chunk> chunks = text.getAllAtomChunks();
-        String ontologyPath = utils.Util.pickOntologyPath(ontology.toString());
+        String ontologyPath = utils.Utils.pickOntologyPath(ontology.toString());
         Onto onto = new Onto(ontologyPath);
         terms = onto.getTermList();        
         

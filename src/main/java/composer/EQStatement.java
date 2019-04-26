@@ -14,6 +14,7 @@ import uk.ac.ebi.brain.error.NonExistingEntityException;
 
 
 
+
 public class EQStatement {
 
     public Term quality;
@@ -27,14 +28,14 @@ public class EQStatement {
     public String dGraphScore;
     public double coverage;
     public ArrayList<Term> termChain;
-    public EQFormat format;
+    private EQFormat format;
     private String[] componentStrings;
     private boolean fromCuratedDataSet;
     
     
     
     /**
-     * Used to generate objects for computationally predicted EQs.
+     * Constructor used to generate objects for computationally predicted EQs.
      * @param terms
      * @param format
      * @throws Exception 
@@ -227,7 +228,7 @@ public class EQStatement {
     
     
     /**
-     * Used to generate objects for curated EQs from the corpus.
+     * Construct used to generate objects for curated EQs from the corpus.
      * In the corpus file unused components are represented as blank strings, handled here.
      * Each term is assigned its known role. The different scores take on default values.
      * Assumes that the formatting for EQs is followed correctly, does not enforce that any
@@ -250,49 +251,47 @@ public class EQStatement {
         // The StringBuilder keeps track of which components are here to find the right enumerated format type.
         // In order for that to work the characters must be added in the order specified for the EQFormat class.
         
-        
-        
         // Primary Entities
         if (!primaryEntity1ID.equals("")){
-            primaryEntity1 = new Term(primaryEntity1ID, utils.Util.inferOntology(primaryEntity1ID), Role.PRIMARY_ENTITY1_ID);
+            primaryEntity1 = new Term(primaryEntity1ID, utils.Utils.inferOntology(primaryEntity1ID), Role.PRIMARY_ENTITY1_ID);
             termChain.add(primaryEntity1);
             sb.append("E");
         }
         if (!primaryEntity2ID.equals("")){
-            primaryEntity2 = new Term(primaryEntity2ID, utils.Util.inferOntology(primaryEntity2ID), Role.PRIMARY_ENTITY2_ID);
+            primaryEntity2 = new Term(primaryEntity2ID, utils.Utils.inferOntology(primaryEntity2ID), Role.PRIMARY_ENTITY2_ID);
             termChain.add(primaryEntity2);
             sb.append("E");
         }
         
         // Quality
         if (!qualityID.equals("")){
-            quality = new Term(qualityID, utils.Util.inferOntology(qualityID), Role.QUALITY_ID);
+            quality = new Term(qualityID, utils.Utils.inferOntology(qualityID), Role.QUALITY_ID);
             termChain.add(quality);
             sb.append("Q");
         }
         // Optional qualifier
         if (!qualifierID.equals("")){
-            qualifier = new Term(qualifierID, utils.Util.inferOntology(qualifierID), Role.QUALIFIER_ID);
+            qualifier = new Term(qualifierID, utils.Utils.inferOntology(qualifierID), Role.QUALIFIER_ID);
             termChain.add(qualifier);
             sb.append("q");
         }
         
         // Secondary Entities
         if (!secondaryEntity1ID.equals("")){
-            secondaryEntity1 = new Term(secondaryEntity1ID, utils.Util.inferOntology(secondaryEntity1ID), Role.SECONDARY_ENTITY1_ID);
+            secondaryEntity1 = new Term(secondaryEntity1ID, utils.Utils.inferOntology(secondaryEntity1ID), Role.SECONDARY_ENTITY1_ID);
             termChain.add(secondaryEntity1);
             sb.append("E");
         }
         
         if (!secondaryEntity2ID.equals("")){
-            secondaryEntity2 = new Term(secondaryEntity2ID, utils.Util.inferOntology(secondaryEntity2ID), Role.SECONDARY_ENTITY2_ID);
+            secondaryEntity2 = new Term(secondaryEntity2ID, utils.Utils.inferOntology(secondaryEntity2ID), Role.SECONDARY_ENTITY2_ID);
             termChain.add(secondaryEntity2);
             sb.append("E");
         }
         
         // Developmental Stage
         if (!developmentalStageID.equals("")){
-            developmentalStage = new Term(developmentalStageID, utils.Util.inferOntology(developmentalStageID), Role.DEVELOPMENTAL_STAGE_ID);
+            developmentalStage = new Term(developmentalStageID, utils.Utils.inferOntology(developmentalStageID), Role.DEVELOPMENTAL_STAGE_ID);
             termChain.add(developmentalStage);
         }
         termScore = 1.00;
@@ -305,12 +304,6 @@ public class EQStatement {
             format = EQFormat.UNKNOWN;
         }
     }
-    
-    
-    
-    
-    
-    
     
     
     

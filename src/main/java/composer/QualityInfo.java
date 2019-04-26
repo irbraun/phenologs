@@ -16,13 +16,13 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import uk.ac.ebi.brain.error.NewOntologyException;
 
-public class RulesForPATO {
+public class QualityInfo {
     
     public HashSet<String> relationalQualityIDs;
     public HashSet<String> qualifierIDs;
     
     
-    public RulesForPATO(Onto patoOntoObject) throws NewOntologyException, OWLOntologyCreationException, Exception{
+    public QualityInfo(Onto patoOntoObject) throws NewOntologyException, OWLOntologyCreationException, Exception{
            
         
         // Populating the list of relational qualities.

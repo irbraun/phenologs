@@ -19,15 +19,15 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import main.Group;
+import utils.DataGroup;
 import static main.Main.logger;
 import main.Partitions;
 import nlp_annot.Utils;
 import ontology.Onto;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
-import static utils.Util.range;
+import static utils.Utils.range;
 
 /**
  *
@@ -64,9 +64,9 @@ public class MaxEnt_Mapping {
         List<Chunk> trainingChunks = partitions.getChunksInPartitionRangeInclusive(5, 31, chunks);
         for (Chunk c: trainingChunks){
             for (String termID: text.getCuratedEQStatementFromAtomID(c.chunkID).getAllTermIDs()){
-                int count = counts.get(utils.Util.inferOntology(termID));
+                int count = counts.get(utils.Utils.inferOntology(termID));
                 count++;
-                counts.put(utils.Util.inferOntology(termID), count);
+                counts.put(utils.Utils.inferOntology(termID), count);
             }
         }
         // Output the ratios as term per chunk of text for each ontology.
@@ -147,34 +147,34 @@ public class MaxEnt_Mapping {
                
         // Annotated data available in the Plant PhenomeNET.
         if (o.equals(Ontology.PATO)){
-            List<Group> patoGroups = new ArrayList<>();
-            patoGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "pato/"), p));
-            patoGroups.add(new Group("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "pato/"), p));
-            patoGroups.add(new Group("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "pato/"), p));
+            List<DataGroup> patoGroups = new ArrayList<>();
+            patoGroups.add(new DataGroup("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "pato/"), p));
+            patoGroups.add(new DataGroup("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "pato/"), p));
+            patoGroups.add(new DataGroup("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "pato/"), p));
             search(Ontology.PATO, new Text(), patoGroups, mec);
         }
         
         if (o.equals(Ontology.PO)){
-            List<Group> poGroups = new ArrayList<>();
-            poGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "po/"), p));
-            poGroups.add(new Group("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "po/"), p));
-            poGroups.add(new Group("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "po/"), p));
+            List<DataGroup> poGroups = new ArrayList<>();
+            poGroups.add(new DataGroup("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "po/"), p));
+            poGroups.add(new DataGroup("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "po/"), p));
+            poGroups.add(new DataGroup("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "po/"), p));
             search(Ontology.PO, new Text(), poGroups, mec);
         }
         
         if (o.equals(Ontology.GO)){
-            List<Group> goGroups = new ArrayList<>();
-            goGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "go/"), p));
-            goGroups.add(new Group("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "go/"), p));
-            goGroups.add(new Group("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "go/"), p));
+            List<DataGroup> goGroups = new ArrayList<>();
+            goGroups.add(new DataGroup("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "go/"), p));
+            goGroups.add(new DataGroup("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "go/"), p));
+            goGroups.add(new DataGroup("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "go/"), p));
             search(Ontology.GO, new Text(), goGroups, mec);
         }
         
         if (o.equals(Ontology.CHEBI)){
-            List<Group> chebiGroups = new ArrayList<>();
-            chebiGroups.add(new Group("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "chebi/"), p));
-            chebiGroups.add(new Group("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "chebi/"), p));
-            chebiGroups.add(new Group("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "chebi/"), p));
+            List<DataGroup> chebiGroups = new ArrayList<>();
+            chebiGroups.add(new DataGroup("name", fold, allPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", allName, dataset, "chebi/"), p));
+            chebiGroups.add(new DataGroup("name", fold, testingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", testingName, dataset, "chebi/"), p));
+            chebiGroups.add(new DataGroup("name", fold, trainingPartitionNumbers, String.format("%s%s_%s_%s_%s",baseDirectory,"outputs", trainingName, dataset, "chebi/"), p));
             search(Ontology.CHEBI, new Text(), chebiGroups, mec);
         }
     }
@@ -185,7 +185,7 @@ public class MaxEnt_Mapping {
     
     
     
-    private void search(Ontology ontology, Text text, List<Group> groups, MaxEnt_Model mec) throws SQLException, Exception{
+    private void search(Ontology ontology, Text text, List<DataGroup> groups, MaxEnt_Model mec) throws SQLException, Exception{
         
         // Which ontology currently working on.
         logger.info(String.format("working on terms from %s",ontology.toString()));
@@ -193,7 +193,7 @@ public class MaxEnt_Mapping {
         // Plant PhenomeNET text data.
         List<Chunk> chunks = text.getAllAtomChunks();
         Partitions partsObj = new Partitions(text);
-        String ontologyPath = utils.Util.pickOntologyPath(ontology.toString());
+        String ontologyPath = utils.Utils.pickOntologyPath(ontology.toString());
         Onto onto = new Onto(ontologyPath);
         List<OntologyTerm> terms = onto.getTermList();
         
@@ -255,7 +255,7 @@ public class MaxEnt_Mapping {
         String evalHeader = "chunk,text,label,term,score,component,category,similarity,nodes";
         String classProbHeader = "chunk,term,prob,nodes";
         
-        for (Group g: groups){
+        for (DataGroup g: groups){
             g.classProbsPrinter.println(classProbHeader);
             g.evalPrinter.println(evalHeader);
         }
@@ -287,12 +287,12 @@ public class MaxEnt_Mapping {
                 String id = termIDs.get(i);
                 Role role = termRoles.get(i);
 
-                if (utils.Util.inferOntology(id).equals(ontology)){
+                if (utils.Utils.inferOntology(id).equals(ontology)){
                     try{
                         // FN (false negatives)
                         if (!allTermIDsFoundBySearching.contains(id)){
                             String label = onto.getTermFromTermID(id).label;
-                            String sim = String.format("%.3f",utils.Util.getMaxSimJac(id, allTermIDsFoundBySearching, onto));
+                            String sim = String.format("%.3f",utils.Utils.getMaxSimJac(id, allTermIDsFoundBySearching, onto));
                             Object[] line = {chunk.chunkID, chunk.getRawText().replace(",", ""), label, id, "none", Role.getAbbrev(role), "FN", sim,"none"};
                             int part = partsObj.getPartitionNumber(chunk);
                             Utils.writeToEvalFiles(line, part, groups);
@@ -324,7 +324,7 @@ public class MaxEnt_Mapping {
                     String joinedNodes = nodes.stream().collect(Collectors.joining("|"));
                     double prob = ((double) matches.get(allTermIDsFoundBySearching.indexOf(id)).prob);
                     String probStr = String.format("%.3f",prob);
-                    String sim = String.format("%.3f",utils.Util.populateAttributes(chunk, onto.getTermFromTermID(id), text, onto, ontology).hJac);
+                    String sim = String.format("%.3f",utils.Utils.populateAttributes(chunk, onto.getTermFromTermID(id), text, onto, ontology).hJac);
                     Object[] line = {chunk.chunkID, chunk.getRawText().replace(",",""), onto.getTermFromTermID(id).label, id, probStr, Role.getAbbrev(Role.UNKNOWN), "FP", sim, joinedNodes};
                     int part = partsObj.getPartitionNumber(chunk);
                     Utils.writeToEvalFiles(line, part, groups);
@@ -346,7 +346,7 @@ public class MaxEnt_Mapping {
 
         
         
-        for (Group g: groups){
+        for (DataGroup g: groups){
             g.classProbsPrinter.close();
             g.evalPrinter.close();
         }

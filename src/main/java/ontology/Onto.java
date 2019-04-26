@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package ontology;
 
 import java.io.File;
@@ -14,22 +10,18 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
-import structure.OntologyTerm;
+import objects.OntologyTerm;
 import uk.ac.ebi.brain.core.Brain;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
 import uk.ac.ebi.brain.error.NonExistingEntityException;
 
-/**
- *
- * @author irbraun
- */
+
 public class Onto{
     
     private ArrayList<OntologyTerm> terms;
     private HashMap<String,Integer> termOverlaps;
-    // make this private now
-    public HashMap<String,OntologyTerm> termsMap;
+    private HashMap<String,OntologyTerm> termsMap;
     private final OWLOntology ontology;
     private final Brain brain;
     
@@ -71,38 +63,7 @@ public class Onto{
         return brain;
     }
 
-    
-    
-    /*
-     * Only should be called when using smaller ontologies, way too expensive for GO.
-     * This is not currently used at all. Could provide small time savings because 
-     * this method avoids having the calculate any hierarchical similarities between
-     * two terms and their paths more than once. These are part of the attributes
-     * (values associated with (c,t) instance that are used for evaluation, analysis,
-     * or as a target value for regression or classification, but not as a feature. And
-     * finding all the attributes is a very very small fraction of the runtime, so the
-     * difference is not likely to matter.
-    /*
-    private void populateTermOverlapMap(){
-        for (int i=0; i<terms.size(); i++){
-            for (int j=i+1; j<terms.size(); j++){
-                OntologyTerm term1 = terms.get(i);
-                OntologyTerm term2 = terms.get(j);
-
-                List intersect = new ArrayList<>(term1.allNodes);
-                intersect.retainAll(term2.allNodes);
-                int overlap = intersect.size();   
-                
-                Object[] data = {term1.termID, term2.termID};
-                String nodePair = String.format("%s:%s",data);
-                termOverlaps.put(nodePair, overlap);                     
-            }
-        }
-    }
-    */
-    
-
-    
+   
     
     public ArrayList<OntologyTerm> getTermList(){
         return terms;

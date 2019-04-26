@@ -1,5 +1,5 @@
 
-package structure;
+package randomforest.objects;
 
 import config.Config;
 import static main.Main.logger;

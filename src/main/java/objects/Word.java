@@ -1,4 +1,4 @@
-package structure;
+package objects;
 
 
 public class Word {

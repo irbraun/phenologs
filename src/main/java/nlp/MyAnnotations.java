@@ -1,14 +1,11 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
+
 package nlp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import structure.Chunk;
+import objects.Chunk;
 
 /**
  * Note: Class doesn't differentiate between IDs for phenotype descriptions and atomized statements, is

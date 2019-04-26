@@ -1,5 +1,5 @@
 
-package structure;
+package objects;
 
 public class Attributes {
     

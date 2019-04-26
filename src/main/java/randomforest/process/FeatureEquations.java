@@ -25,7 +25,7 @@ class FeatureEquations {
      * @return 
      */
     public static double eqn1(ArrayList<String> matchTermWords, ArrayList<Double> matchScores){
-        Ontology ontology = utils.Util.inferOntology(Config.ontologyName);
+        Ontology ontology = utils.Utils.inferOntology(Config.ontologyName);
         double[] weights = new double[matchScores.size()];
         int numWordsInMatch = matchScores.size();
         // Find initial weights.
@@ -124,7 +124,7 @@ class FeatureEquations {
      * @return 
      */
     public static double eqn5(List<String> parentTermIDs, List<Double> parentValues){
-        Ontology ontology = utils.Util.inferOntology(Config.ontologyName);
+        Ontology ontology = utils.Utils.inferOntology(Config.ontologyName);
         int numParents = parentValues.size();
         // find weights
         List<Double> weights = new ArrayList<>();

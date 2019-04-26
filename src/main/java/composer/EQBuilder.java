@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import ontology.Onto;
-import structure.OntologyTerm;
+import objects.OntologyTerm;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 
 
@@ -40,6 +40,7 @@ public class EQBuilder {
             for (Term predictedE: eTerms){
 
                 boolean skipThisCombination = false;
+                
                 // Primary entity 1 can't be a ChEBI term.
                 if (predictedE.ontology.equals(Ontology.CHEBI)){
                     skipThisCombination = true;
@@ -56,15 +57,15 @@ public class EQBuilder {
                    
                 // Add EQ Statements in the different formats that all use non-relational qualities.
                 if (!skipThisCombination){
-                    addEQ(predictedEQs, Arrays.asList(predictedE, predictedQ), EQFormat.EQ);
+                    addEQs(predictedEQs, Arrays.asList(predictedE, predictedQ), EQFormat.EQ);
                     for (Term predictedQlfr: qlfrTerms){
-                        addEQ(predictedEQs, Arrays.asList(predictedE, predictedQ, predictedQlfr), EQFormat.EQq);
+                        addEQs(predictedEQs, Arrays.asList(predictedE, predictedQ, predictedQlfr), EQFormat.EQq);
                         for (Term predictedPrimaryE2: eTerms){
-                            addEQ(predictedEQs, Arrays.asList(predictedE, predictedPrimaryE2, predictedQ, predictedQlfr), EQFormat.EEQq);
+                            addEQs(predictedEQs, Arrays.asList(predictedE, predictedPrimaryE2, predictedQ, predictedQlfr), EQFormat.EEQq);
                         }
                     }
                     for (Term predictedPrimaryE2: eTerms){
-                        addEQ(predictedEQs, Arrays.asList(predictedE, predictedPrimaryE2, predictedQ), EQFormat.EEQ);
+                        addEQs(predictedEQs, Arrays.asList(predictedE, predictedPrimaryE2, predictedQ), EQFormat.EEQ);
                     }
                 }
             }
@@ -96,30 +97,30 @@ public class EQBuilder {
                 // Add EQ Statements in the different format that all use relational qualities.
                 if (!skipThisCombination){
                     for (Term predictedSecE1: eTerms){
-                        addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedSecE1), EQFormat.EQE);
+                        addEQs(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedSecE1), EQFormat.EQE);
                         for (Term predictedQlfr: qlfrTerms){
-                            addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedQlfr, predictedSecE1), EQFormat.EQqE);
+                            addEQs(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedQlfr, predictedSecE1), EQFormat.EQqE);
                         }
                         // All the formats that add a primary entity 2.
                         for (Term predictedPrE2: eTerms){
-                            addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedSecE1), EQFormat.EEQE);
+                            addEQs(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedSecE1), EQFormat.EEQE);
                             for (Term predictedQlfr: qlfrTerms){
-                                addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedQlfr, predictedSecE1), EQFormat.EEQqE);
+                                addEQs(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedQlfr, predictedSecE1), EQFormat.EEQqE);
                             }
 
                             // All the formats that also add a secondary entity 2.
                             for (Term predictedSecE2: eTerms){
                                 for (Term predictedQlfr: qlfrTerms){
-                                    addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedQlfr, predictedSecE1, predictedSecE2), EQFormat.EEQqEE);
+                                    addEQs(predictedEQs, Arrays.asList(predictedPrE1, predictedPrE2, predictedQ, predictedQlfr, predictedSecE1, predictedSecE2), EQFormat.EEQqEE);
                                 }
                             }
                         }
 
                         // All the formats that add a secondary entity 2.
                         for (Term predictedSecE2: eTerms){
-                            addEQ(predictedEQs, Arrays.asList(predictedPrE1,  predictedQ, predictedSecE1, predictedSecE2), EQFormat.EQEE);
+                            addEQs(predictedEQs, Arrays.asList(predictedPrE1,  predictedQ, predictedSecE1, predictedSecE2), EQFormat.EQEE);
                             for (Term predictedQlfr: qlfrTerms){
-                                addEQ(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedQlfr, predictedSecE1, predictedSecE2), EQFormat.EQqEE);
+                                addEQs(predictedEQs, Arrays.asList(predictedPrE1, predictedQ, predictedQlfr, predictedSecE1, predictedSecE2), EQFormat.EQqEE);
                             }
                         }
                     }
@@ -131,9 +132,13 @@ public class EQBuilder {
     }
     
     
-
+    
+    
+    
+    
+    
     // Checks to make sure terms aren't used twice in the EQ statement and then add its to the list of EQs.
-    private static ArrayList<EQStatement> addEQ(ArrayList<EQStatement> predictedEQs, List<Term> terms, EQFormat format) throws Exception{
+    private static ArrayList<EQStatement> addEQs(ArrayList<EQStatement> predictedEQs, List<Term> terms, EQFormat format) throws Exception{
         HashSet<Term> termSet = new HashSet<>(terms);
         if (termSet.size() == terms.size()){
             EQStatement eq = new EQStatement(terms, format);
@@ -141,10 +146,6 @@ public class EQBuilder {
         }
         return predictedEQs;
     }
-    
-    
-    
-    
     
     
     

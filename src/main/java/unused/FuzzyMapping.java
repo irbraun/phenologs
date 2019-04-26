@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import main.Group;
+import utils.DataGroup;
 import static main.Main.logger;
 import main.Partitions;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
@@ -24,10 +24,10 @@ import me.xdrop.fuzzywuzzy.model.ExtractedResult;
 import nlp.CoreNLP;
 import nlp_annot.Utils;
 import ontology.Onto;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
-import static utils.Util.range;
+import static utils.Utils.range;
 
 /**
  *
@@ -86,35 +86,35 @@ public class FuzzyMapping {
 
         
         // Annotated data available in the Plant PhenomeNET.
-        List<Group> patoGroups = new ArrayList<>();
-        patoGroups.add(new Group("pato_all", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_pato/"), pSpecies));
-        patoGroups.add(new Group("pato_species", fold, test, String.format("%s%s",dirBase,"outputs_species_ppn_pato/"), pSpecies));
-        patoGroups.add(new Group("pato_random", fold, test, String.format("%s%s",dirBase,"outputs_random_ppn_pato/"), pRandom));
+        List<DataGroup> patoGroups = new ArrayList<>();
+        patoGroups.add(new DataGroup("pato_all", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_pato/"), pSpecies));
+        patoGroups.add(new DataGroup("pato_species", fold, test, String.format("%s%s",dirBase,"outputs_species_ppn_pato/"), pSpecies));
+        patoGroups.add(new DataGroup("pato_random", fold, test, String.format("%s%s",dirBase,"outputs_random_ppn_pato/"), pRandom));
         search(Ontology.PATO, text, patoGroups);
         
-        List<Group> poGroups = new ArrayList<>();
-        poGroups.add(new Group("po_all", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_po/"), pSpecies));
-        poGroups.add(new Group("po_species", fold, test, String.format("%s%s",dirBase,"outputs_species_ppn_po/"), pSpecies));
-        poGroups.add(new Group("po_random", fold, test, String.format("%s%s",dirBase,"outputs_random_ppn_po/"), pRandom));
+        List<DataGroup> poGroups = new ArrayList<>();
+        poGroups.add(new DataGroup("po_all", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_po/"), pSpecies));
+        poGroups.add(new DataGroup("po_species", fold, test, String.format("%s%s",dirBase,"outputs_species_ppn_po/"), pSpecies));
+        poGroups.add(new DataGroup("po_random", fold, test, String.format("%s%s",dirBase,"outputs_random_ppn_po/"), pRandom));
         search(Ontology.PO, text, poGroups);
         
-        List<Group> goGroups = new ArrayList<>();
-        goGroups.add(new Group("go_all", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_go/"), pSpecies));
-        goGroups.add(new Group("go_species", fold, test, String.format("%s%s",dirBase,"outputs_species_ppn_go/"), pSpecies));
-        goGroups.add(new Group("go_random", fold, test, String.format("%s%s",dirBase,"outputs_random_ppn_go/"), pRandom));
+        List<DataGroup> goGroups = new ArrayList<>();
+        goGroups.add(new DataGroup("go_all", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_go/"), pSpecies));
+        goGroups.add(new DataGroup("go_species", fold, test, String.format("%s%s",dirBase,"outputs_species_ppn_go/"), pSpecies));
+        goGroups.add(new DataGroup("go_random", fold, test, String.format("%s%s",dirBase,"outputs_random_ppn_go/"), pRandom));
         search(Ontology.GO, text, goGroups);
         
-        List<Group> chebiGroups = new ArrayList<>();
-        chebiGroups.add(new Group("chebi_all", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_chebi/"), pSpecies));
-        chebiGroups.add(new Group("chebi_species", fold, test, String.format("%s%s",dirBase,"outputs_species_ppn_chebi/"), pSpecies));
-        chebiGroups.add(new Group("chebi_random", fold, test, String.format("%s%s",dirBase,"outputs_random_ppn_chebi/"), pRandom));
+        List<DataGroup> chebiGroups = new ArrayList<>();
+        chebiGroups.add(new DataGroup("chebi_all", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_chebi/"), pSpecies));
+        chebiGroups.add(new DataGroup("chebi_species", fold, test, String.format("%s%s",dirBase,"outputs_species_ppn_chebi/"), pSpecies));
+        chebiGroups.add(new DataGroup("chebi_random", fold, test, String.format("%s%s",dirBase,"outputs_random_ppn_chebi/"), pRandom));
         search(Ontology.CHEBI, text, chebiGroups);
         
     } 
     
     
     
-    private void search(Ontology ontology, Text text, List<Group> groups) throws SQLException, Exception{
+    private void search(Ontology ontology, Text text, List<DataGroup> groups) throws SQLException, Exception{
         
         // Which ontology currently working on.
         logger.info(String.format("working on terms from %s",ontology.toString()));
@@ -122,7 +122,7 @@ public class FuzzyMapping {
         // Plant PhenomeNET text data.
         List<Chunk> chunks = text.getAllAtomChunks();
         Partitions partsObj = new Partitions(text);
-        String ontologyPath = utils.Util.pickOntologyPath(ontology.toString());
+        String ontologyPath = utils.Utils.pickOntologyPath(ontology.toString());
         Onto onto = new Onto(ontologyPath);
         List<OntologyTerm> terms = onto.getTermList();
         
@@ -130,7 +130,7 @@ public class FuzzyMapping {
         String evalHeader = "chunk,text,label,term,score,component,category,similarity,nodes";
         String classProbHeader = "chunk,term,prob,nodes";
         
-        for (Group g: groups){
+        for (DataGroup g: groups){
             g.classProbsPrinter.println(classProbHeader);
             g.evalPrinter.println(evalHeader);
         }
@@ -159,12 +159,12 @@ public class FuzzyMapping {
                 String id = termIDs.get(i);
                 Role role = termRoles.get(i);
 
-                if (utils.Util.inferOntology(id).equals(ontology)){
+                if (utils.Utils.inferOntology(id).equals(ontology)){
                     try{
                         // FN (false negatives)
                         if (!allTermIDsFoundBySearching.contains(id)){
                             String label = onto.getTermFromTermID(id).label;
-                            String sim = String.format("%.3f",utils.Util.getMaxSimJac(id, allTermIDsFoundBySearching, onto));
+                            String sim = String.format("%.3f",utils.Utils.getMaxSimJac(id, allTermIDsFoundBySearching, onto));
                             Object[] line = {chunk.chunkID, chunk.getRawText().replace(",", ""), label, id, "none", Role.getAbbrev(role), "FN", sim,"none"};
                             int part = partsObj.getPartitionNumber(chunk);
                             Utils.writeToEvalFiles(line, part, groups);
@@ -196,7 +196,7 @@ public class FuzzyMapping {
                     String joinedNodes = nodes.stream().collect(Collectors.joining("|"));
                     double prob = ((double) matches.get(allTermIDsFoundBySearching.indexOf(id)).fullRatio) * 0.01;
                     String probStr = String.format("%.3f",prob);
-                    String sim = String.format("%.3f",utils.Util.populateAttributes(chunk, onto.getTermFromTermID(id), text, onto, ontology).hJac);
+                    String sim = String.format("%.3f",utils.Utils.populateAttributes(chunk, onto.getTermFromTermID(id), text, onto, ontology).hJac);
                     Object[] line = {chunk.chunkID, chunk.getRawText().replace(",",""), onto.getTermFromTermID(id).label, id, probStr, Role.getAbbrev(Role.UNKNOWN), "FP", sim, joinedNodes};
                     int part = partsObj.getPartitionNumber(chunk);
                     Utils.writeToEvalFiles(line, part, groups);
@@ -218,7 +218,7 @@ public class FuzzyMapping {
 
         
         
-        for (Group g: groups){
+        for (DataGroup g: groups){
             g.classProbsPrinter.close();
             g.evalPrinter.close();
         }

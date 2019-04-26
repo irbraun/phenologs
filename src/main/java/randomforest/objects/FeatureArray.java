@@ -1,5 +1,6 @@
-package structure;
+package randomforest.objects;
 
+import randomforest.objects.Feature;
 import randomforest.index.PairIndices;
 import randomforest.index.FeatureIndices;
 import config.Config;
@@ -8,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import objects.Attributes;
 
 
 public class FeatureArray {

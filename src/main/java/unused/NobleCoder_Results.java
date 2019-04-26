@@ -17,14 +17,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-import main.Group;
+import utils.DataGroup;
 import static main.Main.logger;
 import main.Partitions;
 import nlp_annot.Utils;
 import ontology.Onto;
 import org.json.simple.parser.ParseException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import structure.Chunk;
+import objects.Chunk;
 import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
@@ -40,32 +40,32 @@ public class NobleCoder_Results {
         String dirBase = "/Users/irbraun/NetBeansProjects/term-mapping/dmom/NobleCoder/";
 
         String fold = "fold";
-        List<Integer> all = utils.Util.range(0, 31);
-        List<Integer> testPartsSpecies = utils.Util.range(0, 4);
-        List<Integer> testPartsRandom = utils.Util.range(0, 4);
+        List<Integer> all = utils.Utils.range(0, 31);
+        List<Integer> testPartsSpecies = utils.Utils.range(0, 4);
+        List<Integer> testPartsRandom = utils.Utils.range(0, 4);
         
         Text text = new Text();
         Partitions pRandom = new Partitions(text);   
         Partitions pSpecies = new Partitions(text);
         
         // Annotated data available in the Plant PhenomeNET.
-        List<Group> patoGroups = new ArrayList<>();
-        patoGroups.add(new Group("pato_all_copy", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_pato/"), pSpecies));
-        patoGroups.add(new Group("pato_species", fold, testPartsSpecies, String.format("%s%s",dirBase,"outputs_species_ppn_pato/"), pSpecies));
-        patoGroups.add(new Group("pato_random", fold, testPartsRandom, String.format("%s%s",dirBase,"outputs_random_ppn_pato/"), pRandom));
+        List<DataGroup> patoGroups = new ArrayList<>();
+        patoGroups.add(new DataGroup("pato_all_copy", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_pato/"), pSpecies));
+        patoGroups.add(new DataGroup("pato_species", fold, testPartsSpecies, String.format("%s%s",dirBase,"outputs_species_ppn_pato/"), pSpecies));
+        patoGroups.add(new DataGroup("pato_random", fold, testPartsRandom, String.format("%s%s",dirBase,"outputs_random_ppn_pato/"), pRandom));
         nobleCoderHelper(text, Ontology.PATO, patoGroups, String.format("%s%s",dirBase,"outputs_all_ppn_pato/original_classprobs.csv"));
 
-        List<Group> poGroups = new ArrayList<>();
-        poGroups.add(new Group("po_all_copy", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_po/"), pSpecies));
-        poGroups.add(new Group("po_species", fold, testPartsSpecies, String.format("%s%s",dirBase,"outputs_species_ppn_po/"), pSpecies));
-        poGroups.add(new Group("po_random", fold, testPartsRandom, String.format("%s%s",dirBase,"outputs_random_ppn_po/"), pRandom));
+        List<DataGroup> poGroups = new ArrayList<>();
+        poGroups.add(new DataGroup("po_all_copy", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_po/"), pSpecies));
+        poGroups.add(new DataGroup("po_species", fold, testPartsSpecies, String.format("%s%s",dirBase,"outputs_species_ppn_po/"), pSpecies));
+        poGroups.add(new DataGroup("po_random", fold, testPartsRandom, String.format("%s%s",dirBase,"outputs_random_ppn_po/"), pRandom));
         nobleCoderHelper(text, Ontology.PO, poGroups, String.format("%s%s",dirBase,"outputs_all_ppn_po/original_classprobs.csv"));
 
         
-        List<Group> goGroups = new ArrayList<>();
-        goGroups.add(new Group("go_all_copy", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_go/"), pSpecies));
-        goGroups.add(new Group("go_species", fold, testPartsSpecies, String.format("%s%s",dirBase,"outputs_species_ppn_go/"), pSpecies));
-        goGroups.add(new Group("go_random", fold, testPartsRandom, String.format("%s%s",dirBase,"outputs_random_ppn_go/"), pRandom));
+        List<DataGroup> goGroups = new ArrayList<>();
+        goGroups.add(new DataGroup("go_all_copy", fold, all, String.format("%s%s",dirBase,"outputs_all_ppn_go/"), pSpecies));
+        goGroups.add(new DataGroup("go_species", fold, testPartsSpecies, String.format("%s%s",dirBase,"outputs_species_ppn_go/"), pSpecies));
+        goGroups.add(new DataGroup("go_random", fold, testPartsRandom, String.format("%s%s",dirBase,"outputs_random_ppn_go/"), pRandom));
         nobleCoderHelper(text, Ontology.GO, goGroups, String.format("%s%s",dirBase,"outputs_all_ppn_go/original_classprobs.csv"));
         
         //List<Group> chebiGroups = new ArrayList<>();
@@ -98,7 +98,7 @@ public class NobleCoder_Results {
      * @throws ClassExpressionException
      * @throws Exception 
      */
-    public static void nobleCoderHelper(Text text, Ontology ontology, List<Group> groups, String inputFilename) throws IOException, FileNotFoundException, ParseException, SQLException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
+    public static void nobleCoderHelper(Text text, Ontology ontology, List<DataGroup> groups, String inputFilename) throws IOException, FileNotFoundException, ParseException, SQLException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
         
         logger.info(String.format("working on terms from %s",ontology.toString()));
         
@@ -108,7 +108,7 @@ public class NobleCoder_Results {
         // Write the headers to the different output files.
         String evalHeader = "chunk,text,label,term,score,component,category,similarity,nodes";
         String classProbHeader = "chunk,term,prob,nodes";
-        for (Group g: groups){
+        for (DataGroup g: groups){
             g.classProbsPrinter.println(classProbHeader);
             g.evalPrinter.println(evalHeader);
         }
@@ -163,14 +163,14 @@ public class NobleCoder_Results {
             for (int i=0; i<termIDs.size(); i++){
                 String id = termIDs.get(i);
                 Role role = termRoles.get(i);
-                if (utils.Util.inferOntology(id).equals(ontology)){
+                if (utils.Utils.inferOntology(id).equals(ontology)){
                     try{
                         // Find the false negatives.
                         if (!allTermIDsFoundBySearching.contains(id)){
                             String label = onto.getTermFromTermID(id).label;
                             
                             // need to find the predicted term that is most similar to this FN curated term. (similarity = 0 for no predictions).
-                            double simD = utils.Util.getMaxSimJac(id, allTermIDsFoundBySearching, onto);
+                            double simD = utils.Utils.getMaxSimJac(id, allTermIDsFoundBySearching, onto);
                             String sim = String.format("%.3f",simD);
                             Object[] line = {c.chunkID, c.getRawText().replace(",", ""), label, id, "none", Role.getAbbrev(role), "FN", sim, "none"};
                             Utils.writeToEvalFiles(line, c, groups);
@@ -193,9 +193,9 @@ public class NobleCoder_Results {
             // Don't need to include the try catch for unsupported ontology terms here because these all come directly from the owl file. 
             for (Result result: nobleCoderTermsMap.getOrDefault(c.chunkID, new ArrayList<>())){
                 String id = result.termID;
-                if(!termIDs.contains(id) && utils.Util.inferOntology(id).equals(ontology)){
+                if(!termIDs.contains(id) && utils.Utils.inferOntology(id).equals(ontology)){
                     // Find the false positives.
-                    double simD = utils.Util.populateAttributes(c, onto.getTermFromTermID(id), text, onto, ontology).hJac;
+                    double simD = utils.Utils.populateAttributes(c, onto.getTermFromTermID(id), text, onto, ontology).hJac;
                     String sim = String.format("%.3f",simD);
                     double score = nobleCoderTermsMap.get(c.chunkID).get(allTermIDsFoundBySearching.indexOf(id)).score;
                     String scoreStr = String.format("%.3f",score);
@@ -215,7 +215,7 @@ public class NobleCoder_Results {
  
         
         // Close all the files.
-        for (Group g: groups){
+        for (DataGroup g: groups){
             g.classProbsPrinter.close();
             g.evalPrinter.close();
         }

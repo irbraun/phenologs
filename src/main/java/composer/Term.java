@@ -5,7 +5,7 @@ import static composer.Utils.normalizeTermID;
 import enums.Ontology;
 import enums.Role;
 import java.util.HashSet;
-import structure.OntologyTerm;
+import objects.OntologyTerm;
 
 
 public class Term {
@@ -88,7 +88,6 @@ public class Term {
         this.ontology = ontology;
         this.nodes = nodes;
     }
-    
     
     
     // Used when inheriting EQ statements.

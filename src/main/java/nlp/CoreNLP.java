@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package nlp;
 
 import config.Config;
@@ -15,10 +11,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Scanner;
 
-/**
- *
- * @author irbraun
- */
+
 public class CoreNLP {
  
     private static StanfordCoreNLP pipeline;
@@ -36,12 +29,6 @@ public class CoreNLP {
     public static StanfordCoreNLP getPipeline(){
         return pipeline;
     }
-    
-    
-    
-    
-    
-    
     
     
     

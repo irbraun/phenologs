@@ -2,7 +2,7 @@
 package infocontent;
 
 import enums.Aspect;
-import structure.OntologyTerm;
+import objects.OntologyTerm;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

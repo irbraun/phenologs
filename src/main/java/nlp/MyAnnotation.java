@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package nlp;
 
 import edu.stanford.nlp.ling.IndexedWord;

@@ -23,7 +23,7 @@ import main.Partitions;
 import ontology.Onto;
 import org.json.simple.parser.ParseException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import structure.Chunk;
+import objects.Chunk;
 import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
@@ -171,14 +171,14 @@ public class RandomForest_Results {
             for (int i=0; i<termIDs.size(); i++){
                 String id = termIDs.get(i);
                 Role role = termRoles.get(i);
-                if (utils.Util.inferOntology(id).equals(ontology)){
+                if (utils.Utils.inferOntology(id).equals(ontology)){
                     try{
                         // Find the false negatives.
                         if (!allTermIDsFoundBySearching.contains(id)){
                             String label = onto.getTermFromTermID(id).label;
                             
                             // need to find the predicted term that is most similar to this FN curated term. (similarity = 0 for no predictions).
-                            double simD = utils.Util.getMaxSimJac(id, allTermIDsFoundBySearching, onto);
+                            double simD = utils.Utils.getMaxSimJac(id, allTermIDsFoundBySearching, onto);
                             String sim = String.format("%.3f",simD);
                             Object[] line = {c.chunkID, c.getRawText().replace(",", ""), label, id, "none", Role.getAbbrev(role), "FN", sim, "none"};
                             writer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s",line));
@@ -201,9 +201,9 @@ public class RandomForest_Results {
             // Don't need to include the try catch for unsupported ontology terms here because these all come directly from the owl file. 
             for (Result result: nobleCoderTermsMap.getOrDefault(c.chunkID, new ArrayList<>())){
                 String id = result.termID;
-                if(!termIDs.contains(id) && utils.Util.inferOntology(id).equals(ontology)){
+                if(!termIDs.contains(id) && utils.Utils.inferOntology(id).equals(ontology)){
                     // Find the false positives.
-                    double simD = utils.Util.populateAttributes(c, onto.getTermFromTermID(id), text, onto, ontology).hJac;
+                    double simD = utils.Utils.populateAttributes(c, onto.getTermFromTermID(id), text, onto, ontology).hJac;
                     String sim = String.format("%.3f",simD);
                     double score = nobleCoderTermsMap.get(c.chunkID).get(allTermIDsFoundBySearching.indexOf(id)).score;
                     String scoreStr = String.format("%.3f",score);

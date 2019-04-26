@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package nlp_annot;
 
 import composer.EQStatement;
@@ -18,13 +14,10 @@ import java.util.List;
 import nlp.MyAnnotation;
 import pred.OwlClass;
 import pred.OwlSet;
-import structure.Chunk;
+import objects.Chunk;
 import text.Text;
 
-/**
- *
- * @author irbraun
- */
+
 public class DependencyParsing {
     
     
@@ -34,6 +27,9 @@ public class DependencyParsing {
     private int sumPE1toQ;
     private int sumPE1toPE2;
     private int sumPE1toSE1;
+    
+    
+    
     
     /**
      * Finds the frequencies of particular path lengths between terms in the curated

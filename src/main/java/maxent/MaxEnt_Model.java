@@ -20,8 +20,8 @@ import java.util.HashSet;
 import java.util.List;
 import static main.Main.logger;
 import nlp.MyAnnotation;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
 
 /**
@@ -98,7 +98,7 @@ public class MaxEnt_Model {
                 
                 
                 // see below. (1)
-                if (useSingleOntology && utils.Util.inferOntology(termID).equals(ontology)){
+                if (useSingleOntology && utils.Utils.inferOntology(termID).equals(ontology)){
                     
                     
                     
@@ -163,7 +163,7 @@ public class MaxEnt_Model {
                 
                 
                 // has to be the the exact same check as above to get same list of curated terms. (2)
-                if (useSingleOntology && utils.Util.inferOntology(termID).equals(ontology)){
+                if (useSingleOntology && utils.Utils.inferOntology(termID).equals(ontology)){
                 
                 
                     List<MaxEnt_Feature> featureList = featuresObj.getFeatureList();
@@ -361,7 +361,7 @@ public class MaxEnt_Model {
         Collections.sort(results, new ResultComparator());
         if (!results.isEmpty()){
             for (int idx=0; idx<k; idx++){
-                terms.add(new Term(results.get(idx).termID, results.get(idx).prob, utils.Util.inferOntology(results.get(idx).termID)));
+                terms.add(new Term(results.get(idx).termID, results.get(idx).prob, utils.Utils.inferOntology(results.get(idx).termID)));
             }
         }
         return terms;

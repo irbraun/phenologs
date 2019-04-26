@@ -1,8 +1,5 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
+
 package nlp_annot;
 
 import composer.Term;
@@ -18,22 +15,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import main.Group;
+import utils.DataGroup;
 import static main.Main.logger;
 import main.Partitions;
 import ontology.Onto;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
-import static utils.Util.range;
+import static utils.Utils.range;
 
-/**
- *
- * @author irbraun
- */
+
+
 
 
 
@@ -46,7 +41,7 @@ public class NaiveBayes_Mapping {
     public NaiveBayes_Mapping() throws OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
         ontoObjects = new HashMap<>();
         for (Ontology ontology: Ontology.getAllOntologies()){
-            String ontologyPath = utils.Util.pickOntologyPath(ontology.toString());
+            String ontologyPath = utils.Utils.pickOntologyPath(ontology.toString());
             Onto onto = new Onto(ontologyPath);
             ontoObjects.put(ontology, onto);
         }
@@ -61,9 +56,9 @@ public class NaiveBayes_Mapping {
         // Count the occurences of terms from each ontology in the training set.
         for (Chunk c: trainingChunks){
             for (String termID: text.getCuratedEQStatementFromAtomID(c.chunkID).getAllTermIDs()){
-                int count = counts.get(utils.Util.inferOntology(termID));
+                int count = counts.get(utils.Utils.inferOntology(termID));
                 count++;
-                counts.put(utils.Util.inferOntology(termID), count);
+                counts.put(utils.Utils.inferOntology(termID), count);
             }
         }
         // Output the ratios as term per chunk of text for each ontology.
@@ -120,7 +115,7 @@ public class NaiveBayes_Mapping {
         
         Text text = new Text();
         Partitions p = new Partitions(text);  
-        String dtypeTag = String.format("_%s",utils.Util.inferTextType(Config.format).toString().toLowerCase());
+        String dtypeTag = String.format("_%s",utils.Utils.inferTextType(Config.format).toString().toLowerCase());
         
 
         // Find the fraction of the testing set that is directly present in the training set.
@@ -145,30 +140,30 @@ public class NaiveBayes_Mapping {
         
         
         // Annotated data available in the Plant PhenomeNET.
-        List<Group> patoGroups = new ArrayList<>();
+        List<DataGroup> patoGroups = new ArrayList<>();
         String outputPath = String.format("%s/%s",baseDirectory,"output_pato");
-        patoGroups.add(new Group("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
+        patoGroups.add(new DataGroup("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
         //patoGroups.add(new Group("train"+fold+dtypeTag, fold, trainingPartitionNumbers, outputPath, p));
         //patoGroups.add(new Group("all"+fold+dtypeTag, fold, allPartitionNumbers, outputPath, p));
         search(Ontology.PATO, new Text(), patoGroups, nb, ratios);
        
-        List<Group> poGroups = new ArrayList<>();
+        List<DataGroup> poGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_po");
-        poGroups.add(new Group("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
+        poGroups.add(new DataGroup("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
         //poGroups.add(new Group("train"+fold+dtypeTag, fold, trainingPartitionNumbers, outputPath, p));
         //poGroups.add(new Group("all"+fold+dtypeTag, fold, allPartitionNumbers, outputPath, p));
         search(Ontology.PO, new Text(), poGroups, nb, ratios);
         
-        List<Group> goGroups = new ArrayList<>();
+        List<DataGroup> goGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_go");
-        goGroups.add(new Group("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
+        goGroups.add(new DataGroup("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
         //goGroups.add(new Group("train"+fold+dtypeTag, fold, trainingPartitionNumbers, outputPath, p));
         //goGroups.add(new Group("all"+fold+dtypeTag, fold, allPartitionNumbers, outputPath, p));
         search(Ontology.GO, new Text(), goGroups, nb, ratios);
         
-        List<Group> chebiGroups = new ArrayList<>();
+        List<DataGroup> chebiGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_chebi");
-        chebiGroups.add(new Group("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
+        chebiGroups.add(new DataGroup("test"+fold+dtypeTag, fold, testingPartitionNumbers, outputPath, p));
         //chebiGroups.add(new Group("train"+fold+dtypeTag, fold, trainingPartitionNumbers, outputPath, p));
         //chebiGroups.add(new Group("all"+fold+dtypeTag, fold, allPartitionNumbers, outputPath, p));
         search(Ontology.CHEBI, new Text(), chebiGroups, nb, ratios);
@@ -180,7 +175,7 @@ public class NaiveBayes_Mapping {
     
     
     
-    private void search(Ontology ontology, Text text, List<Group> groups, NaiveBayes_Model nb, HashMap<Ontology,Double> ratios) throws SQLException, Exception{
+    private void search(Ontology ontology, Text text, List<DataGroup> groups, NaiveBayes_Model nb, HashMap<Ontology,Double> ratios) throws SQLException, Exception{
         
         // Which ontology currently working on.
         logger.info(String.format("working on terms from %s",ontology.toString()));
@@ -237,7 +232,7 @@ public class NaiveBayes_Mapping {
         String evalHeader = "chunk,text,label,term,score,component,category,similarity,nodes";
         String classProbHeader = "chunk,term,prob,nodes";
         
-        for (Group g: groups){
+        for (DataGroup g: groups){
             g.classProbsPrinter.println(classProbHeader);
             g.evalPrinter.println(evalHeader);
         }
@@ -269,12 +264,12 @@ public class NaiveBayes_Mapping {
                 String id = termIDs.get(i);
                 Role role = termRoles.get(i);
 
-                if (utils.Util.inferOntology(id).equals(ontology)){
+                if (utils.Utils.inferOntology(id).equals(ontology)){
                     try{
                         // FN (false negatives)
                         if (!allTermIDsFoundBySearching.contains(id)){
                             String label = onto.getTermFromTermID(id).label;
-                            String sim = String.format("%.3f",utils.Util.getMaxSimJac(id, allTermIDsFoundBySearching, onto));
+                            String sim = String.format("%.3f",utils.Utils.getMaxSimJac(id, allTermIDsFoundBySearching, onto));
                             Object[] line = {chunk.chunkID, chunk.getRawText().replace(",", ""), label, id, "none", Role.getAbbrev(role), "FN", sim,"none"};
                             int part = partsObj.getPartitionNumber(chunk);
                             Utils.writeToEvalFiles(line, part, groups);
@@ -306,7 +301,7 @@ public class NaiveBayes_Mapping {
                     String joinedNodes = nodes.stream().collect(Collectors.joining("|"));
                     double prob = ((double) matches.get(allTermIDsFoundBySearching.indexOf(id)).prob);
                     String probStr = String.format("%.3f",prob);
-                    String sim = String.format("%.3f",utils.Util.populateAttributes(chunk, onto.getTermFromTermID(id), text, onto, ontology).hJac);
+                    String sim = String.format("%.3f",utils.Utils.populateAttributes(chunk, onto.getTermFromTermID(id), text, onto, ontology).hJac);
                     Object[] line = {chunk.chunkID, chunk.getRawText().replace(",",""), onto.getTermFromTermID(id).label, id, probStr, Role.getAbbrev(Role.UNKNOWN), "FP", sim, joinedNodes};
                     int part = partsObj.getPartitionNumber(chunk);
                     Utils.writeToEvalFiles(line, part, groups);
@@ -326,7 +321,7 @@ public class NaiveBayes_Mapping {
           
         }
 
-        for (Group g: groups){
+        for (DataGroup g: groups){
             g.classProbsPrinter.close();
             g.evalPrinter.close();
         }

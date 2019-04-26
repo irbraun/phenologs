@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import main.Partitions;
-import structure.Chunk;
+import objects.Chunk;
 import text.Text;
 
 /**

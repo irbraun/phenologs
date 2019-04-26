@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import main.Partitions;
 import ontology.Onto;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
 
 
@@ -74,7 +74,7 @@ public class LabelMatching1 {
        
         Partitions partitions = new Partitions(text);
         List<Chunk> usedChunks = partitions.getChunksFromPartitions(parts, chunks);
-        String ontologyPath = utils.Util.pickOntologyPath(ontology.toString());
+        String ontologyPath = utils.Utils.pickOntologyPath(ontology.toString());
         Onto onto = new Onto(ontologyPath);
         
         terms = onto.getTermList();        

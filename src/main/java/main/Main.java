@@ -6,8 +6,8 @@ import randomforest.process.Run;
 import composer.Composer;
 import config.Config;
 import config.Connect;
-import preprocess.BNLPOutputReader;
-import preprocess.InputDataPreparer;
+import unused.BNLPOutputReader;
+import unused.InputDataPreparer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -16,7 +16,6 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import locus.LocusSubsets;
 import nlp.CoreNLP;
-import nlp.Learner;
 import nlp_annot.AggregateResults;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.Argument;
@@ -30,7 +29,7 @@ import uk.ac.ebi.brain.error.NewOntologyException;
 import uk.ac.ebi.brain.error.NonExistingEntityException;
 import nlp_annot.NaiveBayes_Mapping;
 import nlp_annot.OutsideAnnotationReader;
-import text.TextUtils;
+import text.Utils;
 
 
 
@@ -47,8 +46,6 @@ public class Main {
     private boolean generate;
     @Option(name="-c", usage="compose eq statements from class probabilities")
     private boolean compose;
-    @Option(name="-p", usage="running nlp to generate parse trees")
-    private boolean parse;
     @Option(name="-l", usage="generating lists of locus subsets")
     private String locus = "";
         
@@ -143,11 +140,8 @@ public class Main {
         if (compose){
             Composer c = new Composer();
         }
-        if (parse){
-            Learner.learn();
-        }
         if (!ncpre.equals("")){
-            TextUtils.createTextFilesForAllChunks(ncpre, threshold, utils.Util.inferTextType(Config.format)); 
+            Utils.createTextFilesForAllChunks(ncpre, threshold, utils.Utils.inferTextType(Config.format)); 
         }
         if (nceval){
             OutsideAnnotationReader.run("nc");
@@ -163,7 +157,7 @@ public class Main {
             AggregateResults.run(agg);
         }
         if (!wordFiles.equals("")){
-            TextUtils.createWordFiles(wordFiles);
+            Utils.createWordFiles(wordFiles);
         }
         logger.info("done");
     }

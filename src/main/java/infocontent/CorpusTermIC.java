@@ -1,8 +1,5 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
+
 package infocontent;
 
 import enums.Ontology;
@@ -16,7 +13,7 @@ import static main.Main.logger;
 import ontology.Onto;
 
 
-//TODO: rewrite this to use the new Text object design, much simpler, everything should already be built-in for doing this.
+//TODO: rewrite this to use the Text object, much simpler, everything should already be built-in for doing this.
 
 
 
@@ -38,7 +35,7 @@ class CorpusTermIC {
         logger.info("finding ontolgoy term frequencies in data");
         String relevantColumns = "quality_ID, PATO_Qualifier_ID_optional, primary_entity1_ID, primary_entity2_ID_optional, secondary_entity1_ID_optional, secondary_entity2_ID_optional, developmental_stage_ID_optional";
         Object[] data = {relevantColumns, Config.dataTable};
-        ResultSet rs = utils.Util.sqliteCall(String.format("SELECT %s FROM %s", data));
+        ResultSet rs = utils.Utils.sqliteCall(String.format("SELECT %s FROM %s", data));
         
         counts = new HashMap<>();
         
@@ -62,7 +59,7 @@ class CorpusTermIC {
                     
                     // Try to add all the inherited nodes, works if this term comes from a supported ontology.
                     try{
-                        inheritedTerms.addAll(ontoObjects.get(utils.Util.inferOntology(termID)).getTermFromTermID(termID).inheritedNodes);
+                        inheritedTerms.addAll(ontoObjects.get(utils.Utils.inferOntology(termID)).getTermFromTermID(termID).inheritedNodes);
                     }
                     catch(NullPointerException e){
                     }
@@ -91,7 +88,7 @@ class CorpusTermIC {
 
     double getIC(String termID){
         double freqHat;
-        int numAvailableTerms = ontoObjects.get(utils.Util.inferOntology(termID)).getTermListSize();
+        int numAvailableTerms = ontoObjects.get(utils.Utils.inferOntology(termID)).getTermListSize();
         if (counts.containsKey(termID)){
             freqHat = (double) counts.get(termID) / (double) countsSum;
         }

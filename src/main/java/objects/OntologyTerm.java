@@ -1,4 +1,4 @@
-package structure;
+package objects;
 
 import static composer.Utils.normalizeTermID;
 import enums.Aspect;
@@ -186,7 +186,7 @@ public class OntologyTerm {
      */
     private String getDescription(Set<OWLAnnotationAssertionAxiom> annotationSet){
         String desc = "";
-        switch(utils.Util.inferOntology(this.termID)){  
+        switch(utils.Utils.inferOntology(this.termID)){  
         case PATO:
             try{
                 for (OWLAnnotationAssertionAxiom annotation : annotationSet){

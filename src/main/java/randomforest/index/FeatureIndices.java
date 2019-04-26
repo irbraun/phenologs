@@ -2,7 +2,7 @@ package randomforest.index;
 
 
 import config.Config;
-import structure.Feature;
+import randomforest.objects.Feature;
 import enums.Aspect;
 import enums.Context;
 import enums.Metric;

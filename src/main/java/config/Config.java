@@ -208,7 +208,7 @@ public class Config {
             JSONObject undersampling = (JSONObject) features.get("undersampling");
             undersample = Boolean.parseBoolean(undersampling.get("undersample").toString());
             maxNegRetain = Integer.valueOf(undersampling.get("max_neg_retain").toString());
-            fullPartitions = utils.Util.getNumericList(undersampling.get("full_partitions").toString());
+            fullPartitions = utils.Utils.getNumericList(undersampling.get("full_partitions").toString());
 
             JSONObject featureArchitecture = (JSONObject) features.get("feature_architecture");
             numEdges = Side.valueOf(featureArchitecture.get("num_edges").toString());

@@ -1,15 +1,15 @@
 package randomforest.process;
 
 import config.Config;
-import structure.Feature;
-import structure.OntologyTerm;
-import structure.Word;
-import structure.Chunk;
-import structure.FeatureVector;
+import randomforest.objects.Feature;
+import objects.OntologyTerm;
+import objects.Word;
+import objects.Chunk;
+import randomforest.objects.FeatureVector;
 import enums.Aspect;
 import enums.Context;
 import enums.Metric;
-import structure.FeatureArray;
+import randomforest.objects.FeatureArray;
 import java.util.ArrayList;
 import java.util.List;
 

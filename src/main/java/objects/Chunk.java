@@ -1,4 +1,4 @@
-package structure;
+package objects;
 
 
 import config.Config;
@@ -16,28 +16,7 @@ public class Chunk {
     public final TextDatatype textType;
     public final Species species;
     public final String geneIdentifier;
-    
-    /* No longer used, species and gene identifer are always specified for any text data type.
-    public Chunk(int chunkID, TextDatatype textType, String rawText){
-        this.chunkID = chunkID;
-        this.textType = textType;
-        this.rawText = rawText;
-        this.species = Species.UNKNOWN;
-        this.bagOfWords = populateBagOfWords(rawText);
-        this.geneIdentifier = null;
-    }
-    */
-
-    /* No longer used, species and gene identifer are always specified for any text data type.
-    public Chunk(int chunkID, TextDatatype textType, String rawText, Species species){
-        this.chunkID = chunkID;
-        this.textType = textType;
-        this.rawText = rawText;
-        this.species = species;
-        this.bagOfWords = populateBagOfWords(rawText);
-        this.geneIdentifier = null;
-    }
-    */
+   
     
     public Chunk(int chunkID, TextDatatype textType, String rawText, Species species, String geneIdentifier){
         this.chunkID = chunkID;

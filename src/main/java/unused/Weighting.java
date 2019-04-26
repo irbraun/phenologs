@@ -3,7 +3,7 @@
  * irbraun@iastate.edu
  * term-mapping 
  */
-package nlp;
+package unused;
 
 import config.Config;
 import enums.Metric;
@@ -38,8 +38,8 @@ public class Weighting {
     
     
     public void addOntology(String ontology) throws IOException{
-        WeightSet weightSet = new WeightSet(utils.Util.inferOntology(ontology));
-        OntoToWeightMap.put(utils.Util.inferOntology(ontology), weightSet); 
+        WeightSet weightSet = new WeightSet(utils.Utils.inferOntology(ontology));
+        OntoToWeightMap.put(utils.Utils.inferOntology(ontology), weightSet); 
     }
     
     public void addOntology(Ontology ontology) throws IOException{
@@ -53,10 +53,10 @@ public class Weighting {
     
     
     public double getMetricWeight(String ontology, Metric metric){
-        return OntoToWeightMap.get(utils.Util.inferOntology(ontology)).metricWeights.get(metric);
+        return OntoToWeightMap.get(utils.Utils.inferOntology(ontology)).metricWeights.get(metric);
     }
     public double getAspectWeight(String ontology, Aspect aspect){
-        return OntoToWeightMap.get(utils.Util.inferOntology(ontology)).aspectWeights.get(aspect);
+        return OntoToWeightMap.get(utils.Utils.inferOntology(ontology)).aspectWeights.get(aspect);
     }
     
     
@@ -74,10 +74,10 @@ public class Weighting {
     
     
     public Set<Metric> getMetrics(String ontology){
-        return OntoToWeightMap.get(utils.Util.inferOntology(ontology)).metricWeights.keySet();
+        return OntoToWeightMap.get(utils.Utils.inferOntology(ontology)).metricWeights.keySet();
     }
     public Set<Aspect>  getAspects(String ontology){
-        return OntoToWeightMap.get(utils.Util.inferOntology(ontology)).aspectWeights.keySet();
+        return OntoToWeightMap.get(utils.Utils.inferOntology(ontology)).aspectWeights.keySet();
     }
     
     

@@ -3,7 +3,7 @@
  * irbraun@iastate.edu
  * term-mapping 
  */
-package nlp;
+package unused;
 
 import composer.EQStatement;
 import composer.Term;
@@ -28,12 +28,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import nlp.CoreNLP;
+import nlp.MyAnnotation;
+import nlp.MyAnnotations;
+import nlp.Stemmer;
 import static main.Main.logger;
 import randomforest.process.SimilarityFinder;
 import ontology.Onto;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
@@ -385,7 +389,7 @@ public class Parser {
         for (Term term: eq.termChain){
             try{
                 Role role = term.role;
-                OntologyTerm ontologyTerm = ontoObjects.get(utils.Util.inferOntology(term.id)).getTermFromTermID(term.id);
+                OntologyTerm ontologyTerm = ontoObjects.get(utils.Utils.inferOntology(term.id)).getTermFromTermID(term.id);
                 
                 //double[] termMassDistribution = assignTermMass(wts, ontologyTerm, dG, finder);
                 double[] termMassDistribution = assignTermMassWithPOS(ontologyTerm, dG, posTags, finder, chunkID);
@@ -484,7 +488,7 @@ public class Parser {
         
         //TODO Account for the similarity metrics that are distance based not similarity based, just add the check and find reciprocal.
         
-        Ontology ontology = utils.Util.inferOntology(term.termID);
+        Ontology ontology = utils.Utils.inferOntology(term.termID);
         
         double[] finalVotes = new double[dG.size()];
         
@@ -527,7 +531,7 @@ public class Parser {
                             similarity = 0.000;
                         }
                         // Weight by the information content of the ontology word in the flattened ontology.
-                        double ic = InfoContent.getICofWordInOntology(utils.Util.inferOntology(term.termID),termWord);
+                        double ic = InfoContent.getICofWordInOntology(utils.Utils.inferOntology(term.termID),termWord);
                         
                         // TODO check about this.
                         //similarity = similarity * (double)ic;
@@ -552,7 +556,7 @@ public class Parser {
             }
         }
         
-        finalVotes = utils.Util.normalize(finalVotes);
+        finalVotes = utils.Utils.normalize(finalVotes);
         return finalVotes;
     }
     
@@ -584,7 +588,7 @@ public class Parser {
     private double[] assignTermMassWithPOS(OntologyTerm term, SemanticGraph dG, List<String> posTags, SimilarityFinder finder, int chunkID) throws IOException{
         
         // What is the ontology that this term is from?
-        Ontology ontology = utils.Util.inferOntology(term.termID);
+        Ontology ontology = utils.Utils.inferOntology(term.termID);
         double[] finalVotes = new double[dG.size()];
         
         // Check semantic syntactic similarity to the term label.
@@ -678,7 +682,7 @@ public class Parser {
             finalVotes[i] = finalVotes[i] + diffFromMin;
         }
        
-        finalVotes = utils.Util.normalize(finalVotes);
+        finalVotes = utils.Utils.normalize(finalVotes);
         return finalVotes;
     }
     
@@ -715,7 +719,7 @@ public class Parser {
         
         // Information not currently used.
         // This would be important if allowing terms from different ontologies to match different parts-of-speech?
-        Ontology ontology = utils.Util.inferOntology(term.termID);
+        Ontology ontology = utils.Utils.inferOntology(term.termID);
         double[] finalVotes = new double[dG.size()];
         
         // Check each token for syntactic similarity to the term label.
@@ -801,7 +805,7 @@ public class Parser {
         }
         
         
-        finalVotes = utils.Util.normalize(finalVotes);
+        finalVotes = utils.Utils.normalize(finalVotes);
         
         
         // Values for heatmap

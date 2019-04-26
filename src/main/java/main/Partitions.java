@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package main;
 
 import config.Config;
@@ -14,13 +10,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import structure.Chunk;
+import objects.Chunk;
 import text.Text;
 
-/**
- *
- * @author irbraun
- */
+
 public class Partitions {
     
     

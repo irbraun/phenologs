@@ -1,5 +1,6 @@
-package structure;
+package randomforest.objects;
 
+import randomforest.objects.Feature;
 import java.util.ArrayList;
 import java.util.List;
 

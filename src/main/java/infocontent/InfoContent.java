@@ -1,8 +1,5 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
+
 package infocontent;
 
 import enums.Ontology;
@@ -13,10 +10,7 @@ import ontology.Onto;
 import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 
-/**
- *
- * @author irbraun
- */
+
 public class InfoContent {
     
     
@@ -73,7 +67,7 @@ public class InfoContent {
     
     
     public static int getLabelLength(String termID){
-        return ontoObjects.get(utils.Util.inferOntology(termID)).getTermFromTermID(termID).label.length();
+        return ontoObjects.get(utils.Utils.inferOntology(termID)).getTermFromTermID(termID).label.length();
     }
     
     

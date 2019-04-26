@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package composer;
 
 import enums.Ontology;
@@ -14,17 +10,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import utils.Comparators.TermComparatorByScore;
 
-/**
- *
- * @author irbraun
- */
+
+
+
 public class ComposerIO {
-    
-    
-    
-    
-    
     
     
     
@@ -67,7 +58,7 @@ public class ComposerIO {
                 }
                 
                 // Some of the methods allow terms from separate vocabularies into the output files.
-                if (!utils.Util.inferOntology(termID).equals(Ontology.UNSUPPORTED)){
+                if (!utils.Utils.inferOntology(termID).equals(Ontology.UNSUPPORTED)){
                 
                     // Check if this term was already added to the list form another method.
                     // Update the entry for this term if that is the case, but don't add it again.
@@ -82,7 +73,7 @@ public class ComposerIO {
 
                     if (!alreadyInList){
                         ArrayList<Term> listOfTerms = chunkToTermsMap.getOrDefault(chunkID, new ArrayList<>());
-                        listOfTerms.add(new Term(termID,probability,utils.Util.inferOntology(termID), utils.Util.getNodeSetFromString(nodes)));
+                        listOfTerms.add(new Term(termID,probability,utils.Utils.inferOntology(termID), utils.Utils.getNodeSetFromString(nodes)));
                         chunkToTermsMap.put(chunkID, listOfTerms);
                     }
                     
@@ -91,7 +82,7 @@ public class ComposerIO {
             }   
                 
             // Limit the number of candidate terms from this ontology for each chunk.
-            Utils.TermComparatorByScore comparer = new Utils.TermComparatorByScore();
+            TermComparatorByScore comparer = new TermComparatorByScore();
             for (Integer chunkID: chunkToTermsMap.keySet()){
                 Collections.sort(chunkToTermsMap.get(chunkID), comparer);
                 chunkToTermsMap.put(chunkID, new ArrayList<>(chunkToTermsMap.get(chunkID).subList(0, Math.min(k, chunkToTermsMap.get(chunkID).size()))));           
@@ -107,9 +98,23 @@ public class ComposerIO {
         
     
     
+    
+    
+    
+    /**
+     * Update the properties of a term object to reflect new information. This allows 
+     * new information about a term to be added if it was identified or predicted by 
+     * multiple different methods. Currently scores/probabilities are treated as the 
+     * max of those that were identified, and the matching tokens (nodes in dG) are 
+     * combined to take the union.
+     * @param term
+     * @param prob
+     * @param nodes
+     * @return 
+     */
     public static Term updateTermProperties(Term term, double prob, String nodes){
         term.probability = Math.max(term.probability, prob);
-        term.nodes.addAll(utils.Util.getNodeSetFromString(nodes));
+        term.nodes.addAll(utils.Utils.getNodeSetFromString(nodes));
         return term;
     }
     
@@ -126,14 +131,10 @@ public class ComposerIO {
     
     
     /**
-     * 
-     * TODO still need this?
-     * 
-     * 
      * Accepts any number of maps associating chunks with lists of candidate terms, and integrates them
      * into a single map. This is used for entities because valid entities can come from a number of 
      * different ontologies but they need to be combined so a single list of valid candidate terms can
-     * be found for each text chunk.
+     * be found for each text chunk. This method is currently not used.
      * @param hms
      * @return 
      */

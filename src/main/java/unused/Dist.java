@@ -3,7 +3,7 @@
  * irbraun@iastate.edu
  * term-mapping 
  */
-package nlp;
+package unused;
 
 import java.util.List;
 import static main.Main.logger;

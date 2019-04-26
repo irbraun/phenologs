@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package text;
 
 import composer.EQStatement;
@@ -14,8 +10,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import structure.Chunk;
-import static utils.Util.sqliteCall;
+import objects.Chunk;
+import static utils.Utils.sqliteCall;
 
 
 
@@ -208,7 +204,7 @@ public class Text {
      * @throws Exception 
      */
     public ArrayList<Chunk> getAllChunksOfDType(String dtype_str) throws Exception{
-        TextDatatype dtype = utils.Util.inferTextType(dtype_str);
+        TextDatatype dtype = utils.Utils.inferTextType(dtype_str);
         switch(dtype){
             case PHENOTYPE:
                 return phChunks;
@@ -394,7 +390,7 @@ public class Text {
             String atomizedStatement = rs.getString("atomized_statement");
             String geneIdentifier = rs.getString("Gene_Identifier");
             String speciesStr = rs.getString("Species");
-            Species species = utils.Util.inferSpecies(speciesStr);
+            Species species = utils.Utils.inferSpecies(speciesStr);
             Chunk chunk = formUntaggedAtom(chunkID, atomizedStatement, species, geneIdentifier);
             chunks.add(chunk);
         }
@@ -429,7 +425,7 @@ public class Text {
             String phenotypeDescription = rs.getString("phenotype_description");
             String geneIdentifier = rs.getString("Gene_Identifier");
             String speciesStr = rs.getString("Species");
-            Species species = utils.Util.inferSpecies(speciesStr);
+            Species species = utils.Utils.inferSpecies(speciesStr);
             
             // The requirement for a phenotype in the input table is that is has to be unique in all these columns.
             List<Integer> atomIDs = new ArrayList<>();

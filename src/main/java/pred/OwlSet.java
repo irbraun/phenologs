@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package pred;
 
 
@@ -14,10 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- *
- * @author irbraun
- */
+
 public class OwlSet {
     
     public HashMap<Integer,List<OwlClass>> classes;
@@ -75,7 +68,7 @@ public class OwlSet {
                 oc.chunkID = chunkID;
                 oc.termID = termID;
                 oc.similarity = similarity;
-                oc.nodes = utils.Util.getNodeSetFromString(nodes);   
+                oc.nodes = utils.Utils.getNodeSetFromString(nodes);   
                 List l = classes.getOrDefault(chunkID, new ArrayList<>());
                 l.add(oc);
                 classes.put(chunkID, l);

@@ -1,22 +1,16 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
+
 package infocontent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import static main.Main.logger;
-import structure.OntologyTerm;
+import objects.OntologyTerm;
 import uk.ac.ebi.brain.core.Brain;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 
-/**
- *
- * @author irbraun
- */
+
 class OntologyTermIC {
     
     private final HashMap<String, Integer> termDepths;

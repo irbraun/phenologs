@@ -1,7 +1,7 @@
 
 package composer;
 
-import composer.Utils.EQComparatorByAllMetricsAlternateOrder;
+import utils.*;
 import enums.Ontology;
 import config.Config;
 import enums.Role;
@@ -20,12 +20,13 @@ import nlp.MyAnnotation;
 import nlp_annot.DependencyParsing;
 import ontology.Onto;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
 import uk.ac.ebi.brain.error.NonExistingEntityException;
+import utils.Comparators.EQComparatorByAllMetricsAlternateOrder;
 
 
 
@@ -35,7 +36,7 @@ public class Composer {
     private final Text text;
     private final List<Integer> chunkIDs;
     private final HashMap<Ontology,Onto> ontoObjects;
-    private final RulesForPATO patoInfo;
+    private final QualityInfo patoInfo;
     private final HashMap<Integer,ArrayList<Term>> qTermProbabilityTable;
     private final HashMap<Integer,ArrayList<Term>> eTermProbabilityTable;
     private final HashMap<Integer,ArrayList<EQStatement>> predictedEQsPheneMap;
@@ -52,17 +53,17 @@ public class Composer {
         Partitions parts = new Partitions(text);
         //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
         //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0,1,text.getAllChunksOfDType(Config.format));
-        chunkIDs = utils.Util.range(1,10);
+        chunkIDs = utils.Utils.range(1,10);
         
         
         logger.info("building ontology representations");
-        ontoObjects = utils.Util.buildOntoObjects(Ontology.getSmallOntologies());
+        ontoObjects = utils.Utils.buildOntoObjects(Ontology.getSmallOntologies());
         //ontoObjects = utils.Util.buildOntoObjects(Ontology.getAllOntologies());
         InfoContent.setup(ontoObjects,text);
        
 
         // Rules about which terms are optional qualifiers or relational qualities.
-        patoInfo = new RulesForPATO(ontoObjects.get(Ontology.PATO));
+        patoInfo = new QualityInfo(ontoObjects.get(Ontology.PATO));
         
         // Read in annotation files produced from the previous steps.
         logger.info("reading in concept mapping outputs");
@@ -103,7 +104,7 @@ public class Composer {
     private void createAnnotationsTable() throws FileNotFoundException, ClassExpressionException, SQLException, NonExistingEntityException, Exception{
         File outputFile = new File(Config.predictedStmtsPath);
         PrintWriter writer = new PrintWriter(outputFile);
-        switch(utils.Util.inferTextType(Config.format)){
+        switch(utils.Utils.inferTextType(Config.format)){
             case PHENOTYPE:
                 produceOutputEQTableForPhenotypes(writer);
                 break;
@@ -547,7 +548,7 @@ public class Composer {
         // Setup appropriately depending on what the datatype of the text descriptions are.
         HashSet<Integer> atomIDsSet = new HashSet<>();
         HashSet<Integer> phenotypeIDsSet = new HashSet<>();
-        switch (utils.Util.inferTextType(Config.format)) {
+        switch (utils.Utils.inferTextType(Config.format)) {
             case PHENE:
                 for (int chunkID: chunkIDs){
                     int phenotypeID = text.getPhenotypeIDfromAtomID(chunkID);
@@ -653,7 +654,7 @@ public class Composer {
         ArrayList<Term> predictedEs = (ArrayList<Term>) eTermProbabilityTable.getOrDefault(chunkID, new ArrayList<>());
 
         // Run the NLP pipeline to get depedencies, constituencies, POS, any other information.
-        Chunk chunk = text.getChunkFromIDWithDType(chunkID, utils.Util.inferTextType(Config.format));
+        Chunk chunk = text.getChunkFromIDWithDType(chunkID, utils.Utils.inferTextType(Config.format));
         MyAnnotation annot = Modifier.getAnnotation(chunk);
 
         // Retain only the most specific terms.
@@ -680,11 +681,11 @@ public class Composer {
         logger.info(String.format("processing chunk %s (%s)\n",chunkID,text.getAtomChunkFromID(chunkID).getRawText()));
         logger.info(String.format("%s candidate E",predictedEs.size()));
         for (Term t: predictedEs){
-            logger.info(String.format("%s (%s)",t.id, ontoObjects.get(utils.Util.inferOntology(t.id)).getTermFromTermID(t.id).label));
+            logger.info(String.format("%s (%s)",t.id, ontoObjects.get(utils.Utils.inferOntology(t.id)).getTermFromTermID(t.id).label));
         }
         logger.info(String.format("%s candidate Q",predictedQs.size()));
         for (Term t: predictedQs){
-            logger.info(String.format("%s (%s)",t.id, ontoObjects.get(utils.Util.inferOntology(t.id)).getTermFromTermID(t.id).label));
+            logger.info(String.format("%s (%s)",t.id, ontoObjects.get(utils.Utils.inferOntology(t.id)).getTermFromTermID(t.id).label));
         }
 
 

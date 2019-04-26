@@ -54,9 +54,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import smile.classification.Maxent;
-import structure.Attributes;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Attributes;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
@@ -103,7 +103,7 @@ public class NotCoverageTest {
         Connect conn = new Connect();
         CoreNLP.setup(); 
         
-        HashMap<Ontology,Onto> ontoObjects = utils.Util.buildOntoObjects(Ontology.getPlantOntologies());
+        HashMap<Ontology,Onto> ontoObjects = utils.Utils.buildOntoObjects(Ontology.getPlantOntologies());
         Text text = new Text();
         
         EQStatement eq1 = text.getCuratedEQStatementFromAtomID(3);

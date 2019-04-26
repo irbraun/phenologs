@@ -2,7 +2,7 @@ package randomforest.process;
 
 
 import config.Config;
-import structure.SimilarityStore;
+import randomforest.objects.SimilarityStore;
 import edu.cmu.lti.jawjaw.pobj.POS;
 import edu.cmu.lti.lexical_db.ILexicalDatabase;
 import edu.cmu.lti.lexical_db.NictWordNet;

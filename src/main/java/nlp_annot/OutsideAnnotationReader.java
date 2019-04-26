@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package nlp_annot;
 
 import composer.EQStatement;
@@ -19,14 +15,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-import main.Group;
+import utils.DataGroup;
 import static main.Main.logger;
 import main.Partitions;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import ontology.Onto;
 import org.json.simple.parser.ParseException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
-import structure.Chunk;
+import objects.Chunk;
 import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
@@ -35,10 +31,7 @@ import uk.ac.ebi.brain.error.NewOntologyException;
 
 
 
-/**
- *
- * @author irbraun
- */
+
 public class OutsideAnnotationReader {
     
     
@@ -86,48 +79,37 @@ public class OutsideAnnotationReader {
         String groupName = Config.passedInName;
        
         // Partition numbers for each testing set.
-        List<Integer> allPartitionNumbers = utils.Util.range(0, 31);
-        List<Integer> set1PartitionNumbers = utils.Util.range(0, 4);
-        List<Integer> set2PartitionNumbers = utils.Util.range(0, 4);
+        List<Integer> allPartitionNumbers = utils.Utils.range(0, 31);
         
         // Text data and partition objects for each testing set.
         Text text = new Text();
-        Partitions set1PartitionObj = new Partitions(text);
-        Partitions set2PartitionObj = new Partitions(text);   
+        Partitions partitionObj = new Partitions(text);
         
 
         
         
         // Annotated data available in the Plant PhenomeNET. The groups are currently based off of different sections of the data.
         String outputPath = String.format("%s/%s",baseDirectory,"output_pato");
-        String dtypeTag = String.format("_%s",utils.Util.inferTextType(Config.format).toString().toLowerCase());
-        List<Group> patoGroups = new ArrayList<>();
-        patoGroups.add(new Group(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
-        //patoGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-        //patoGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+        String dtypeTag = String.format("_%s",utils.Utils.inferTextType(Config.format).toString().toLowerCase());
+        List<DataGroup> patoGroups = new ArrayList<>();
+        patoGroups.add(new DataGroup(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, partitionObj));
         populateFilesForTestSets(text, Ontology.PATO, patoGroups, patosrc);
 
-        List<Group> poGroups = new ArrayList<>();
+        List<DataGroup> poGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_po");
-        poGroups.add(new Group(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
-        //poGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-        //poGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+        poGroups.add(new DataGroup(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, partitionObj));
         populateFilesForTestSets(text, Ontology.PO, poGroups, posrc);
 
-        List<Group> goGroups = new ArrayList<>();
+        List<DataGroup> goGroups = new ArrayList<>();
         outputPath = String.format("%s/%s",baseDirectory,"output_go");
-        goGroups.add(new Group(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
-        //goGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-        //goGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+        goGroups.add(new DataGroup(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, partitionObj));
         populateFilesForTestSets(text, Ontology.GO, goGroups, gosrc);
         
         // Not currently using the ChEBI ontology with NOBLE Coder.
         if (!source.equals("nc")){
-            List<Group> chebiGroups = new ArrayList<>();
+            List<DataGroup> chebiGroups = new ArrayList<>();
             outputPath = String.format("%s/%s",baseDirectory,"output_chebi");
-            chebiGroups.add(new Group(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, set1PartitionObj));
-            //chebiGroups.add(new Group("group2"+dtypeTag, fold, set1PartitionNumbers, outputPath, set1PartitionObj));
-            //chebiGroups.add(new Group("group3"+dtypeTag, fold, set2PartitionNumbers, outputPath, set2PartitionObj));
+            chebiGroups.add(new DataGroup(groupName+dtypeTag, fold, allPartitionNumbers, outputPath, partitionObj));
             populateFilesForTestSets(text, Ontology.CHEBI, chebiGroups, chebisrc);
         }
 
@@ -157,13 +139,13 @@ public class OutsideAnnotationReader {
      * @throws ClassExpressionException
      * @throws Exception 
      */
-    public static void populateFilesForTestSets(Text text, Ontology ontology, List<Group> groups, String inputFilename) throws IOException, FileNotFoundException, ParseException, SQLException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
+    public static void populateFilesForTestSets(Text text, Ontology ontology, List<DataGroup> groups, String inputFilename) throws IOException, FileNotFoundException, ParseException, SQLException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
         
         logger.info(String.format("working on terms from %s",ontology.toString()));
         
         // version that works for both phenes and phenotypes
         List<Chunk> chunks;
-        TextDatatype dtype = utils.Util.inferTextType(Config.format);
+        TextDatatype dtype = utils.Utils.inferTextType(Config.format);
         switch (dtype){
             case PHENE:
                 chunks = text.getAllAtomChunks();
@@ -181,7 +163,7 @@ public class OutsideAnnotationReader {
         // Write the headers to the different output files.
         String evalHeader = "chunk,text,label,term,score,component,category,similarity,nodes";
         String classProbHeader = "chunk,term,prob,nodes";
-        for (Group g: groups){
+        for (DataGroup g: groups){
             g.classProbsPrinter.println(classProbHeader);
             g.evalPrinter.println(evalHeader);
         }
@@ -269,14 +251,14 @@ public class OutsideAnnotationReader {
 
                     // Check if this curated term is from the ontology we're looking at right now and
                     // that is also found in the ontology file that's being used for the rest of the pipeline.
-                    if (utils.Util.inferOntology(id).equals(ontology)){
+                    if (utils.Utils.inferOntology(id).equals(ontology)){
                         if ( onto.getTermFromTermID(id)!=null){
 
                             // Find the false negatives.
                             if (!allTermIDsFoundBySearching.contains(id)){
                                 String label = onto.getTermFromTermID(id).label;
                                 // need to find the predicted term that is most similar to this FN curated term. (similarity = 0 for no predictions).
-                                double simD = utils.Util.getMaxSimJac(id, allTermIDsFoundBySearching, onto);
+                                double simD = utils.Utils.getMaxSimJac(id, allTermIDsFoundBySearching, onto);
                                 String sim = String.format("%.3f",simD);
                                 Object[] line = {c.chunkID, c.getRawText().replace(",", ""), label, id, "none", Role.getAbbrev(role), "FN", sim, "none"};
                                 Utils.writeToEvalFiles(line, c, groups);
@@ -305,13 +287,13 @@ public class OutsideAnnotationReader {
                     String id = result.termID;
                     // Check if this ID passed the checks already done above.
                     if (allTermIDsFoundBySearching.contains(id)){
-                        if(!curatedTermIDs.contains(id) && utils.Util.inferOntology(id).equals(ontology)){
+                        if(!curatedTermIDs.contains(id) && utils.Utils.inferOntology(id).equals(ontology)){
                             // Find the false positives.
 
                             // New code for this tool because it's using a version of the ontology not locally stored.
                             // Double check that the predicted term is actually present in the ontology file, can't use it if it's not.
                             if (onto.getTermFromTermID(id)!=null){
-                                double simD = utils.Util.populateAttributes(c, onto.getTermFromTermID(id), text, onto, ontology).hJac;
+                                double simD = utils.Utils.populateAttributes(c, onto.getTermFromTermID(id), text, onto, ontology).hJac;
                                 String sim = String.format("%.3f",simD);
                                 double score = toolFoundTermsMap.get(c.chunkID).get(allTermIDsFoundBySearching.indexOf(id)).score;
                                 String scoreStr = String.format("%.3f",score);
@@ -439,7 +421,7 @@ public class OutsideAnnotationReader {
             
         
         // Close all the files.
-        for (Group g: groups){
+        for (DataGroup g: groups){
             g.classProbsPrinter.close();
             g.evalPrinter.close();
         }

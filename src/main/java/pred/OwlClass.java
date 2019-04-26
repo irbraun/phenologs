@@ -1,16 +1,9 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package pred;
 
 import java.util.HashSet;
 
-/**
- *
- * @author irbraun
- */
+
 public class OwlClass {
     
     

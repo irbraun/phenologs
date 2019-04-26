@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package text;
 
 import config.Config;
@@ -19,17 +15,12 @@ import java.util.HashSet;
 import java.util.List;
 import static main.Main.logger;
 import main.Partitions;
-import structure.Chunk;
+import objects.Chunk;
 
 
 
 
-
-/**
- *
- * @author irbraun
- */
-public class TextUtils {
+public class Utils {
     
     
     /**

@@ -3,7 +3,7 @@
  * irbraun@iastate.edu
  * term-mapping 
  */
-package nlp;
+package unused;
 
 import enums.Role;
 import java.io.File;

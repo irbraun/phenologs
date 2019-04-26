@@ -1,14 +1,9 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package nlp_annot;
 
 import composer.Modifier;
 import composer.Term;
 import config.Config;
-import enums.TextDatatype;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,34 +18,22 @@ import java.util.HashSet;
 import java.util.List;
 import static main.Main.logger;
 import nlp.MyAnnotation;
-import structure.Chunk;
-import structure.OntologyTerm;
+import objects.Chunk;
+import objects.OntologyTerm;
 import text.Text;
 
-/**
- *
- * @author irbraun
- */
+
+
+
+
+
 public class NaiveBayes_Model {
     
     
-    /*
-    countWordByTerm
-    map from termID --> map, which maps words to counts. (counts word occurences)
-    countTermTotal
-    map from termID to count for that term.              (counts term occurences)
-    
-    
-    Modifications necessary when using the results of word2vec?
-    Training time:
-        when increasing a count, also increase the count for all synonyms.
-    Testing time:
-        dont have to change anything, because accessing with any word will already be accounted for in the prob.
-    */
+
     
    
-    
-    
+     
     private final HashMap<String,HashMap<String,Integer>> countWordsByTerm;
     private final HashMap<String,Integer> countTermTotal;
     private int wordVocabSize;
@@ -64,25 +47,17 @@ public class NaiveBayes_Model {
     }
         
     
+    
+    
     public void train(Text text, List<Chunk> chunks, double threshold) throws SQLException, FileNotFoundException, IOException, Exception{
         
         
-        
-        
-        
-        
-        
-        
-        
-        System.out.println("THRESHOLD="+threshold);
-        
-        
-        // build the mapping of synonyms from the w2v results file.
+        // Build the mapping of synonyms from the w2v results file.
         HashMap<String,ArrayList<String>> w2vs = new HashMap<>();
         
-        // for this model, what use_embeddings means is to add words to the bag of words for each chunk.
-        // order doesn't matter here (unlike with the string-based ones so just stick them on to the chunks).
-        // add all the synonyms that surpass the threshold of similarity to the existing word in question.
+        // For this model, what use_embeddings means is to add words to the bag of words for each chunk.
+        // Order doesn't matter here (unlike with the string-based ones so just stick them on to the chunks).
+        // Add all the synonyms that surpass the threshold of similarity to the existing word in question.
         if (Config.useEmbeddings){
             System.out.println("embeddings are being used");
             File file = new File("/Users/irbraun/NetBeansProjects/term-mapping/path/data/allpairs.txt");
@@ -109,9 +84,6 @@ public class NaiveBayes_Model {
             }
         }
         System.out.println("After reading in dict " + (w2vs.keySet().size()/2) + " were added due to threshold="+threshold);
-        
-        
-        
         
         int totalWordsInModel=0;
         
@@ -180,7 +152,7 @@ public class NaiveBayes_Model {
         logger.info(String.format("there were %s unique lemmas in the training data", lemmaVocabSize));
         
         
-        System.out.println("TOTAL NUMBER OF WORDS USED IN MODEL = " + totalWordsInModel);
+        System.out.println("The total number of words (vocabulary size of the model) was " + totalWordsInModel);
         
     }
     
@@ -225,27 +197,6 @@ public class NaiveBayes_Model {
     
     
     
-    /*
-    public List<Term> getBestKTerms(List<Onto> ontos, Chunk chunk, int k){
-        List<Term> terms = new ArrayList<>();
-        List<Result> results = new ArrayList<>();
-        for (Onto onto: ontos){
-            for (OntologyTerm t: onto.getTermList()){
-                Result r = new Result();
-                r.termID = t.termID;
-                r.prob = getLogProb(chunk.getBagValues(), t.termID);
-                results.add(r);
-            }
-        }
-        Collections.sort(results, new ResultComparator());
-        for (int idx=0; idx<k; idx++){
-            terms.add(new Term(results.get(idx).termID, results.get(idx).prob, utils.Util.inferOntology(results.get(idx).termID)));
-        }
-        return terms;
-    }
-    */
-    
-    
     public List<Term> getBestKTerms(List<OntologyTerm> allTerms, Chunk chunk, int k){
         List<Term> terms = new ArrayList<>();
         List<Result> results = new ArrayList<>();
@@ -268,13 +219,10 @@ public class NaiveBayes_Model {
         }
         Collections.sort(results, new ResultComparator());
         for (int idx=0; idx<k; idx++){
-            terms.add(new Term(results.get(idx).termID, results.get(idx).prob, utils.Util.inferOntology(results.get(idx).termID)));
+            terms.add(new Term(results.get(idx).termID, results.get(idx).prob, utils.Utils.inferOntology(results.get(idx).termID)));
         }
         return terms;
     }
-    
-    
-    
     
    
     private static class Result{

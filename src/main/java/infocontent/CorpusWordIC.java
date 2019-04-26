@@ -1,8 +1,5 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
+
 package infocontent;
 
 import enums.TextDatatype;
@@ -10,14 +7,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import static main.Main.logger;
-import structure.Chunk;
-import structure.Word;
+import objects.Chunk;
+import objects.Word;
 import text.Text;
 
-/**
- *
- * @author irbraun
- */
+
+
 class CorpusWordIC {
     
     private HashMap<String, Integer> counts;

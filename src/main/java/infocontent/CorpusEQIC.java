@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package infocontent;
 
 import composer.EQStatement;
@@ -14,10 +10,8 @@ import static main.Main.logger;
 import ontology.Onto;
 import text.Text;
 
-/**
- *
- * @author irbraun
- */
+
+
 public class CorpusEQIC {
         
     private final HashMap<String, Integer> counts;
