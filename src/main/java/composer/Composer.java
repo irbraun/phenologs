@@ -40,7 +40,7 @@ public class Composer {
     private final HashMap<Integer,ArrayList<Term>> eTermProbabilityTable;
     private final HashMap<Integer,ArrayList<EQStatement>> predictedEQsPheneMap;
     private final HashMap<Integer,ArrayList<EQStatement>> predictedEQsPhenotypeMap;
-    private final DependencyParsing dpg;
+    private final DependencyParsing dG;
     
     
     
@@ -52,10 +52,11 @@ public class Composer {
         Partitions parts = new Partitions(text);
         //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
         //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0,1,text.getAllChunksOfDType(Config.format));
-        chunkIDs = utils.Util.range(3,4);
+        chunkIDs = utils.Util.range(1,10);
+        
         
         logger.info("building ontology representations");
-        ontoObjects = utils.Util.buildOntoObjects(Ontology.getPlantOntologies());
+        ontoObjects = utils.Util.buildOntoObjects(Ontology.getSmallOntologies());
         //ontoObjects = utils.Util.buildOntoObjects(Ontology.getAllOntologies());
         InfoContent.setup(ontoObjects,text);
        
@@ -78,24 +79,20 @@ public class Composer {
         predictedEQsPhenotypeMap = new HashMap<>();
         
 
-        
         // Build the dependency graphs for the input text data use for scoring.
-        dpg = new DependencyParsing();
+        dG = new DependencyParsing();
         
         // Produce an output file for the input set of descriptions.
-        logger.info("populating output table");
+        logger.info("generating the output annotations table");
         eTermProbabilityTable = ComposerIO.readClassProbFiles(entityClassProbPaths, 6);
         qTermProbabilityTable = ComposerIO.readClassProbFiles(qualityClassProbPaths, 4);
-        makeTable();
+        createAnnotationsTable();
         
-        
-        System.out.println("MAKING NETWORK");
-        
-        
-        // Look at network similarity.
+
+        // Generate phenotype and phene similarity networks where nodes map to genes.
         logger.info("building gene network files");
         if (Config.buildNetworks){
-            makeNetwork();
+            buildNetworks();
         }
     }
     
@@ -103,7 +100,7 @@ public class Composer {
     
     
     
-    private void makeTable() throws FileNotFoundException, ClassExpressionException, SQLException, NonExistingEntityException, Exception{
+    private void createAnnotationsTable() throws FileNotFoundException, ClassExpressionException, SQLException, NonExistingEntityException, Exception{
         File outputFile = new File(Config.predictedStmtsPath);
         PrintWriter writer = new PrintWriter(outputFile);
         switch(utils.Util.inferTextType(Config.format)){
@@ -183,7 +180,7 @@ public class Composer {
             phenotypeIDs.add(phenotypeID);
         }
         
-        
+
         int ctr=0;
 
         for (int phenotypeID: phenotypeIDs){
@@ -229,8 +226,11 @@ public class Composer {
                         dataRowsForThisPhenotype.add(String.format(formattedLineMinusOne, data));
                         
                         
-                        
-                        
+                        // Remember that no EQs were found for this phene/phenotype, for building network later.
+                        ArrayList<EQStatement> eqs = predictedEQsPheneMap.getOrDefault(curatedAtomID, new ArrayList<>());
+                        predictedEQsPheneMap.put(curatedAtomID, eqs);
+                        ArrayList<EQStatement> eqs2 = predictedEQsPhenotypeMap.getOrDefault(phenotypeID, new ArrayList<>());
+                        predictedEQsPhenotypeMap.put(phenotypeID, eqs2); 
                     }
                     
                     
@@ -238,7 +238,7 @@ public class Composer {
                     
                     // Iterate through the predicted EQs when they exist.
                     for (EQStatement predictedEQ: predictedEQs){
-                        double similarity = Utils.getTermSetSimilarity(predictedEQ, text.getCuratedEQStatementFromAtomID(curatedAtomID), ontoObjects);
+                        double similarity = Utils.getEQSimilarityNoWeighting(predictedEQ, text.getCuratedEQStatementFromAtomID(curatedAtomID), ontoObjects);
                         // Things that belong in the table (minus phenotype similarity).
                         Object[] data = {text.getAtomChunkFromID(curatedAtomID).species.toString().toLowerCase(),
                                         phenotypeID, 
@@ -260,10 +260,7 @@ public class Composer {
                         }
                         dataRowsForThisPhenotype.add(String.format(formattedLineMinusOne, data));
 
-
-
-
-
+                        
                         
                         // Remember this EQ for looking at network similarity later.
                         ArrayList<EQStatement> eqs = predictedEQsPheneMap.getOrDefault(curatedAtomID, new ArrayList<>());
@@ -272,8 +269,6 @@ public class Composer {
                         ArrayList<EQStatement> eqs2 = predictedEQsPhenotypeMap.getOrDefault(phenotypeID, new ArrayList<>());
                         eqs2.add(predictedEQ);
                         predictedEQsPhenotypeMap.put(phenotypeID, eqs2);
-                        
-                        
                     }
 
                     // The growing lists of all the EQs for this phenotype as a whole.
@@ -284,7 +279,7 @@ public class Composer {
 
                 // Done with all the atomized statements in this phenotype. Find the phenotype similarity
                 // Output all the rows for each of the phenes that were included within this phenotypes, they have all values now.
-                double phenotypeSimilarity = Utils.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
+                double phenotypeSimilarity = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
                 for (String dataRow: dataRowsForThisPhenotype){
                     writer.println(String.format("%s,%s",dataRow,phenotypeSimilarity));
                 }
@@ -296,6 +291,7 @@ public class Composer {
                 // the atomized statements are supposed to go with their phenotype to whatever partition, so all
                 // of them would be included whenever the phenotype is iterated over in a testing set.
                 logger.info("some atomized statements missing for phenotype ID=" + phenotypeID);
+                throw new Exception();
             }  
         } 
     }
@@ -327,13 +323,6 @@ public class Composer {
         // Get the relevant phenotype description IDs so that they can be iterated over.
         HashSet<Integer> phenotypeIDs = new HashSet<>(chunkIDs);
         
-        
-        /*
-        for (int atomID: atomIDs){
-            int phenotypeID = text.getPhenotypeIDfromAtomID(atomID);
-            phenotypeIDs.add(phenotypeID);
-        }
-        */
         
         int ctr=0;
 
@@ -393,7 +382,7 @@ public class Composer {
             predictedEQsPhenotypeMap.put(phenotypeID, eqs2);
 
             // Add the phenotype similarity value to the lines and write them to the file.
-            double phenotypeSimilarity = Utils.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
+            double phenotypeSimilarity = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
             for (String dataRow: dataRowsForThisPhenotype){
                 writer.println(String.format("%s,%s",dataRow,phenotypeSimilarity));
             }
@@ -472,6 +461,9 @@ public class Composer {
                     }
                     dataRowsForThisPhenotype.add(String.format(formattedLineMinusOne, data));
 
+                    // Remember no EQs were found for this phenotoype for looking at network similarity later.
+                    ArrayList<EQStatement> eqs2 = predictedEQsPhenotypeMap.getOrDefault(phenotypeID, new ArrayList<>());
+                    predictedEQsPhenotypeMap.put(phenotypeID, eqs2);
 
 
 
@@ -501,9 +493,6 @@ public class Composer {
 
 
                     // Remember this EQ for looking at network similarity later.
-                    //ArrayList<EQStatement> eqs = predictedEQsPheneMap.getOrDefault(curatedAtomID, new ArrayList<>());
-                    //eqs.add(predictedEQ);
-                    //predictedEQsPheneMap.put(curatedAtomID, eqs);
                     ArrayList<EQStatement> eqs2 = predictedEQsPhenotypeMap.getOrDefault(phenotypeID, new ArrayList<>());
                     eqs2.add(predictedEQ);
                     predictedEQsPhenotypeMap.put(phenotypeID, eqs2);
@@ -518,7 +507,7 @@ public class Composer {
 
             // Done with all the atomized statements in this phenotype. Find the phenotype similarity
             // Output all the rows for each of the phenes that were included within this phenotypes, they have all values now.
-            double phenotypeSimilarity = Utils.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
+            double phenotypeSimilarity = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
             for (String dataRow: dataRowsForThisPhenotype){
                 writer.println(String.format("%s,%s",dataRow,phenotypeSimilarity));
             }
@@ -538,13 +527,13 @@ public class Composer {
     /**
      * Generate the edges and nodes files for network analysis for graphs built using the annotations.
      * Edge and node file with relevant attributes for each link or node built separately to be used
-     * with the igraph package. Note this does not currently work when using the phenotype text data, 
-     * assumes that the text chunks are atomized statements.
+     * with the igraph package. This file can then be modified to included additional measure of 
+     * similarity that are calculated elsewhere by other methods of finding text similarity.
      * @throws NonExistingEntityException
      * @throws FileNotFoundException
      * @throws Exception 
      */
-    private void makeNetwork() throws NonExistingEntityException, FileNotFoundException, Exception{
+    private void buildNetworks() throws NonExistingEntityException, FileNotFoundException, Exception{
 
         
         // Phenotype and phene networks.
@@ -555,15 +544,7 @@ public class Composer {
         pheneWriter.println("phene_1, phene_2, phenotype_1, phenotype_2, p_edge, c_edge");
         phenotypeWriter.println("phenotype_1, phenotype_2, p_edge, c_edge");
         
-        
-        /*
-        Modification so that the network that is shown includes all of the available nodes
-        instead of just the ones that have atleast one predicted EQ statement. Would just need to make
-        the p_edge column NA for that entry in the output file. Then these could be included in the 
-        calculations for table to make the values that are reported accurate but could still be removed
-        from the visualization to save space if necessary.
-        Making some other changes to make sure that this works with all the methods of reading the text.
-        */
+        // Setup appropriately depending on what the datatype of the text descriptions are.
         HashSet<Integer> atomIDsSet = new HashSet<>();
         HashSet<Integer> phenotypeIDsSet = new HashSet<>();
         switch (utils.Util.inferTextType(Config.format)) {
@@ -596,6 +577,8 @@ public class Composer {
             for (int j=i+1; j<atomIDs.size(); j++){
                 int atomID1 = atomIDs.get(i);
                 int atomID2 = atomIDs.get(j);
+                System.out.println(atomID1);
+                System.out.println(atomID2);
                 int associatedPhenotypeID1 = text.getPhenotypeIDfromAtomID(atomID1);
                 int associatedPhenotypeID2 = text.getPhenotypeIDfromAtomID(atomID2);
                 // Don't need to use try catch here because the -1 is already returned if there is an acceptable problem.
@@ -645,6 +628,11 @@ public class Composer {
         phenotypeNodeWriter.close();
         
     }
+    
+    
+    
+    
+    
     
     
     
@@ -767,7 +755,6 @@ public class Composer {
 
 
         return predictedEQs;
-
     }
     
     
@@ -792,11 +779,14 @@ public class Composer {
     
     
     
+    
+    
+    
+    
+    
     /**
      * Coverage is defined as the fraction of nodes in dG that the contents of the ontology term is
      * related or mapped to.
-     * TODO add check to throw exception if nodes appear in the EQ statement that don't appear in
-     * the text chunk, because that should never occur.
      * @param chunkID
      * @param eqs 
      */
@@ -834,18 +824,18 @@ public class Composer {
         for (EQStatement eq: eqs){
             // Path from nodes for the first primary entity to the quality.
             int len1 = Modifier.getMinPathLength(eq.primaryEntity1.nodes, eq.quality.nodes, annot);
-            double p1 = dpg.getProbability(Role.PRIMARY_ENTITY1_ID, Role.QUALITY_ID, len1);
+            double p1 = dG.getProbability(Role.PRIMARY_ENTITY1_ID, Role.QUALITY_ID, len1);
             // Path from nodes for the first primary entity to the second primary entity.
             double p2 = 1.00;
             if (eq.primaryEntity2!=null){
                 int len2 = Modifier.getMinPathLength(eq.primaryEntity1.nodes, eq.primaryEntity2.nodes, annot);
-                p2 = dpg.getProbability(Role.PRIMARY_ENTITY1_ID, Role.PRIMARY_ENTITY2_ID, len2);
+                p2 = dG.getProbability(Role.PRIMARY_ENTITY1_ID, Role.PRIMARY_ENTITY2_ID, len2);
             }
             // Path from nodes for the first primary entity to the first secondary entity.
             double p3 = 1.00;
             if (eq.secondaryEntity2!=null){
                 int len3 = Modifier.getMinPathLength(eq.primaryEntity1.nodes, eq.secondaryEntity1.nodes, annot);
-                p3 = dpg.getProbability(Role.PRIMARY_ENTITY1_ID, Role.SECONDARY_ENTITY1_ID, len3);
+                p3 = dG.getProbability(Role.PRIMARY_ENTITY1_ID, Role.SECONDARY_ENTITY1_ID, len3);
                 
             }
             // Get the combined probability.

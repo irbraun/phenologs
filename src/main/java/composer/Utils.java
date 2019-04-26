@@ -29,7 +29,10 @@ public class Utils {
     
     
     /**
-     * Not currently used, just for testing.
+     * A method for calculating how many EQ statements are inherited by a given EQ statement.
+     * This is calculated by identifying how many combinations of individual inherited terms
+     * in the statement can be arranged to generate a EQ statement which is a semantically
+     * less informative statement which is true given the provided statement.
      * @param eq
      * @param ontoObjects
      * @return 
@@ -99,13 +102,11 @@ public class Utils {
     
     public static double getEQSimilarityNoWeighting(ArrayList<EQStatement> eqList1, ArrayList<EQStatement> eqList2, HashMap<Ontology,Onto> ontoObjects) throws Exception{
         
-        // Check to make sure that neither of the lists has zero EQs in it.
+        // Check to make sure that neither of the lists has zero EQs in it.               
         if (eqList1.isEmpty() || eqList2.isEmpty()){
             return -1;
         }
         
-        
-       
         // Placeholder method for comparison while figuring out how to reproduce the exact values.
         ArrayList<EQStatement> shorterEQsList;
         ArrayList<EQStatement> longerEQsList;
@@ -496,8 +497,11 @@ public class Utils {
 
     
     /**
-     * See the above method. Overloaded for lists of EQ statements, allows for calculating Jaccard
-     * similarity for entire phenotypes instead of at the atomized statement level.
+     * Calculates the weighted Jaccard similarity between a pair of EQ statements. Note that these functions 
+     * were written so that they can be passed EQ statements that have unsupported terms in them (terms coming 
+     * from ontologies other than those we have objects for). This is because we can't figure out what those 
+     * terms inherit, so they are meaningless towards the Jaccard similarity anyway and their impact would 
+     * already be very underrepresented. Overloaded for a lists of EQ statements instead of single one.
      * @param eqList1
      * @param eqList2
      * @param ontoObjects

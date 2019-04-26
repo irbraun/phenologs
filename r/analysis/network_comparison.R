@@ -3,64 +3,11 @@ library(tidyr)
 library(dplyr)
 library(data.table)
 library(car)
-library(bootstrap)
-library(DAAG)
-library(kSamples)
 
 
 
 source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
-
-
-
-
-
-compare_edges <- function(targets, predictions, k){
-  
-  # Determine which edges are retained when this value of k is used.
-  kept_predictions <- predictions[1:k]
-  kept_targets <- targets[1:k]
-  
-  # Note that under this special case precision is recall is F1-score.
-  tp <- length(intersect(kept_targets, kept_predictions))
-  f1 <- tp/k
-  return(f1)
-}
-
-
-
-compare_edges_with_subsampling <- function(targets, predictions, k, subsampled_id_sets){
-
-  # Determine which edges are retained when this value of k is used.
-  kept_predictions <- predictions[1:k]
-  kept_targets <- targets[1:k]
-  
-  # Note that under this special case precision is recall is F1-score.
-  tp <- length(intersect(kept_targets, kept_predictions))
-  f1 <- tp/k
-  
-  # With subsampling
-  min_f1 <- 1
-  max_f1 <- 0
-  for (subsampled_id_set in subsampled_id_sets){
-    subsampled_k <- floor(k*SAMPLING_RATIO)
-    kept_predictions <- predictions[predictions %in% subsampled_id_set][1:subsampled_k]
-    kept_targets <- targets[targets %in% subsampled_id_set][1:subsampled_k]
-    tp <- length(intersect(kept_targets, kept_predictions))
-    subsampled_f1 <- tp/subsampled_k
-    min_f1 <- min(subsampled_f1, min_f1)
-    max_f1 <- max(subsampled_f1, max_f1)
-  }
-  return(c(f1,min_f1,max_f1))
-}
-
-
-
-
-
-
-
-
+source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_networks.R")
 
 
 
@@ -70,8 +17,6 @@ IN_FILE <- "phenotype_network_modified.csv"
 # Other constants.
 SAMPLING_RATIO <- 0.9
 OUT_PATH <- "/Users/irbraun/Desktop/f1_comparison.csv"
-
-
 
 
 
@@ -95,67 +40,93 @@ for(i in seq(1, num_iter)){
 
 
 
-
-
 # Define the range of k values to use.
 k_start <- 1000 
 k_step <- 10000
-k_max <- 100000
+k_max <- 4000000
+total_number_of_edges <- nrow(d)
+k_max <- min(k_max,total_number_of_edges)
 k_values <- seq(k_start, k_max, k_step)
 
 
 
 
 
-# Define which columns refer to predictions and targets.
+
+
+
+get_df_for_method_with_subsampling <- function(d){
+  
+  # Sort them in descending order.
+  ordered_target_ids <- d[order(-d$target),]$id
+  ordered_predicted_ids <- d[order(-d$predicted),]$id
+  
+  # Populate the lists of F-scores varying k with subsampling.
+  method_specific_df <- sapply(k_values, compare_edges_with_subsampling, targets=ordered_target_ids, predictions=ordered_predicted_ids, subsampled_id_sets=relevant_id_sets)
+  return(method_specific_df)
+  
+}
+
+
+get_df_for_method_without_subsampling <- function(d){
+  
+  # Sort them in descending order.
+  ordered_target_ids <- d[order(-d$target),]$id
+  ordered_predicted_ids <- d[order(-d$predicted),]$id
+  
+  # Populate the lists of F-scores varying k without subsampling.
+  method_specific_df <- sapply(k_values, compare_edges, targets=ordered_target_ids, predictions=ordered_predicted_ids)
+  return(method_specific_df)
+}
+
+
+
+
+
+
+
+
+
+# ---- doc2vec ----
+
+# Redefine which columns refer to predictions and targets.
+d$target <- d$c_edge
+d$predicted <- range01(1/d$enwiki_dbow)
+# Generate a dataframe of results for this method.
+doc2vec <- get_df_for_method_with_subsampling(d)
+
+
+
+# ---- predicted EQs ----
+
+
+# Redefine which columns refer to predictions and targets.
 d$target <- d$c_edge
 d$predicted <- 1/d$enwiki_dbow
-
-# Sort them in descending order.
-ordered_target_ids <- d[order(-d$target),]$id
-ordered_predicted_ids <- d[order(-d$predicted),]$id
-
-# Populate the lists of F-scores varying k with or without subsampling.
-doc2vec <- sapply(k_values, compare_edges_with_subsampling, targets=ordered_target_ids, predictions=ordered_predicted_ids, subsampled_id_sets=relevant_id_sets)
-#doc2vec <- sapply(k_values, compare_edges, targets=ordered_target_ids, predictions=ordered_predicted_ids)
+# Generate a dataframe of results for this method
+predeq <- get_df_for_method_with_subsampling(d)
 
 
 
 
 
-# Define which columns refer to predictions and targets.
-d$target <- d$c_edge
-d$predicted <- d$p_edge
 
-# Sort them in descending order.
-ordered_target_ids <- d[order(-d$target),]$id
-ordered_predicted_ids <- d[order(-d$predicted),]$id
-
-# Populate the lists of F-scores varying k with or without subsampling.
-predeq <- sapply(k_values, compare_edges_with_subsampling, targets=ordered_target_ids, predictions=ordered_predicted_ids, subsampled_id_sets=relevant_id_sets)
-#predeq <- sapply(k_values, compare_edges, targets=ordered_target_ids, predictions=ordered_predicted_ids)
-
-
-
-
-
-# Populate a dataframe from the results with or without subsampling.
+# Populate a dataframe from the results with subsampling.
 df <- data.frame(k=k_values, d2v_all=doc2vec[1,], d2v_min=doc2vec[2,], d2v_max=doc2vec[3,], peq_all=predeq[1,], peq_min=predeq[2,], peq_max=predeq[3,])
+# This is how it would be done if sub-sampling was not done.
 #df <- data.frame(k=k_values, d2v_all=doc2vec, peq_all=predeq)
 
 
 
-
-
-
-
-# Save this dataframe as a csv file.
+# Save this dataframe as a csv file, Read in back in to make plots locally.
 write.csv(df, file=OUT_PATH, row.names=F)
+df <- read("",OUT_PATH)
 
 
 
 
-# converting the dataframe to long format to have multiple methods.
+
+# Converting the dataframe to long format to have multiple methods on the same plot.
 df_long <- gather(df, method, value, d2v_all, peq_all, factor_key=T)
 df_long$max <- ifelse(df_long$method=="d2v_all", df_long$d2v_max, df_long$peq_max)
 df_long$min <- ifelse(df_long$method=="d2v_all", df_long$d2v_min, df_long$peq_min)
@@ -168,7 +139,7 @@ ggplot(data=df_long, aes(x=k, y=value, linetype=method)) + geom_line() +
   coord_cartesian(xlim=c(100000,0),ylim = c(0,0.6)) +
   theme_bw() +
   theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
-  ylab("F1 Score") +
+  ylab("F1") +
   xlab("Number of Edges") +
   scale_x_continuous(expand=c(0,0)) +
   scale_y_continuous(expand=c(0,0)) +
