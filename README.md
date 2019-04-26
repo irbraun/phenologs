@@ -11,4 +11,4 @@ A combination of different methods and approaches were used to generate EQ state
 Embeddings of phenotype descriptions were generated using `doc2vec` (Le *et al.*, 2014). Both models pre-trained using the English Wikipedia corpus and models built using domain-specific articles were used. 
 
 ### Citations
-Paper in progess.
+Publication in preparation.
