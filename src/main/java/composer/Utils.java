@@ -73,8 +73,15 @@ public class Utils {
             return 0.00;
         }
         
+        
+        // Problem, they could have the same format (EQFormat.UNKNOWN) and still have different number of terms in the term chain.
+        
+        
+        
         // These two EQ statements have the same componenets. That should always mean they have the same number of terms.
         if (eq1.termChain.size() != eq2.termChain.size()){
+            System.out.println("1: "+eq1.toIDText());
+            System.out.println("2: "+eq2.toIDText());
             throw new Exception();
         }
         

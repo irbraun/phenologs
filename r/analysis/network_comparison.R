@@ -5,7 +5,6 @@ library(data.table)
 library(car)
 
 
-
 source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
 source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_networks.R")
 
@@ -16,7 +15,7 @@ DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
 IN_FILE <- "phenotype_network_modified.csv"
 # Other constants.
 SAMPLING_RATIO <- 0.9
-OUT_PATH <- "/Users/irbraun/Desktop/f1_comparison.csv"
+OUT_PATH <- "/Users/irbraun/Desktop/network_comparison.csv"
 
 
 
@@ -32,7 +31,7 @@ nodes <- unique(c(d$phenotype_1, d$phenotype_2))
 sample_size <- floor(length(nodes)*SAMPLING_RATIO)
 node_sample_sets <- list()
 relevant_id_sets <- list()
-num_iter <- 10
+num_iter <- 5
 for(i in seq(1, num_iter)){
   node_sample_sets[[i]] <- sample(nodes, sample_size, replace=F)
   relevant_id_sets[[i]] <- d[d$phenotype_1 %in% node_sample_sets[[i]] & d$phenotype_2 %in% node_sample_sets[[i]],]$id
@@ -41,9 +40,9 @@ for(i in seq(1, num_iter)){
 
 
 # Define the range of k values to use.
-k_start <- 1000 
+k_start <- 10000 
 k_step <- 10000
-k_max <- 4000000
+k_max <- 50000
 total_number_of_edges <- nrow(d)
 k_max <- min(k_max,total_number_of_edges)
 k_values <- seq(k_start, k_max, k_step)
@@ -62,7 +61,7 @@ get_df_for_method_with_subsampling <- function(d){
   ordered_predicted_ids <- d[order(-d$predicted),]$id
   
   # Populate the lists of F-scores varying k with subsampling.
-  method_specific_df <- sapply(k_values, compare_edges_with_subsampling, targets=ordered_target_ids, predictions=ordered_predicted_ids, subsampled_id_sets=relevant_id_sets)
+  method_specific_df <- sapply(k_values, compare_edges_with_subsampling, targets=ordered_target_ids, predictions=ordered_predicted_ids, subsampled_id_sets=relevant_id_sets, sampling_ratio=SAMPLING_RATIO)
   return(method_specific_df)
   
 }
@@ -94,7 +93,7 @@ d$target <- d$c_edge
 d$predicted <- range01(1/d$enwiki_dbow)
 # Generate a dataframe of results for this method.
 doc2vec <- get_df_for_method_with_subsampling(d)
-
+paste("finished with similarity method 1")
 
 
 # ---- predicted EQs ----
@@ -102,10 +101,10 @@ doc2vec <- get_df_for_method_with_subsampling(d)
 
 # Redefine which columns refer to predictions and targets.
 d$target <- d$c_edge
-d$predicted <- 1/d$enwiki_dbow
+d$predicted <- d$p_edge
 # Generate a dataframe of results for this method
 predeq <- get_df_for_method_with_subsampling(d)
-
+paste("finished with similarity method 2")
 
 
 
@@ -198,13 +197,13 @@ ggplot(d, aes(x=method)) + geom_density(colour="black", fill="blue", alpha=0.3) 
 
 
 
-
-
-
-
-
-
                     
                     
   
   
+
+
+
+
+
+

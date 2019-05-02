@@ -46,7 +46,7 @@ public class Text {
     
     
     // Initialize all the maps and call methods to populate them.
-    public Text() throws SQLException{
+    public Text() throws SQLException, Exception{
         phenotypeIDtoAtomIDs = new HashMap<>();
         phenotypeIDtoSplitIDs = new HashMap<>();
         atomIDtoPhenotypeID = new HashMap<>();
@@ -341,7 +341,7 @@ public class Text {
      * in the csv file.
      * @throws SQLException 
      */
-    private void populateCuratedEQStmts() throws SQLException{
+    private void populateCuratedEQStmts() throws SQLException, Exception{
         
         String relevantColumns = "ppn_id, quality_ID, PATO_Qualifier_ID_optional, primary_entity1_ID, primary_entity2_ID_optional, secondary_entity1_ID_optional, secondary_entity2_ID_optional, developmental_stage_ID_optional";
         ResultSet rs = sqliteCall(String.format("SELECT %s from %s", relevantColumns, Config.dataTable));

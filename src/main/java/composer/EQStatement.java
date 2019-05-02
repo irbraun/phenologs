@@ -235,7 +235,7 @@ public class EQStatement {
      * of the components are not missing for example.
      * @param components 
      */
-    public EQStatement (String[] components){
+    public EQStatement (String[] components) throws Exception{
         String qualityID = components[0];
         String qualifierID = components[1];
         String primaryEntity1ID = components[2];
@@ -290,10 +290,12 @@ public class EQStatement {
         }
         
         // Developmental Stage
+        /*
         if (!developmentalStageID.equals("")){
             developmentalStage = new Term(developmentalStageID, utils.Utils.inferOntology(developmentalStageID), Role.DEVELOPMENTAL_STAGE_ID);
             termChain.add(developmentalStage);
         }
+        */
         termScore = 1.00;
         dGraphScore = "1.00";
         fromCuratedDataSet = true;
@@ -301,7 +303,10 @@ public class EQStatement {
             format = EQFormat.valueOf(sb.toString());
         }
         catch(IllegalArgumentException e){
+            System.out.println(toIDText());
+            System.out.println(sb.toString());
             format = EQFormat.UNKNOWN;
+            throw new Exception();
         }
     }
     

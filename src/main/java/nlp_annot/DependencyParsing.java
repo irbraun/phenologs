@@ -40,7 +40,7 @@ public class DependencyParsing {
      * @throws SQLException
      * @throws FileNotFoundException 
      */
-    public DependencyParsing() throws SQLException, FileNotFoundException{
+    public DependencyParsing() throws SQLException, FileNotFoundException, Exception{
         
 
         // Establish a list of files to be used as training data for word to term associations.

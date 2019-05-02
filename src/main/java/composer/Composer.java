@@ -1,7 +1,7 @@
 
 package composer;
 
-import utils.*;
+
 import enums.Ontology;
 import config.Config;
 import enums.Role;
@@ -51,14 +51,14 @@ public class Composer {
         logger.info("reading in the text data");
         text = new Text();
         Partitions parts = new Partitions(text);
-        //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
+        chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
         //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0,1,text.getAllChunksOfDType(Config.format));
-        chunkIDs = utils.Utils.range(1,10);
+        //chunkIDs = utils.Utils.range(1,10);
         
         
         logger.info("building ontology representations");
-        ontoObjects = utils.Utils.buildOntoObjects(Ontology.getSmallOntologies());
-        //ontoObjects = utils.Util.buildOntoObjects(Ontology.getAllOntologies());
+        //ontoObjects = utils.Utils.buildOntoObjects(Ontology.getSmallOntologies());
+        ontoObjects = utils.Utils.buildOntoObjects(Ontology.getAllOntologies());
         InfoContent.setup(ontoObjects,text);
        
 
