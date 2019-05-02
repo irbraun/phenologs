@@ -1,0 +1,30 @@
+{
+	"composer":{
+		"output_path":"/work/dillpicl/irbraun/term-mapping/path/output/annot.csv",
+		"max_terms_per_ontology":5,
+		"class_probs":{
+			"pato":["/work/dillpicl/irbraun/term-mapping/path/annotators/noble/output_pato/group1_split_phenotype_classprobs.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/ncbo/output_pato/group1_split_phenotype_classprobs.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/naive/output_pato/merged_split_phenotype_classprobs.csv"],
+			"po":["/work/dillpicl/irbraun/term-mapping/path/annotators/noble/output_po/group1_split_phenotype_classprobs.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/ncbo/output_po/group1_split_phenotype_classprobs.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/naive/output_po/merged_split_phenotype_classprobs.csv"],
+			"go":["/work/dillpicl/irbraun/term-mapping/path/annotators/noble/output_go/group1_split_phenotype_classprobs.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/ncbo/output_go/group1_split_phenotype_classprobs.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/naive/output_go/merged_split_phenotype_classprobs.csv"],
+			"chebi":["/work/dillpicl/irbraun/term-mapping/path/annotators/ncbo/output_chebi/group1_split_phenotype_classprobs.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/naive/output_chebi/merged_split_phenotype_classprobs.csv"],
+		},
+		"dg_files":{
+			"q":["/work/dillpicl/irbraun/term-mapping/path/annotators/noble/output_pato/group1_phene_eval.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/ncbo/output_pato/group1_phene_eval.csv"],
+			"other":["/work/dillpicl/irbraun/term-mapping/path/annotators/noble/output_po/group1_phene_eval.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/ncbo/output_po/group1_phene_eval.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/noble/output_go/group1_phene_eval.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/ncbo/output_go/group1_phene_eval.csv"],
+		},
+		"network":{
+			"network_values":"true",
+			"phene_network":"/work/dillpicl/irbraun/term-mapping/path/networks/phene_network.csv",
+			"phenotype_network":"/work/dillpicl/irbraun/term-mapping/path/networks/phenotype_network.csv",
+			"phene_nodes_path":"/work/dillpicl/irbraun/term-mapping/path/networks/phene_nodes.csv",
+			"phenotype_nodes_path":"/work/dillpicl/irbraun/term-mapping/path/networks/phenotype_nodes.csv",
+		},
+	},
+	"nlp":{
+		"use_prior":"true",
+		"use_lemmas":"false",
+		"use_embeddings":"true",
+		"maxent_tol":"neg_five",
+		"max_features_per_term":5,
+	},
+}

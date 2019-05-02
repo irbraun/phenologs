@@ -33,4 +33,4 @@ CREATE TABLE ppndata (
     `Loss_or_gain_of_function_optional` TEXT
 );
 .mode csv
-.import data/ppn_cleaned_data_no_header.csv ppndata
+.import data/original_datasets/ppn_cleaned_data_no_header.csv ppndata

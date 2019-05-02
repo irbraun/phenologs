@@ -1,8 +1,0 @@
-Didn't copy over the contents of abstracts_split and full_search_pubmed_lim100000 from the cluser where the query was performed.
-These directories contain a massive number of files and are all intermediate.
-The query that was run was just the six species names connected by OR, and the search was capped at 100,000 abstracts.
-The files derived from these that are actually used downstream are:
-1. combined_abstracts.txt (used to train word2vec models)
-2. split_sentences.txt (used to train doc2vec models).
-
-
