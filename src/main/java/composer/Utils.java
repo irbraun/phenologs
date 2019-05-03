@@ -6,7 +6,6 @@ import enums.Ontology;
 import infocontent.InfoContent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,11 +71,7 @@ public class Utils {
         if (!eq1.getFormat().equals(eq2.getFormat())){
             return 0.00;
         }
-        
-        
-        // Problem, they could have the same format (EQFormat.UNKNOWN) and still have different number of terms in the term chain.
-        
-        
+       
         
         // These two EQ statements have the same componenets. That should always mean they have the same number of terms.
         if (eq1.termChain.size() != eq2.termChain.size()){
@@ -90,8 +85,24 @@ public class Utils {
         ArrayList<Integer> quantityOfTermsAtEachComponentInEQ1 = new ArrayList<>();
         ArrayList<Integer> quantityOfTermsAtEachComponentInEQ2 = new ArrayList<>();
         for (int i=0; i<eq1.termChain.size(); i++){
-            HashSet<String> s1 = new HashSet<>(ontoObjects.get(eq1.termChain.get(i).ontology).getTermFromTermID(eq1.termChain.get(i).id).allNodes);
-            HashSet<String> s2 = new HashSet<>(ontoObjects.get(eq2.termChain.get(i).ontology).getTermFromTermID(eq2.termChain.get(i).id).allNodes);
+            HashSet<String> s1;
+            HashSet<String> s2;
+            // Obtaining the inherited set of nodes fails when the terms come from an ontology that's not supported.
+            // Some occurences in the original dataset that cause this, using NCBITaxon.
+            try{
+                s1 = new HashSet<>(ontoObjects.get(eq1.termChain.get(i).ontology).getTermFromTermID(eq1.termChain.get(i).id).allNodes);
+            }
+            catch(NullPointerException e){
+                logger.info(String.format("could not find the set of inherited nodes for %s", eq1.termChain.get(i).id));
+                s1 = new HashSet<>();
+            }
+            try{
+                s2 = new HashSet<>(ontoObjects.get(eq2.termChain.get(i).ontology).getTermFromTermID(eq2.termChain.get(i).id).allNodes);
+            }
+            catch(NullPointerException e){
+                logger.info(String.format("could not find the set of inherited nodes for %s", eq2.termChain.get(i).id));
+                s2 = new HashSet<>();
+            }
             HashSet intersect = new HashSet<>(s1);
             intersect.retainAll(s2);
             quantityOfCommonTermsAtEachComponent.add(intersect.size());
@@ -103,7 +114,7 @@ public class Utils {
         int numEQ2Inherited = utils.Utils.product(quantityOfTermsAtEachComponentInEQ2);        
         int numEQ1Exclusive = numEQ1Inherited-numIntersectionEQs;
         int numEQ2Exclusive = numEQ2Inherited-numIntersectionEQs;
-        int numInUnion = numIntersectionEQs+numEQ1Exclusive+numEQ2Exclusive;
+        int numInUnion = Math.max(1, numIntersectionEQs+numEQ1Exclusive+numEQ2Exclusive);
         return (double)numIntersectionEQs / (double)numInUnion;
     }
     

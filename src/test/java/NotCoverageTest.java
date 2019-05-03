@@ -99,6 +99,8 @@ public class NotCoverageTest {
     @Test
     public void testA() throws IOException, SQLException, FileNotFoundException, ParseException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
  
+        
+        /*
         Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/path/config/");
         Connect conn = new Connect();
         CoreNLP.setup(); 
@@ -117,12 +119,7 @@ public class NotCoverageTest {
         
         
         //InfoContent.setup(ontoObjects,text);
-        
-        
-        
-        
-        
-        /*
+
         Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/path/config/");
         Connect conn = new Connect();
         CoreNLP.setup(); 
