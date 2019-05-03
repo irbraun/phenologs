@@ -27,6 +27,7 @@ import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
 import uk.ac.ebi.brain.error.NonExistingEntityException;
 import utils.Comparators.EQComparatorByAllMetricsAlternateOrder;
+import static utils.Utils.toRoundedString;
 
 
 
@@ -156,15 +157,21 @@ public class Composer {
                 + "eq_ids,"
                 + "pred_eq_labels,"
                 + "pred_eq_ids, "
-                + "terms,"
-                + "dgraph,"
-                + "nodes,"
-                + "phene_sim,"
-                + "phenotype_sim";
+                + "term_avg,"
+                + "dgraph_p1,"
+                + "dgraph_p2,"
+                + "dgraph_p3,"
+                + "dgraph_total,"
+                + "node_coverage,"
+                + "phene_sim_m1,"
+                + "phene_sim_m2,"
+                + "phenotype_sim_m1,"
+                + "phenotype_sim_m2";
         
+        int numPhenotypeSimilarityMeasures = 2;
         int numColumns = header.split(",").length;
         StringBuilder sb = new StringBuilder();
-        for (int i=0; i<numColumns-2; i++){
+        for (int i=0; i<numColumns-numPhenotypeSimilarityMeasures-1; i++){
             sb.append("%s,");
         }
         sb.append("%s");
@@ -220,8 +227,13 @@ public class Composer {
                                         "",
                                         "",
                                         "",
+                                        "",
+                                        "",
+                                        "",
+                                        "",
+                              
                         };          
-                        if (data.length!=(numColumns-1)){
+                        if (data.length!=(numColumns-numPhenotypeSimilarityMeasures)){
                             throw new Exception(String.format("%s %s",data.length,numColumns));
                         }
                         dataRowsForThisPhenotype.add(String.format(formattedLineMinusOne, data));
@@ -234,12 +246,12 @@ public class Composer {
                         predictedEQsPhenotypeMap.put(phenotypeID, eqs2); 
                     }
                     
-                    
-                    
-                    
+                   
+
                     // Iterate through the predicted EQs when they exist.
                     for (EQStatement predictedEQ: predictedEQs){
-                        double similarity = Utils.getEQSimilarityNoWeighting(predictedEQ, text.getCuratedEQStatementFromAtomID(curatedAtomID), ontoObjects);
+                        double phene_similarityM1 = Utils.getEQSimilarityNoWeighting(predictedEQ, text.getCuratedEQStatementFromAtomID(curatedAtomID), ontoObjects);
+                        double phene_similarityM2 = 999999;
                         // Things that belong in the table (minus phenotype similarity).
                         Object[] data = {text.getAtomChunkFromID(curatedAtomID).species.toString().toLowerCase(),
                                         phenotypeID, 
@@ -251,12 +263,16 @@ public class Composer {
                                         text.getCuratedEQStatementFromAtomID(curatedAtomID).toIDText().replace(",", ""),
                                         predictedEQ.toLabelText(ontoObjects).replace(",", ""),
                                         predictedEQ.toIDText().replace(",", ""),
-                                        predictedEQ.termScore,
-                                        predictedEQ.dGraphScore,
-                                        predictedEQ.coverage,
-                                        similarity,
+                                        toRoundedString(predictedEQ.getAverageTermScore()),
+                                        toRoundedString(predictedEQ.getDependencyGraphValues()[0]),
+                                        toRoundedString(predictedEQ.getDependencyGraphValues()[1]),
+                                        toRoundedString(predictedEQ.getDependencyGraphValues()[2]),
+                                        toRoundedString(predictedEQ.getDependencyGraphValues()[3]),
+                                        toRoundedString(predictedEQ.getNodeOverlap()),
+                                        toRoundedString(phene_similarityM1),
+                                        toRoundedString(phene_similarityM2)
                         };          
-                        if (data.length!=(numColumns-1)){
+                        if (data.length!=(numColumns-numPhenotypeSimilarityMeasures)){
                             throw new Exception(String.format("%s %s",data.length,numColumns));
                         }
                         dataRowsForThisPhenotype.add(String.format(formattedLineMinusOne, data));
@@ -278,11 +294,12 @@ public class Composer {
 
                 }  
 
-                // Done with all the atomized statements in this phenotype. Find the phenotype similarity
+                // Done with all the atomized statements in this phenotype. Find the phenotype similarity.
                 // Output all the rows for each of the phenes that were included within this phenotypes, they have all values now.
-                double phenotypeSimilarity = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
+                double phenotypeSimilarityM1 = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
+                double phenotypeSimilarityM2 = 99999;
                 for (String dataRow: dataRowsForThisPhenotype){
-                    writer.println(String.format("%s,%s",dataRow,phenotypeSimilarity));
+                    writer.println(String.format("%s,%s,%s",dataRow,phenotypeSimilarityM1,phenotypeSimilarityM2));
                 }
             }
             
@@ -298,6 +315,11 @@ public class Composer {
     }
     
 
+    
+    
+    
+    
+    
     private void produceOutputEQTableForPhenotypes(PrintWriter writer) throws SQLException, NonExistingEntityException, ClassExpressionException, Exception{
         
         String header = "species,"
@@ -306,14 +328,20 @@ public class Composer {
                 + "num_pred,"
                 + "pred_eq_labels,"
                 + "pred_eq_ids, "
-                + "terms,"
-                + "dgraph,"
-                + "nodes,"
-                + "phenotype_sim";
+                + "term_avg,"
+                + "dgraph_p1,"
+                + "dgraph_p2,"
+                + "dgraph_p3,"
+                + "dgraph_total,"
+                + "node_coverage,"
+                + "phenotype_sim_m1,"
+                + "phenotype_sim_m2";
         
+        
+        int numPhenotypeSimilarityMeasures = 2;
         int numColumns = header.split(",").length;
         StringBuilder sb = new StringBuilder();
-        for (int i=0; i<numColumns-2; i++){
+        for (int i=0; i<numColumns-numPhenotypeSimilarityMeasures-1; i++){
             sb.append("%s,");
         }
         sb.append("%s");
@@ -350,8 +378,11 @@ public class Composer {
                                 "",
                                 "",
                                 "",
+                                "",
+                                "",
+                                "",
                 };          
-                if (data.length!=(numColumns-1)){
+                if (data.length!=(numColumns-numPhenotypeSimilarityMeasures)){
                     throw new Exception(String.format("%s %s",data.length,numColumns));
                 }
                 dataRowsForThisPhenotype.add(String.format(formattedLineMinusOne, data));
@@ -367,11 +398,14 @@ public class Composer {
                                 predictedEQs.size(),
                                 predictedEQ.toLabelText(ontoObjects).replace(",", ""),
                                 predictedEQ.toIDText().replace(",", ""),
-                                predictedEQ.termScore,
-                                predictedEQ.dGraphScore,
-                                predictedEQ.coverage,
+                                toRoundedString(predictedEQ.getAverageTermScore()),
+                                toRoundedString(predictedEQ.getDependencyGraphValues()[0]),
+                                toRoundedString(predictedEQ.getDependencyGraphValues()[1]),
+                                toRoundedString(predictedEQ.getDependencyGraphValues()[2]),
+                                toRoundedString(predictedEQ.getDependencyGraphValues()[3]),
+                                toRoundedString(predictedEQ.getNodeOverlap()),
                 };          
-                if (data.length!=(numColumns-1)){
+                if (data.length!=(numColumns-numPhenotypeSimilarityMeasures)){
                     throw new Exception(String.format("%s %s",data.length,numColumns));
                 }
                 dataRowsForThisPhenotype.add(String.format(formattedLineMinusOne, data));
@@ -383,15 +417,21 @@ public class Composer {
             predictedEQsPhenotypeMap.put(phenotypeID, eqs2);
 
             // Add the phenotype similarity value to the lines and write them to the file.
-            double phenotypeSimilarity = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
+            double phenotypeSimilarityM1 = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
+            double phenotypeSimilarityM2 = 9.9999;
             for (String dataRow: dataRowsForThisPhenotype){
-                writer.println(String.format("%s,%s",dataRow,phenotypeSimilarity));
+                writer.println(String.format("%s,%s,%s",dataRow,phenotypeSimilarityM1,phenotypeSimilarityM2));
             }
 
         } 
     }
     
 
+    
+    
+    
+    
+    
     private void produceOutputEQTableForSplitPhenotypes(PrintWriter writer) throws SQLException, NonExistingEntityException, ClassExpressionException, Exception{
         
         String header = "species,"
@@ -402,14 +442,19 @@ public class Composer {
                 + "num_pred,"
                 + "pred_eq_labels,"
                 + "pred_eq_ids, "
-                + "terms,"
-                + "dgraph,"
-                + "nodes,"
-                + "phenotype_sim";
+                + "term_avg,"
+                + "dgraph_p1,"
+                + "dgraph_p2,"
+                + "dgraph_p3,"
+                + "dgraph_total,"
+                + "node_coverage,"
+                + "phenotype_sim_m1,"
+                + "phenotype_sim_m2";
         
+        int numPhenotypeSimilarityMeasures = 2;
         int numColumns = header.split(",").length;
         StringBuilder sb = new StringBuilder();
-        for (int i=0; i<numColumns-2; i++){
+        for (int i=0; i<numColumns-numPhenotypeSimilarityMeasures-1; i++){
             sb.append("%s,");
         }
         sb.append("%s");
@@ -456,8 +501,11 @@ public class Composer {
                                     "",
                                     "",
                                     "",
+                                    "",
+                                    "",
+                                    "",
                     };          
-                    if (data.length!=(numColumns-1)){
+                    if (data.length!=(numColumns-numPhenotypeSimilarityMeasures)){
                         throw new Exception(String.format("%s %s",data.length,numColumns));
                     }
                     dataRowsForThisPhenotype.add(String.format(formattedLineMinusOne, data));
@@ -482,11 +530,14 @@ public class Composer {
                                     predictedEQs.size(),
                                     predictedEQ.toLabelText(ontoObjects).replace(",", ""),
                                     predictedEQ.toIDText().replace(",", ""),
-                                    predictedEQ.termScore,
-                                    predictedEQ.dGraphScore,
-                                    predictedEQ.coverage,
+                                    toRoundedString(predictedEQ.getAverageTermScore()),
+                                    toRoundedString(predictedEQ.getDependencyGraphValues()[0]),
+                                    toRoundedString(predictedEQ.getDependencyGraphValues()[1]),
+                                    toRoundedString(predictedEQ.getDependencyGraphValues()[2]),
+                                    toRoundedString(predictedEQ.getDependencyGraphValues()[3]),
+                                    toRoundedString(predictedEQ.getNodeOverlap()),
                     };          
-                    if (data.length!=(numColumns-1)){
+                    if (data.length!=(numColumns-numPhenotypeSimilarityMeasures)){
                         throw new Exception(String.format("%s %s",data.length,numColumns));
                     }
                     dataRowsForThisPhenotype.add(String.format(formattedLineMinusOne, data));
@@ -508,9 +559,10 @@ public class Composer {
 
             // Done with all the atomized statements in this phenotype. Find the phenotype similarity
             // Output all the rows for each of the phenes that were included within this phenotypes, they have all values now.
-            double phenotypeSimilarity = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
+            double phenotypeSimilarityM1 = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
+            double phenotypeSimilarityM2 = 9.9999;
             for (String dataRow: dataRowsForThisPhenotype){
-                writer.println(String.format("%s,%s",dataRow,phenotypeSimilarity));
+                writer.println(String.format("%s,%s,%s",dataRow,phenotypeSimilarityM1,phenotypeSimilarityM2));
             }
 
         } 
@@ -542,8 +594,8 @@ public class Composer {
         File phenotypeEdgeValuesFile = new File(Config.phenotypeNetworkPath);
         PrintWriter pheneWriter = new PrintWriter(pheneEdgeValuesFile);
         PrintWriter phenotypeWriter = new PrintWriter(phenotypeEdgeValuesFile);
-        pheneWriter.println("phene_1, phene_2, phenotype_1, phenotype_2, p_edge, c_edge");
-        phenotypeWriter.println("phenotype_1, phenotype_2, p_edge, c_edge");
+        pheneWriter.println("phene_1, phene_2, phenotype_1, phenotype_2, pre_m1_edge, pre_m2_edge, cur_m1_edge, cur_m2_edge");
+        phenotypeWriter.println("phenotype_1, phenotype_2, pre_m1_edge, pre_m2_edge, cur_m1_edge, cur_m2_edge");
         
         // Setup appropriately depending on what the datatype of the text descriptions are.
         HashSet<Integer> atomIDsSet = new HashSet<>();
@@ -583,11 +635,13 @@ public class Composer {
                 int associatedPhenotypeID1 = text.getPhenotypeIDfromAtomID(atomID1);
                 int associatedPhenotypeID2 = text.getPhenotypeIDfromAtomID(atomID2);
                 // Don't need to use try catch here because the -1 is already returned if there is an acceptable problem.
-                double predictedSim = Utils.getEQSimilarityNoWeighting(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
+                double predictedSimM1 = Utils.getEQSimilarityNoWeighting(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
+                double predictedSimM2 = 9999;
                 // Don't need to use try catch here for the same reason.
-                double curatedSim = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
-                Object[] items = {atomID1, atomID2, associatedPhenotypeID1, associatedPhenotypeID2, predictedSim, curatedSim};
-                pheneWriter.println(String.format("%s,%s,%s,%s,%.3f,%.3f",items));
+                double curatedSimM1 = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
+                double curatedSimM2 = 888;
+                Object[] items = {atomID1, atomID2, associatedPhenotypeID1, associatedPhenotypeID2, predictedSimM1, predictedSimM2, curatedSimM1, curatedSimM2};
+                pheneWriter.println(String.format("%s,%s,%s,%s,%.3f,%.3f,%.3f,%.3f",items));
             }
         }
 
@@ -596,10 +650,12 @@ public class Composer {
             for (int j=i+1; j<phenotypeIDs.size(); j++){
                 int phenotypeID1 = phenotypeIDs.get(i);
                 int phenotypeID2 = phenotypeIDs.get(j);
-                double predictedSim = Utils.getEQSimilarityNoWeighting(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
-                double curatedSim = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
-                Object[] items = {phenotypeID1, phenotypeID2, predictedSim, curatedSim};
-                phenotypeWriter.println(String.format("%s,%s,%.3f,%.3f",items));
+                double predictedSimM1 = Utils.getEQSimilarityNoWeighting(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
+                double predictedSimM2 = 999;
+                double curatedSimM1 = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
+                double curatedSimM2 = 999;
+                Object[] items = {phenotypeID1, phenotypeID2, predictedSimM1, predictedSimM2, curatedSimM1, curatedSimM2};
+                phenotypeWriter.println(String.format("%s,%s,%.3f,%.3f,%.3f,%.3f",items));
             }
         }
         pheneWriter.close();
@@ -798,7 +854,8 @@ public class Composer {
             for (Term t: eq.termChain){
                 eqNodes.addAll(t.nodes);
             }
-            eq.coverage = (double) eqNodes.size() / (double) chunkNodes.size();
+            double coverage = (double) eqNodes.size() / (double) chunkNodes.size();
+            eq.setNodeOverlap(coverage);
         }
     }
     
@@ -841,7 +898,8 @@ public class Composer {
             }
             // Get the combined probability.
             double score = p1*p2*p3;
-            eq.dGraphScore = String.valueOf(score);
+            double[] values = {p1, p2, p3, score};
+            eq.setDependencyGraphValues(values);
         }
     }
     

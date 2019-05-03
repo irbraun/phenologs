@@ -64,6 +64,9 @@ public class Utils {
         double mean = sum / (double) l.size();
         return mean;
     }
+    public static String toRoundedString(double val){
+        return String.format("%.3f",val);
+    }
     
     
     

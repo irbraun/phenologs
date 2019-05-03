@@ -22,10 +22,10 @@ public class Comparators {
     public static final class EQComparatorAverageTermScore implements Comparator<EQStatement>{
         @Override
         public int compare(EQStatement eq1, EQStatement eq2){
-            if (eq1.termScore < eq2.termScore){
+            if (eq1.getAverageTermScore() < eq2.getAverageTermScore()){
                 return 1;
             }
-            else if(eq1.termScore > eq2.termScore){
+            else if(eq1.getAverageTermScore() > eq2.getAverageTermScore()){
                 return -1;
             }
             return 0;
@@ -37,10 +37,10 @@ public class Comparators {
     public static final class EQComparatorTotalScore implements Comparator<EQStatement>{
         @Override
         public int compare(EQStatement eq1, EQStatement eq2){
-            if (eq1.termScore < eq2.termScore){
+            if (eq1.getAverageTermScore() < eq2.getAverageTermScore()){
                 return 1;
             }
-            else if(eq1.termScore > eq2.termScore){
+            else if(eq1.getAverageTermScore() > eq2.getAverageTermScore()){
                 return -1;
             }
             return 0;
@@ -105,26 +105,26 @@ public class Comparators {
          */
         @Override
         public int compare(EQStatement eq1, EQStatement eq2){
-            if (eq1.termScore < eq2.termScore){
+            if (eq1.getAverageTermScore() < eq2.getAverageTermScore()){
                 return 1;
             }
-            else if (eq1.termScore > eq2.termScore){
+            else if (eq1.getAverageTermScore() > eq2.getAverageTermScore()){
                 return -1;
             }
             // The EQ's are equivalent in terms of average term score.
             else {
-                if (eq1.coverage < eq2.coverage){
+                if (eq1.getNodeOverlap() < eq2.getNodeOverlap()){
                     return 1;
                 }
-                else if (eq1.coverage > eq2.coverage){
+                else if (eq1.getNodeOverlap() > eq2.getNodeOverlap()){
                     return -1;
                 }
                 // The EQ's are also tied in terms of token coverage.
                 else {
-                    if (Double.valueOf(eq1.dGraphScore) < Double.valueOf(eq2.dGraphScore)){
+                    if (Double.valueOf(eq1.getDependencyGraphValues()[3]) < Double.valueOf(eq2.getDependencyGraphValues()[3])){
                         return 1;
                     }
-                    else if (Double.valueOf(eq1.dGraphScore) > Double.valueOf(eq2.dGraphScore)){
+                    else if (Double.valueOf(eq1.getDependencyGraphValues()[3]) > Double.valueOf(eq2.getDependencyGraphValues()[3])){
                         return -1;
                     }
                 }
@@ -147,26 +147,26 @@ public class Comparators {
          */
         @Override
         public int compare(EQStatement eq1, EQStatement eq2){
-            if (eq1.coverage < eq2.coverage){
+            if (eq1.getNodeOverlap() < eq2.getNodeOverlap()){
                 return 1;
             }
-            else if (eq1.coverage > eq2.coverage){
+            else if (eq1.getNodeOverlap() > eq2.getNodeOverlap()){
                 return -1;
             }
             // The EQ's are equivalent in terms of average term score.
             else {
-                if (Double.valueOf(eq1.dGraphScore) < Double.valueOf(eq2.dGraphScore)){
+                if (Double.valueOf(eq1.getDependencyGraphValues()[3]) < Double.valueOf(eq2.getDependencyGraphValues()[3])){
                     return 1;
                 }
-                else if (Double.valueOf(eq1.dGraphScore) > Double.valueOf(eq2.dGraphScore)){
+                else if (Double.valueOf(eq1.getDependencyGraphValues()[3]) > Double.valueOf(eq2.getDependencyGraphValues()[3])){
                     return -1;
                 }
                 // The EQ's are also tied in terms of token coverage.
                 else {
-                    if (eq1.termScore < eq2.termScore){
+                    if (eq1.getAverageTermScore() < eq2.getAverageTermScore()){
                         return 1;
                     }
-                    else if (eq1.termScore > eq2.termScore){
+                    else if (eq1.getAverageTermScore() > eq2.getAverageTermScore()){
                         return -1;
                     }
                 }

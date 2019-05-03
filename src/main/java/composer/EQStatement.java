@@ -24,10 +24,10 @@ public class EQStatement {
     public Term secondaryEntity1;
     public Term secondaryEntity2;
     public Term developmentalStage;
-    public double termScore;
-    public String dGraphScore;
-    public double coverage;
     public ArrayList<Term> termChain;
+    private double[] dGScores;
+    private double coverage;
+    private double avgTermScore;
     private EQFormat format;
     private String[] componentStrings;
     private boolean fromCuratedDataSet;
@@ -48,7 +48,7 @@ public class EQStatement {
             termChain = new ArrayList<>();
             termChain.add(primaryEntity1);
             termChain.add(quality);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -60,7 +60,7 @@ public class EQStatement {
             termChain.add(primaryEntity1);
             termChain.add(quality);
             termChain.add(qualifier);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -72,7 +72,7 @@ public class EQStatement {
             termChain.add(primaryEntity1);
             termChain.add(primaryEntity2);
             termChain.add(quality);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -86,7 +86,7 @@ public class EQStatement {
             termChain.add(primaryEntity2);
             termChain.add(quality);
             termChain.add(qualifier);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -98,7 +98,7 @@ public class EQStatement {
             termChain.add(primaryEntity1);
             termChain.add(quality);
             termChain.add(secondaryEntity1);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -112,7 +112,7 @@ public class EQStatement {
             termChain.add(quality);
             termChain.add(qualifier);
             termChain.add(secondaryEntity1);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -126,7 +126,7 @@ public class EQStatement {
             termChain.add(primaryEntity2);
             termChain.add(quality);
             termChain.add(secondaryEntity1);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -142,7 +142,7 @@ public class EQStatement {
             termChain.add(quality);
             termChain.add(qualifier);
             termChain.add(secondaryEntity1);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -156,7 +156,7 @@ public class EQStatement {
             termChain.add(quality);
             termChain.add(secondaryEntity1);
             termChain.add(secondaryEntity2);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -173,7 +173,7 @@ public class EQStatement {
             termChain.add(qualifier);
             termChain.add(secondaryEntity1);
             termChain.add(secondaryEntity2);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
 
@@ -189,7 +189,7 @@ public class EQStatement {
             termChain.add(quality);
             termChain.add(secondaryEntity1);
             termChain.add(secondaryEntity2);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -207,7 +207,7 @@ public class EQStatement {
             termChain.add(qualifier);
             termChain.add(secondaryEntity1);
             termChain.add(secondaryEntity2);
-            termScore = getAverageTermProbability();
+            setAverageTermScore();
             this.format = format;
             break;
             
@@ -296,8 +296,6 @@ public class EQStatement {
             termChain.add(developmentalStage);
         }
         */
-        termScore = 1.00;
-        dGraphScore = "1.00";
         fromCuratedDataSet = true;
         try{
             format = EQFormat.valueOf(sb.toString());
@@ -309,6 +307,40 @@ public class EQStatement {
             throw new Exception();
         }
     }
+    
+    
+    
+    
+    
+    
+    
+    // Setters and getters for the different metrics to evaluate a single EQ statement.
+    public void setDependencyGraphValues(double[] scores){
+        dGScores = scores;
+    }
+    public double[] getDependencyGraphValues(){
+        return dGScores;
+    }
+    
+    public void setNodeOverlap(double overlap){
+        coverage = overlap;
+    }
+    public double getNodeOverlap(){
+        return coverage;
+    }
+    private void setAverageTermScore(){
+        double sum=0.00;
+        for (Term t: termChain){
+            sum += t.probability;
+        }
+        avgTermScore = (double)sum / (double)termChain.size();
+    }
+    public double getAverageTermScore(){
+        return avgTermScore;
+    }
+    
+    
+    
     
     
     
@@ -385,15 +417,6 @@ public class EQStatement {
         return supportedTermChain;
     }
     
-    
-    
-    private double getAverageTermProbability(){
-        double sum=0.00;
-        for (Term t: termChain){
-            sum += t.probability;
-        }
-        return (double)sum / (double)termChain.size();
-    } 
     
     public EQFormat getFormat(){
         return format;
