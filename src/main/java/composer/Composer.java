@@ -251,7 +251,7 @@ public class Composer {
                     // Iterate through the predicted EQs when they exist.
                     for (EQStatement predictedEQ: predictedEQs){
                         double phene_similarityM1 = Utils.getEQSimilarityNoWeighting(predictedEQ, text.getCuratedEQStatementFromAtomID(curatedAtomID), ontoObjects);
-                        double phene_similarityM2 = 999999;
+                        double phene_similarityM2 = Utils.getTermSetSimilarity(predictedEQ, text.getCuratedEQStatementFromAtomID(curatedAtomID), ontoObjects);
                         // Things that belong in the table (minus phenotype similarity).
                         Object[] data = {text.getAtomChunkFromID(curatedAtomID).species.toString().toLowerCase(),
                                         phenotypeID, 
@@ -297,9 +297,9 @@ public class Composer {
                 // Done with all the atomized statements in this phenotype. Find the phenotype similarity.
                 // Output all the rows for each of the phenes that were included within this phenotypes, they have all values now.
                 double phenotypeSimilarityM1 = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
-                double phenotypeSimilarityM2 = 99999;
+                double phenotypeSimilarityM2 = Utils.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);
                 for (String dataRow: dataRowsForThisPhenotype){
-                    writer.println(String.format("%s,%s,%s",dataRow,phenotypeSimilarityM1,phenotypeSimilarityM2));
+                    writer.println(String.format("%s,%s,%s",dataRow,toRoundedString(phenotypeSimilarityM1),toRoundedString(phenotypeSimilarityM2)));
                 }
             }
             
@@ -418,9 +418,9 @@ public class Composer {
 
             // Add the phenotype similarity value to the lines and write them to the file.
             double phenotypeSimilarityM1 = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
-            double phenotypeSimilarityM2 = 9.9999;
+            double phenotypeSimilarityM2 = Utils.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);
             for (String dataRow: dataRowsForThisPhenotype){
-                writer.println(String.format("%s,%s,%s",dataRow,phenotypeSimilarityM1,phenotypeSimilarityM2));
+                writer.println(String.format("%s,%s,%s",dataRow,toRoundedString(phenotypeSimilarityM1),toRoundedString(phenotypeSimilarityM2)));
             }
 
         } 
@@ -560,9 +560,9 @@ public class Composer {
             // Done with all the atomized statements in this phenotype. Find the phenotype similarity
             // Output all the rows for each of the phenes that were included within this phenotypes, they have all values now.
             double phenotypeSimilarityM1 = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
-            double phenotypeSimilarityM2 = 9.9999;
+            double phenotypeSimilarityM2 = Utils.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
             for (String dataRow: dataRowsForThisPhenotype){
-                writer.println(String.format("%s,%s,%s",dataRow,phenotypeSimilarityM1,phenotypeSimilarityM2));
+                writer.println(String.format("%s,%s,%s",dataRow,toRoundedString(phenotypeSimilarityM1),toRoundedString(phenotypeSimilarityM2)));
             }
 
         } 
@@ -636,10 +636,10 @@ public class Composer {
                 int associatedPhenotypeID2 = text.getPhenotypeIDfromAtomID(atomID2);
                 // Don't need to use try catch here because the -1 is already returned if there is an acceptable problem.
                 double predictedSimM1 = Utils.getEQSimilarityNoWeighting(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
-                double predictedSimM2 = 9999;
+                double predictedSimM2 = Utils.getTermSetSimilarity(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
                 // Don't need to use try catch here for the same reason.
                 double curatedSimM1 = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
-                double curatedSimM2 = 888;
+                double curatedSimM2 = Utils.getTermSetSimilarity(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
                 Object[] items = {atomID1, atomID2, associatedPhenotypeID1, associatedPhenotypeID2, predictedSimM1, predictedSimM2, curatedSimM1, curatedSimM2};
                 pheneWriter.println(String.format("%s,%s,%s,%s,%.3f,%.3f,%.3f,%.3f",items));
             }
@@ -651,9 +651,9 @@ public class Composer {
                 int phenotypeID1 = phenotypeIDs.get(i);
                 int phenotypeID2 = phenotypeIDs.get(j);
                 double predictedSimM1 = Utils.getEQSimilarityNoWeighting(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
-                double predictedSimM2 = 999;
+                double predictedSimM2 = Utils.getTermSetSimilarity(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
                 double curatedSimM1 = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
-                double curatedSimM2 = 999;
+                double curatedSimM2 = Utils.getTermSetSimilarity(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
                 Object[] items = {phenotypeID1, phenotypeID2, predictedSimM1, predictedSimM2, curatedSimM1, curatedSimM2};
                 phenotypeWriter.println(String.format("%s,%s,%.3f,%.3f,%.3f,%.3f",items));
             }

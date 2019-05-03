@@ -252,13 +252,6 @@ public class Utils {
     
     
     
-    
-    
-    
-    
-    
-    
-    
     /**
      * Get the weighted Jaccard similarity of two sets of EQ statements. Checks to make
      * sure that the lists of EQ statements are not empty, if one of them is then this 
@@ -348,10 +341,6 @@ public class Utils {
             return getInheritedPredictedEQs(eq, ontoObjects);
         }
     }
-    
-    
-    
-    
     
     
     
@@ -484,7 +473,7 @@ public class Utils {
         }
         catch (Exception e){
             logger.info("problem getting supported terms from the eq statement objects");
-            return -1;
+            return 0.000;
         }
         
         HashSet<String> intersection = new HashSet<>(termSetP1);
@@ -506,7 +495,7 @@ public class Utils {
         }
         catch (Exception e){
             logger.info("problem getting the corpus-based information content of a term");
-            return -1;
+            return 0.000;
         }
         
     }
@@ -571,7 +560,7 @@ public class Utils {
         }
         catch (Exception e){
             logger.info("problem getting corpus-based information content of a term");
-            return -1;
+            return 0.000;
         }
     }
     
