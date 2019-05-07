@@ -2,8 +2,7 @@ import os
 import sys
 import argparse
 
-
-sys.path.insert(0,"./modules")
+sys.path.append("./modules")
 import preprocess as ppr
 import annotate as ann
 from doc2vec_utils import generate_doc_embeddings
@@ -180,11 +179,11 @@ print "finished semantic annotation"
 '''
 
 
+'''
 # Generate final output.
 compose(networks_path="./networks/", dtype=dtype)
-print "finished generating output file"
-
-
+print "finished generating output annotation file"
+'''
 
 
 
@@ -199,16 +198,13 @@ print "finished generating output file"
 # If obtaining doc2vec estimations for the graph where nodes are phenes, this has to be "python pipeline.py phene" and call preprocess().
 # Have to change it to phenotypes in the config/config.properties file in this case too!
 
-'''
+
 ppr.preprocessing(dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype="phenotype", configs_path=configs_path)
 generate_doc_embeddings("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phenotype_network_NEW.csv", "./networks/phenotype_network_modified_NEW.csv")
 print "finished generating all the edge values for the phenotype network"
 ppr.preprocessing(dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype="phene", configs_path=configs_path)
 generate_doc_embeddings("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phene_network_NEW.csv", "./networks/phene_network_modified_NEW.csv")
 print "finished generating all the edge values for the phene network"
-'''
-
-
 
 
 
@@ -238,118 +234,6 @@ print "finished generating all the edge values for the phene network"
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Create a directory for the output of the semantic annotation tool NOBLE Coder and then
-# run the tool with the defined parameters on all the descriptions that are contained in
-# the directory of split sentences. Change the parameters here to test different methods
-# of using this annotation tool. The level parameter is a string specifying how the tool
-# should be run, the options are 'precise-match' and 'partial-match', among some others.
-'''
-def annotate_with_noblecoder(dtype, fuzzy, group_name, level="precise-match", default_prob=1.000):
-	noblecoder_dir = r'./annotators/noble/'
-	ontologies = ["pato","po","go"]
-	split_chunks_path = r'./data/split_chunks/'
-	for onto in ontologies:
-		noble_output_path = os.path.join(noblecoder_dir, r'output_'+onto)
-		if not os.path.exists(noble_output_path):
-			os.makedirs(noble_output_path)
-		
-		# Run NOBLE Coder using the provided jar file.
-		nc_jar_path = os.path.join(noblecoder_dir, r'NobleCoder-1.0.jar')
-		nc_reports_path = os.path.join(noble_output_path,"reports","*")
-		os.system("java -jar "+nc_jar_path+" -terminology "+onto+" -input "+split_chunks_path+" -output "+noble_output_path+" -search '"+level+"'"+" -score.concepts")
-		os.system("rm "+nc_reports_path)
-
-		# Run scripts to interpret the output in the context of the text data.
-		raw_output_filename = os.path.join(noble_output_path, "RESULTS.tsv")
-		processed_output_filename = os.path.join(noble_output_path, 'results.csv')
-		nc_parse_script_path = os.path.join(noblecoder_dir, r'nc_parse.py')
-		os.system("python "+nc_parse_script_path+" "+raw_output_filename+" "+processed_output_filename+" "+str(default_prob))
-
-	# This does have some hard-coded assumptions in it, fix these.
-	call = "java -jar term-mapping.jar -n2 "+" -d "+dtype+" -name "+group_name
-	if fuzzy==True:
-		call = call+" -fuzzy"
-	call = call+" "+configs_path
-	os.system(call)
-	#os.system("java -jar term-mapping.jar -n2 "+" -d "+dtype+" "+configs_path)
-'''
-
-
-
-# Repeat for the annotation tool NCBO Annotator. The actual call is generated from within
-# a python script that parsed the output returned from the server as well.
-'''
-def annotate_with_ncbo_annotator(dtype, fuzzy, group_name):
-	ncboannot_dir = r"./annotators/ncbo"
-	ontologies = ["pato","po","go","chebi"]
-	for onto in ontologies:
-		ncboannot_output_path = os.path.join(ncboannot_dir, r'output_'+onto)
-		if not os.path.exists(ncboannot_output_path):
-			os.makedirs(ncboannot_output_path)
-	# This is where ncbo_annot.py would be called if using it within the automated pipeline.
-	# This does have some hard-coded assumption in it, fix these.
-	call = "java -jar term-mapping.jar -n22 "+" -d "+dtype+" -name "+group_name
-	if fuzzy==True:
-		call = call+" -fuzzy"
-	call = call+" "+configs_path
-	os.system(call)
-	#os.system("java -jar term-mapping.jar -n22 "+" -d "+dtype+" "+configs_path)
-'''
-
-
-
-
-
-# Note that the ontologies used with this method are specified in java function, not here.
-'''
-def annotate_with_naivebayes(dtype, threshold=1.00):
-	naivebayes_dir = r"./annotators/naive"
-	ontologies = ["pato", "po", "go", "chebi"]
-	for onto in ontologies:
-		naivebayes_output_path = os.path.join(naivebayes_dir, r"output_"+onto)
-		if not os.path.exists(naivebayes_output_path):
-			os.makedirs(naivebayes_output_path)		
-	os.system("java -jar term-mapping.jar -n3 -thresh "+str(threshold)+" -d "+dtype+" "+configs_path)
-	os.system("bash "+os.path.join(naivebayes_dir,"merge_files.sh")+" "+dtype)
-'''
-
-
-'''
-def aggregate_annotations(dtype):
-	annotations_dir = r"./annotators/"
-	aggregated_dir = os.path.join(annotations_dir, "aggregate")
-	if not os.path.exists(aggregated_dir):
-		os.makedirs(aggregated_dir)
-	ontologies = ["pato", "po", "go", "chebi"]
-	for onto in ontologies:
-		path = os.path.join(aggregated_dir, r"output_"+onto)
-		if not os.path.exists(path):
-			os.makedirs(path)
-	# Which files to merge are specied in the java code.
-	os.system("java -jar term-mapping.jar -agg "+annotations_dir+" -d "+dtype+" "+configs_path)
-'''
 
 
 

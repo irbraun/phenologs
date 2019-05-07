@@ -2,32 +2,37 @@
 
 
 
-# Return 1 if subset is in this membership group, 0 else.
-# -- parameters --
-# subset: the name of a particular subset
-# subset_membership: a list of subset names
-# -- returns --
-# whether or not the subset is in the list of subsets.
+
 membership_func <- function(subset,subset_membership){
+  # Return 1 if subset is in this membership group, 0 else.
+  # -- parameters --
+  # subset: the name of a particular subset
+  # subset_membership: a list of subset names
+  # -- returns --
+  # whether or not the subset is in the list of subsets.
   return (ifelse(subset %in% subset_membership, 1, 0))
 }
 
 
 
-# Find the average similarity between a phenotype and all phenotypes in a certain functional subset.
-# -- parameters --
-# network_df: the dataframe defining all edges between all nodes
-# subsets_df: the dataframe defining which phenotype are in which subsets
-# subset_name: the name of a particular subset
-# -- returns --
-# a vector of values that are relevant to assessing whether similarity was greater within or between this functional subset.
-mean_similarity_within_and_between <- function(network_df, subsets_df, subset_name){
+
+
+
+
+mean_similarity_within_and_between <- function(network_df, subsets_df, subset_names){
+  # Find the average similarity between a phenotype and all phenotypes in a certain functional subset.
+  # -- parameters --
+  # network_df: the dataframe defining all edges between all nodes
+  # subsets_df: the dataframe defining which phenotype are in which subsets
+  # subset_names: a vector with one or more subset names in it (this way classes can be used as well by combining multiple subsets).
+  # -- returns --
+  # a vector of values that are relevant to assessing whether similarity was greater within or between this functional subset.
   
   # Identify the chunk IDs which are within or outside this subset category.
   # Note that 'within' means the gene was mapped in this subset, 'without' means the gene was never mapped to this subset.
   # Genes can belong to more than one subset, which is why the removal of the intersection is included here.
-  inside_df <- subsets_df[subsets_df$subset %in% c(subset_name),]
-  outside_df <- subsets_df[!(subsets_df$subset %in% c(subset_name)),]
+  inside_df <- subsets_df[subsets_df$subset %in% subset_names,]
+  outside_df <- subsets_df[!(subsets_df$subset %in% subset_names),]
   inside_chunk_ids <- inside_df$chunk
   outside_chunk_ids <- outside_df$chunk
   intersecting_chunk_ids<- intersect(inside_chunk_ids,outside_chunk_ids)
@@ -63,15 +68,21 @@ mean_similarity_within_and_between <- function(network_df, subsets_df, subset_na
 
 
 
-# Find the average similarity between a phenotype and all phenotypes in a certain functional subset.
-# -- parameters --
-# network_df: the dataframe defining all edges between all nodes
-# subsets_df: the dataframe defining which phenotype are in which subsets
-# subset: the name of a particular subset
-# phenotype_id: the integer for a particular phenotype
-# -- returns --
-# the mean similarity value between this phenotype and all other phenotypes in the subset/cluster.
+
+
+
+
+
+
 get_similarity_to_cluster <- function(network_df, subsets_df, subset, phenotype_id){
+  # Find the average similarity between a phenotype and all phenotypes in a certain functional subset.
+  # -- parameters --
+  # network_df: the dataframe defining all edges between all nodes
+  # subsets_df: the dataframe defining which phenotype are in which subsets
+  # subset: the name of a particular subset
+  # phenotype_id: the integer for a particular phenotype
+  # -- returns --
+  # the mean similarity value between this phenotype and all other phenotypes in the subset/cluster.
   
   # Get the list of phenotype IDs that are in this subset/cluster.
   phenotype_ids_in_subset <- subsets_df[subsets_df$subset %in% c(subset),]$chunk

@@ -41,8 +41,6 @@ def train_model(training_sentences_file, model_filename, dm=1, size=300):
     """
 
 
-
-
     # Collect sentences to be used in training the model.
     labeled_data = []
     with open(training_sentences_file) as f:
@@ -130,57 +128,34 @@ def generate_doc_embeddings(training_sentences_file, chunks_path, network_filena
     # of pairs of nodes. Preserve the names of the nodes and the edges that were already found
     # and adds new columns representing distances found using the sentence embeddings models for
     # either phenotype or phene descriptions whatever was used as the input datatype.
+
+    # Have to update this header if changing what new distance measurements are added to the file.
     df = pd.read_csv(network_filename, sep=",", dtype=str)
     revised_network= open(revised_network_filename,"w")
     new_header = ",".join(df.columns)+",pubmed_dpmv,pubmed_dbow,enwiki_dbow"
     revised_network.write(new_header+"\n")
 
 
+    # Define which columns hold the IDs of the phenotypes or phenes to compare.
+    # Removed this, always just use the first two columns, that's how the network files are specified.
 
-    # The phenotype/phene ID numbers which are used to index into the dict of vectors above
-    # always use either the phene descriptions when the phene network file is being modified
-    # and the phenotype descriptions when the phenotype network file is being modified.
-    num_cols_in_network_file = len(df.columns)
-
-    
-    # The network edge file refers to a phenotype network: {P1,P2,E1,E2}.
-    if num_cols_in_network_file == 4:
-        for row in df.itertuples():
-            p1 = int(row[1])
-            p2 = int(row[2])
-            edge_value_1 = row[3]
-            edge_value_2 = row[4]
-            distances = []
-            for i in range(num_models):
-                v1 = dicts[i][p1]
-                v2 = dicts[i][p2]
-                dist = spatial.distance.cosine(v1,v2).round(3)
-                distances.append(dist)
-            items = [str(p1),str(p2),edge_value_1,edge_value_2,str(distances[0]),str(distances[1]),str(distances[2])]
-            revised_network.write(",".join(items)+"\n")
-        revised_network.close()
-
-    # The network edge file refers to a phene network: {phene1,phene2,P1,P2,E1,E2}.
-    elif num_cols_in_network_file == 6:
-        for row in df.itertuples():
-            p1 = int(row[1])
-            p2 = int(row[2])
-            ph1 = int(row[3])
-            ph2 = int(row[4])
-            edge_value_1 = row[5]
-            edge_value_2 = row[6]
-            distances = []
-            for i in range(num_models):
-                v1 = dicts[i][p1]
-                v2 = dicts[i][p2]
-                dist = spatial.distance.cosine(v1,v2).round(3)
-                distances.append(dist)
-            items = [str(p1),str(p2),str(ph1),str(ph2),edge_value_1,edge_value_2,str(distances[0]),str(distances[1]),str(distances[2])]
-            revised_network.write(",".join(items)+"\n")
-        revised_network.close()
+    # Iterate through all the rows in the file, get new distances and rewrite.
+    ID1_COL = 1
+    ID2_COL = 2
+    for row in df.itertuples():
+        p1 = int(row[ID1_COL])
+        p2 = int(row[ID2_COL])
+        distances = []
+        for i in range(num_models):
+            v1 = dicts[i][p1]
+            v2 = dicts[i][p2]
+            dist = spatial.distance.cosine(v1,v2).round(3)
+            distances.append(dist)
+        # Ignore the index whene converting to list.
+        new_row = list(row)[1:]
+        new_row.extend(distances)
+        new_row = [str(x) for x in new_row]
+        revised_network.write(",".join(new_row)+"\n")
 
 
-    else:
-        print "the number of columns in the network file was "+str(num_cols_in_network_file )+" which is not supported"
-        sys.exit()
 
