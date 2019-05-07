@@ -7,11 +7,11 @@ annotators/noble/*
 !annotators/noble/parse_nc_output.sh
 !annotators/noble/nc_parse.py
 
-data/
-gensim/
-lib/
-logs/
-nbproject/
+data/*
+gensim/*
+lib/*
+logs/*
+nbproject/*
 networks/
 ontologies/
 output/
