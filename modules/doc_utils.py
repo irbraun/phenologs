@@ -18,11 +18,17 @@ import gensim
 import logging
 import numpy
 import glob
+from collections import Counter
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 LabeledSentence = gensim.models.doc2vec.LabeledSentence
 reload(sys)
 sys.setdefaultencoding('utf8')
+
+
+
 
 
 
@@ -75,7 +81,97 @@ def train_model(training_sentences_file, model_filename, dm=1, size=300):
 
 
 
-def generate_doc_embeddings(training_sentences_file, chunks_path, network_filename, revised_network_filename):
+
+
+
+# https://towardsdatascience.com/overview-of-text-similarity-metrics-3397c4601f50
+def get_cosine_sim(*strs):
+    vectors = [t for t in get_vectors(*strs)]
+    similarity_matrix = cosine_similarity(vectors)
+    return similarity_matrix[0][1]
+def get_vectors(*strs):
+    text = [t for t in strs]
+    vectorizer = CountVectorizer(text)
+    vectorizer.fit(text)
+    return vectorizer.transform(text).toarray()
+
+
+
+
+
+
+
+
+
+def update_networkfile_bow(training_setences_file, chunks_path, network_filename, revised_network_filename):
+    """
+    Function to find similarity between text chunks based on bag and set of words metrics, then update network edge file.
+    Args:
+        training_setences_file: full path to the text file of sentences to be used for training new models.
+        chunks_path: full path to the directory that contains the text descriptions split into single files.
+        network_filename: full path to the csv file which defines network edges that we want to add to.
+        revisted_network_filename: the file that will be identical to the passed in one but with new edge columns.
+    Returns:
+        nothing
+    """
+
+    # TODO if the cosine similarity calculations are too slow on a large volume of descriptons
+    # the cosine similarity function from sklearn already produces a pairwise matrix for an 
+    # input of k different vectors so that could be modified to do the whole thing at once
+    # instead, would just not follow the convention of how the rest of the similarities are done.
+
+	# Dictionaries to hold the representation of each text used in calculating similarity.
+	jac_dict = dict()
+	cos_dict = dict()
+
+	# Collect representations for all phenotype or phene descriptions in the dataset. 
+    for filepath in glob.iglob(os.path.join(chunks_path,r"*.txt")):
+        file = open(filepath)
+        sentence = file.read()
+        chunk_id = int(filepath.split("/")[-1].split(".")[0])
+        jac_dict[chunk_id] = set(sentence.lower().split())
+        cos_dict[chunk_id] = sentence.lower()
+
+	# Have to update this header if changing what new distance measurements are added to the file.
+    df = pd.read_csv(network_filename, sep=",", dtype=str)
+    revised_network= open(revised_network_filename,"w")
+    new_header = ",".join(df.columns)+",bow_jaccard,bow_cosine"
+    revised_network.write(new_header+"\n")
+
+    # Iterate through all the rows in the file, get new distances and rewrite.
+    ID1_COL = 1
+    ID2_COL = 2
+    for row in df.itertuples():
+        p1 = int(row[ID1_COL])
+        p2 = int(row[ID2_COL])
+        distances = []
+
+        # Add the jaccard similarity between the presence/absence vectors.
+        v1 = dicts[i][p1]
+        v2 = dicts[i][p2]
+        intersection = v1.intersection(v2)
+        dist = float(len(intersection)) / (len(v1)+len(v2)-len(intersection))
+        distances.append(dist)
+
+        # Add the cosine similarity between the bag of words count vectors.
+        dist = get_cosine_sim(cos_dict[p1], cos_dict[p2])
+        distances.appen(dist)
+
+        # Ignore the index whene converting to list.
+        new_row = list(row)[1:]
+        new_row.extend(distances)
+        new_row = [str(x) for x in new_row]
+        revised_network.write(",".join(new_row)+"\n")
+
+
+
+
+
+
+
+
+
+def update_networkfile_doc(training_sentences_file, chunks_path, network_filename, revised_network_filename):
     """
     Function to find similarity between text chunks based on doc embeddings, then update a network edge file.
     Args:
