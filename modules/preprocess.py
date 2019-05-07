@@ -1,6 +1,6 @@
 import os
 import sys
-from word2vec_utils import make_synonym_file
+from word_utils import make_synonym_file
 
 
 # Paths that are hardcoded for these processes.

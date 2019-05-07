@@ -10,7 +10,6 @@
 
 from gensim.models import word2vec
 from scipy import spatial
-import pandas as pd
 import re
 import os
 import sys
@@ -21,6 +20,7 @@ import glob
 from collections import Counter
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import pandas as pd
 
 
 LabeledSentence = gensim.models.doc2vec.LabeledSentence
@@ -121,8 +121,8 @@ def update_networkfile_bow(training_setences_file, chunks_path, network_filename
     # instead, would just not follow the convention of how the rest of the similarities are done.
 
 	# Dictionaries to hold the representation of each text used in calculating similarity.
-	jac_dict = dict()
-	cos_dict = dict()
+    jac_dict = dict()
+    cos_dict = dict()
 
 	# Collect representations for all phenotype or phene descriptions in the dataset. 
     for filepath in glob.iglob(os.path.join(chunks_path,r"*.txt")):
@@ -147,15 +147,15 @@ def update_networkfile_bow(training_setences_file, chunks_path, network_filename
         distances = []
 
         # Add the jaccard similarity between the presence/absence vectors.
-        v1 = dicts[i][p1]
-        v2 = dicts[i][p2]
+        v1 = jac_dict[p1]
+        v2 = jac_dict[p2]
         intersection = v1.intersection(v2)
         dist = float(len(intersection)) / (len(v1)+len(v2)-len(intersection))
         distances.append(dist)
 
         # Add the cosine similarity between the bag of words count vectors.
         dist = get_cosine_sim(cos_dict[p1], cos_dict[p2])
-        distances.appen(dist)
+        distances.append(dist)
 
         # Ignore the index whene converting to list.
         new_row = list(row)[1:]

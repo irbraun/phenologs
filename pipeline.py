@@ -201,15 +201,16 @@ print "finished generating output annotation file"
 
 
 ppr.preprocessing(dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype="phenotype", configs_path=configs_path)
-update_networkfile_doc("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phenotype_network_NEW.csv", "./networks/phenotype_network_modified_NEW.csv")
+#update_networkfile_doc("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phenotype_network_NEW.csv", "./networks/phenotype_network_modified_NEW.csv")
 update_networkfile_bow("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phenotype_network_NEW.csv", "./networks/phenotype_network_modified_NEW.csv")
 print "finished generating all the edge values for the phenotype network"
 
+'''
 ppr.preprocessing(dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype="phene", configs_path=configs_path)
 update_networkfile_doc("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phene_network_NEW.csv", "./networks/phene_network_modified_NEW.csv")
 update_networkfile_bow("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phene_network_NEW.csv", "./networks/phene_network_modified_NEW.csv")
 print "finished generating all the edge values for the phene network"
-
+'''
 
 
 # Notes for running to get the data presented in the paper.

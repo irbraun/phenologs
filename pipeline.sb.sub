@@ -1,0 +1,32 @@
+#!/bin/bash
+
+#Submit this script with: sbatch thefilename
+
+#SBATCH -t 4:00:00   # walltime
+#SBATCH -N 1   # number of nodes in this job
+#SBATCH -n 16   # total number of processor cores in this job
+#SBATCH -J "pi"   # job name
+#SBATCH --mail-user=irbraun@iastate.edu   # email address
+#SBATCH --mail-type=BEGIN
+#SBATCH --mail-type=END
+#SBATCH --mail-type=FAIL
+#SBATCH --output=output.txt
+
+# LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
+module load r/3.4.3-py2-kaltwmm
+module load r-caret/6.0-73-py2-r3.4-x4wqfe7
+module load r-dplyr/0.7.3-py2-r3.4-p2gyosx
+module load r-tidyr/0.5.1-py2-r3.4-fv6p25a
+module load r-randomforest/4.6-12-py2-r3.4-2biqljo
+module load r-e1071/1.6-7-py2-r3.4-ihpogov
+module load r-data-table/1.10.4-2-py2-r3.4-wnvhymn
+
+#module load python/2.7.15-ief5zfp
+module load py-pandas/0.21.1-py2-326uzkn
+module load py-numpy/1.15.2-py2-fdkji5s
+module load py-scikit-learn/0.18.1-py2-uqbs5ic
+
+module load jdk/8u172-b11-rnauqmr
+module load jdk/8u141-b15-xf726oe
+
+python pipeline.py -d phene -c /work/dillpicl/irbraun/term-mapping/path/config/
