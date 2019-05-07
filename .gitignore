@@ -12,10 +12,11 @@ gensim/*
 lib/*
 logs/*
 nbproject/*
-networks/
-ontologies/
-output/
-pubmed/
+networks/*
+ontologies/*
+output/*
+pubmed/*
+!pubmed/scripts/*.py
 randomforest/
 supplemental/
 target/
