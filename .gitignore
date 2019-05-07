@@ -29,3 +29,5 @@ pom.xml
 *.history
 *.Rhistory
 *.pyc
+
+!*/.keep
