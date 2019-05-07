@@ -16,7 +16,7 @@ networks/*
 ontologies/*
 output/*
 pubmed/*
-!pubmed/scripts/*.py
+!pubmed/scripts
 randomforest/
 supplemental/
 target/
