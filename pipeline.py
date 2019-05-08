@@ -6,8 +6,9 @@ import argparse
 sys.path.append("./modules")
 import preprocess as ppr
 import annotate as ann
-from doc_utils import update_networkfile_doc, update_networkfile_bow
-from word_utils import train_word2vec_models
+import doc_utils as dt
+import word_utils as wt
+
 
 
 
@@ -19,6 +20,8 @@ def compose(networks_path, dtype):
 	if not os.path.exists(networks_path):
 		os.makedirs(networks_path)
 	os.system("java -jar term-mapping.jar -c "+" -d "+dtype+" "+configs_path)
+
+
 
 
 
@@ -46,16 +49,22 @@ def collect_documents(queryname, docs_directory, database="pubmed", doc_limit=10
 	os.system("python ./pubmed/scripts/3_combine_abstracts.py"+" --dir "+"./pubmed/")
 	os.system("python ./pubmed/scripts/4_split_sentences.py"+" --dir "+"./pubmed/")
 	# Train word embedding models using the collected documents.
-	train_word2vec_models(models_path="./gensim", text_training_file="./pubmed/combined_abstracts.txt")
+	wt.train_word2vec_models(models_path="./gensim", text_training_file="./pubmed/combined_abstracts.txt")
 
 
 
 
 
 
-# Only have to run this once, fetches and preprocesses documents from Pubmed.
+
+
+
+# Only have to run this once, fetches and preprocesses documents from pubmed.
 # Runtime on Condo was ~3 hrs with a doc_limit of 100,000. 
 #collect_documents(queryname="search1", docs_directory="./pubmed", database="pubmed", doc_limit=100000)
+
+
+
 
 
 
@@ -81,29 +90,30 @@ configs_path = args.config_path
 
 
 
-# Running NOBLE Coder for semantic annotation with gridsearch for parameters. Very fast.
+# Running NOBLE Coder for semantic annotation with gridsearch for parameters.
 thresholds = []
 for t in thresholds:
 
-	# Using the domain-specific word embeddings model from pubmed abstracts. Incorrect now, old parameters.
 	'''
-	description = "'nc; threshold = "+str(t)+"; domain specific embeddings; partial matches; "+str(dtype)+"'"
+	# Using the domain-specific word embeddings model from pubmed abstracts, partial matching.
+	description = "'nc; threshold = "+str(t)+"; domain specific embeddings; partial matches;"+str(dtype)+"'"
 	output = r"./output/nc_thresh"+str(t).replace(".","d")+"_domain300_partial_"+dtype+".csv"
-	preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/300_size.model", dtype=dtype)
-	annotate_with_noblecoder(level="partial-match", default_prob=0.50, dtype=dtype)
+	ppr.preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/300_size.model", configs_path=configs_path, dtype=dtype)
+	ann.annotate_with_noblecoder(level="partial-match", default_prob=0.50, dtype=dtype, fuzzy=True, group_name="group1", configs_path=configs_path)
 	files = ["output_pato/group1_"+dtype+"_eval.csv", "output_po/group1_"+dtype+"_eval.csv", "output_go/group1_"+dtype+"_eval.csv"]
 	get_metrics(output, description, r"./annotators/noble/", files)
 
-	# Using the domain-specific word embeddings model from pubmed abstracts. Incorrect now, old parameters.
-	description = "'nc; threshold = "+str(t)+"; domain specific embeddings; precise matches; "+str(dtype)+"'"
+	# Using the domain-specific word embeddings model from pubmed abstracts, precise matching.
+	description = "'nc; threshold = "+str(t)+"; domain specific embeddings; precise matches;"+str(dtype)+"'"
 	output = r"./output/nc_thresh"+str(t).replace(".","d")+"_domain300_precise_"+dtype+".csv"
-	preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/300_size.model", dtype=dtype)
-	annotate_with_noblecoder(level="precise-match", default_prob=1.00, dtype=dtype)
-	files = ["output_pato/group1_"+dtype+"_eval.csv", "output_po/group1_"+dtype+"_eval.csv", "output_go/group1_"+dtype+"_eval.csv"]
+	ppr.preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/300_size.model", configs_path=configs_path, dtype=dtype)
+	ann.annotate_with_noblecoder(level="precise-match", default_prob=1.00, dtype=dtype, fuzzy=False, group_name="group2", configs_path=configs_path)
+	files = ["output_pato/group2_"+dtype+"_eval.csv", "output_po/group2_"+dtype+"_eval.csv", "output_go/group2_"+dtype+"_eval.csv"]
 	get_metrics(output, description, r"./annotators/noble/", files)
 	'''
 
-	# Using the pre-trained word embeddings from wikipedia.
+
+	# Using the pre-trained word embeddings from wikipedia, partial matching.
 	description = "'nc; threshold = "+str(t)+"; pre-trained wikipedia embeddings; partial matches;"+str(dtype)+"'"
 	output = r"./output/nc_thresh"+str(t).replace(".","d")+"_enwiki_partial_"+dtype+".csv"
 	ppr.preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", configs_path=configs_path, dtype=dtype)
@@ -111,7 +121,7 @@ for t in thresholds:
 	files = ["output_pato/group1_"+dtype+"_eval.csv", "output_po/group1_"+dtype+"_eval.csv", "output_go/group1_"+dtype+"_eval.csv"]
 	get_metrics(output, description, r"./annotators/noble/", files)
 
-	# Using the pre-trained word embeddings from wikipedia.
+	# Using the pre-trained word embeddings from wikipedia, precise matching.
 	description = "'nc; threshold = "+str(t)+"; pre-trained wikipedia embeddings; precise matches;"+str(dtype)+"'"
 	output = r"./output/nc_thresh"+str(t).replace(".","d")+"_enwiki_precise_"+dtype+".csv"
 	ppr.preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", configs_path=configs_path, dtype=dtype)
@@ -124,7 +134,7 @@ for t in thresholds:
 
 
 
-# Running NCBO Annotator for semantic annotation with gridsearch for parameters. Very fast.
+# Running NCBO Annotator for semantic annotation with gridsearch for parameters.
 thresholds = []
 for t in thresholds:
 
@@ -138,22 +148,9 @@ for t in thresholds:
 
 
 
-
-
-
-# Running naive Bayes for semantic annotation with gridsearch for parameters. Each takes 10 single core minutes.
+# Running naive Bayes for semantic annotation with gridsearch for parameters.
 thresholds = []
 for t in thresholds:
-
-	'''
-	# Using the domain-specific word embeddings model from pubmed abstracts.
-	description = "'nb; threshold = "+str(t)+"; domain specific embeddings; precise matches;"+str(dtype)+"'"
-	output = r"./output/nb_thresh"+str(t).replace(".","d")+"_domain300_precise_"+dtype+".csv"
-	preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/300_size.model", dtype=dtype)
-	annotate_with_naivebayes(threshold=t, dtype=dtype)
-	files = ["output_pato/merged_"+dtype+"_eval.csv", "output_po/merged_"+dtype+"_eval.csv", "output_go/merged_"+dtype+"_eval.csv", "output_chebi/merged_"+dtype+"_eval.csv"]
-	get_metrics(output, description, r"./annotators/naive/", files)
-	'''
 
 	# Using the pre-trained word embeddings from wikipedia.
 	description = "'nb; threshold = "+str(t)+"; pre-trained wikipedia embeddings; precise matches;"+str(dtype)+"'"
@@ -167,50 +164,62 @@ for t in thresholds:
 
 
 
-
-
-
 # Aggregate a set of the output files from the semantic annotation step for comparison.
-'''
 ann.aggregate_annotations(dtype=dtype, configs_path=configs_path)
 files = ["output_pato/group1_eval.csv", "output_po/group1_eval.csv", "output_go/group1_eval.csv", "output_chebi/group1_eval.csv"]
 output = r"./output/aggregate"+dtype+".csv"
 get_metrics(output, dtype, r"./annotators/aggregate/", files)
 print "finished semantic annotation"
-'''
 
 
-'''
+
+
 # Generate final output.
 compose(networks_path="./networks/", dtype=dtype)
 print "finished generating output annotation file"
-'''
 
 
 
-# Provide the gathered text data that will be used to train domain-specific doc2vec models.
-# Those should have been obtained using collect_documents() with some doc number limit.
-# Give it a specific network file which will get modified, a column for doc2vec similarity measure will be added.
-# Note, this step reads the text for each phene or phenotype from the ./data/split_chunks/ folder so that has to match what you want to use this for.
-# Use preprocessing(split=1) to do that.
-
-# for example, even if the compose step was done using the split phenotypes or the phenes, this has to be specific to the file of nodes.
-# If obtaining doc2vec estimations for the graph where nodes are phenotypes, this has to be "python pipeline.py phenotype" and call preprocess().
-# If obtaining doc2vec estimations for the graph where nodes are phenes, this has to be "python pipeline.py phene" and call preprocess().
-# Have to change it to phenotypes in the config/config.properties file in this case too!
 
 
+
+
+# The next step uses other NLP methods including doc2vec and different measures of sentence similarity
+# to add each possible pairwise similarity to the existing files that describe the networks generated
+# either from the phenotype or phene descripton datasets. Note that these are not methods are not using
+# the additional syntax for the text chunk files which have been generated with word choice variability
+# with the word2vec models, so the embeddings parameter needs to be 0 in the preprocesing calls. The 
+# preprocessing calls are also necessary because the correct set of text chunk files in the chunks 
+# directory need to be present as they are used here.
+
+
+
+
+# Load or train any of the document embeddings models to be used.
+model_wiki = dt.load_model("./gensim/enwiki_dbow/doc2vec.bin")
+#model_domain_dmpv = train_model("./pubmed/combined_abstracts.txt", "dmpv.model", dm=0, size=300)
+#model_domain_dbow = train_model("./pubmed/combined_abstracts.txt", "dbow.model", dm=1, size=300)
+
+
+# Update the file for the phenotype network.
 ppr.preprocessing(dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype="phenotype", configs_path=configs_path)
-#update_networkfile_doc("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phenotype_network_NEW.csv", "./networks/phenotype_network_modified_NEW.csv")
-update_networkfile_bow("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phenotype_network_NEW.csv", "./networks/phenotype_network_modified_NEW.csv")
-print "finished generating all the edge values for the phenotype network"
+dt.update_networkfile_d2v([model_wiki], ["enwiki_dbow"], "./data/split_chunks/", "./networks/phenotype_network_NEW.csv", "./networks/phenotype_network_modified_NEW.csv")
+dt.update_networkfile_bow("./data/split_chunks/", "./networks/phenotype_network_NEW.csv", "./networks/phenotype_network_modified_NEW.csv")
+print "done generating additional similarity values for the phenotype network"
 
-'''
+# Update the file for the phene network.
 ppr.preprocessing(dbsetup=0, embeddings=0, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", dtype="phene", configs_path=configs_path)
-update_networkfile_doc("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phene_network_NEW.csv", "./networks/phene_network_modified_NEW.csv")
-update_networkfile_bow("./pubmed/combined_abstracts.txt", "./data/split_chunks/", "./networks/phene_network_NEW.csv", "./networks/phene_network_modified_NEW.csv")
-print "finished generating all the edge values for the phene network"
-'''
+dt.update_networkfile_d2v([model_wiki], ["enwiki_dbow"], "./data/split_chunks/", "./networks/phene_network_NEW.csv", "./networks/phene_network_modified_NEW.csv")
+dt.update_networkfile_bow("./data/split_chunks/", "./networks/phene_network_NEW.csv", "./networks/phene_network_modified_NEW.csv")
+print "done generating additional similarity values for the phene network"
+
+
+
+
+
+
+
+
 
 
 # Notes for running to get the data presented in the paper.
