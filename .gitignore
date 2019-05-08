@@ -1,9 +1,10 @@
 annotators/aggregate/*
 annotators/naive/*
-!annotators/naive/merge_files.sh
 annotators/ncbo/*
-!annotators/ncbo/ncbo_annot.py
 annotators/noble/*
+!annotators/aggregate/.keep
+!annotators/naive/merge_files.sh
+!annotators/ncbo/ncbo_annot.py
 !annotators/noble/parse_nc_output.sh
 !annotators/noble/nc_parse.py
 
