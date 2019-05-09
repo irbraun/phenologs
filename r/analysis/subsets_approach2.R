@@ -6,21 +6,29 @@ library(car)
 library(data.table)
 
 source("/work/dillpicl/irbraun/term-mapping/path/r/utils.R")
-source("/work/dillpicl/irbraun/term-mapping/path/r/subset_functions.R")
+source("/work/dillpicl/irbraun/term-mapping/path/r/utils_for_subsets.R")
 
+
+# Specify column in the network file to be used as predicted values. Has to match the csv file.
+PRED_COLUMN_NAME <- "cur_m2_edge"
 
 
 
 # Network files.
 NETWORKS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/networks/"
-PHENOTYPE_EDGES_FILE <- "phenotype_network_modified.csv"
+PHENOTYPE_EDGES_FILE <- "phenotype_network_modified_NEW.csv"
 # Function categorization files.
 SUBSETS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/r/"
 SUBSETS_FILENAME <- "classifications.csv"
 # Output files.
-OUT_THRESHOLDS_FILE <- "/work/dillpicl/irbraun/term-mapping/path/r/output/d2v_thresholds.csv"
-OUT_PREDICTIONS_FILE <- "/work/dillpicl/irbraun/term-mapping/path/r/output/d2v_predictions.csv"
-OUT_TEXT_FILE <- "/work/dillpicl/irbraun/term-mapping/path/r/output/d2v.txt"
+OUTPUT_DIR <- "/work/dillpicl/irbraun/term-mapping/path/r/output/"
+out_thresholds_file <- paste(OUTPUT_DIR,PRED_COLUMN_NAME,"_thresholds.csv",sep="")
+out_predictions_file <- paste(OUTPUT_DIR,PRED_COLUMN_NAME,"_predictions.csv",sep="")
+out_text_file <- paste(OUTPUT_DIR,PRED_COLUMN_NAME,"_f1.csv",sep="")
+
+
+
+
 
 
 
@@ -37,7 +45,7 @@ subset_name_list <- unique(subsets_df$subset)
 
 
 # Define which similarity metric from the network edge file to use.
-phenotype_network$value_to_use <- phenotype_network$enwiki_dbow
+phenotype_network$value_to_use <- phenotype_network[,PRED_COLUMN_NAME]
 
 
 
@@ -124,9 +132,9 @@ final_binary_pred_matrix <- data.matrix(final_predictions_table[,2:ncol(final_pr
 final_f1 <- get_f_score(final_binary_pred_matrix, final_binary_target_matrix)
 
 # Results of estimating the threshold for each phenotype and predicting subset membership.
-write.csv(final_thresholds_table, file=OUT_THRESHOLDS_FILE, row.names=F)
-write.csv(final_predictions_table, file=OUT_PREDICTIONS_FILE, row.names=F)
-sink(OUT_TEXT_FILE)
+write.csv(final_thresholds_table, file=out_thresholds_file, row.names=F)
+write.csv(final_predictions_table, file=out_predictions_file, row.names=F)
+sink(out_text_file)
 paste(final_f1)
 closeAllConnections()
 

@@ -21,7 +21,6 @@ module load r-randomforest/4.6-12-py2-r3.4-2biqljo
 module load r-e1071/1.6-7-py2-r3.4-ihpogov
 module load r-data-table/1.10.4-2-py2-r3.4-wnvhymn
 
-#module load python/2.7.15-ief5zfp
 module load py-pandas/0.21.1-py2-326uzkn
 module load py-numpy/1.15.2-py2-fdkji5s
 module load py-scikit-learn/0.18.1-py2-uqbs5ic
