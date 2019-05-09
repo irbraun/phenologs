@@ -70,5 +70,3 @@ compare_one_subsample <- function(subsampled_id_set, targets, predictions, k){
 
 
 
-
-

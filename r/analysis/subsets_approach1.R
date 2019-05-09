@@ -43,6 +43,31 @@ subset2class <- hashmap(mappings_df$subset, mappings_df$class)
 
 
 
+# Figuring out logical thresholds for what fraction of possible edges are important.
+# What's the fraction of possible edges in the network that connect two genes in the same class?
+class_sizes <- unname(table(subsets_df$class))
+class_edge_quantities <- sapply(class_sizes, function(x){(x*x)-x})
+within_class_edge_quantities <- sum(class_edge_quantities)
+x <- sum(class_sizes)
+total_edge_quantity <- (x*x)-x 
+fraction_within_class <- within_class_edge_quantities/total_edge_quantity
+fraction_within_class
+
+# What's the fraction of possible edges in the network that connect two genes in the same subset?
+subset_sizes <- unname(table(subsets_df$subset))
+subset_edge_quantities <- sapply(subset_sizes, function(x){(x*x)-x})
+within_subset_edge_quantities <- sum(subset_edge_quantities)
+x <- sum(subset_sizes)
+total_edge_quantity <- (x*x)-x 
+fraction_within_subset <- within_subset_edge_quantities/total_edge_quantity
+fraction_within_subset
+
+
+
+
+
+
+
 
 
 

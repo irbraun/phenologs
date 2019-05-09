@@ -6,84 +6,86 @@ library(car)
 
 
 source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
+source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_networks.R")
 
 
 
 
+# The file specifying the network edges and the output file.
+DIR <- "/Users/irbraun/Desktop/droplet/path/networks/old2/"
+FILENAME <- "phenotype_network_modified_NEW.csv"
+OUTPUT_PATH <- "/Users/irbraun/Desktop/network_table.csv"
 
-# Produces a file of results for evaluating one network against another at a range of thresholds.
-# Arguments
-# d: the dataframe describing the network edges
-# output_path: path to the output file
-# retain_edge_quantity: if true, don't apply each threshold to second network, just take top k edges where the threshold left k edges in the first network.
-# doc2vec: use the sentence embedding generated network as the second network.
-check_edges <- function(d, output_path, retain_edge_quantity=F, doc2vec=F){
+
+
+get_score_for_method <- function(table,thresholds,levels,d,method_name){
   
-  edges <- data.frame(matrix(ncol = 8, nrow = 0))
-  cols <- c("threshold","n_cur","n_pre","overlap","jaccard","precision","recall","f1")
-  colnames(edges) <- cols
+  # Completes a row in the output table by finding scores for this method.
+  # args
+  # table: the growing table to append to.
+  # thresholds: a vector of threshold values (fractions of edges to retain).
+  # levels: a vector of strings explaining the significance of the threshold values, same length.
+  # d: the dataframe with edge values for every method.
+  # method_name: a string specifying which method was used to make these predictions.
   
-  thresholds <- seq(1,0.5,-0.05)
-  for (t in thresholds){
-    sub_cur <- d[d$c_edge >= t,]$id
-  
-    # What happens if using any cutoff that assumes same number of edges?
-    # The doc2vec edges are distances rather than similarities, so 'order(-x)' rather than 'order(x)'. 
-    if(retain_edge_quantity==T){
-      num_to_retain = length(sub_cur)
-      if(doc2vec==T) sub_pre <- d[order(d$d2v),][1:num_to_retain,]$id
-      else sub_pre <- d[order(-d$p_edge),][1:num_to_retain,]$id
-    } 
-    # What happens if we use that same threshold regradless of how many edges that retains?
-    # The doc2vec edges are distances rather than similarities, so <= t instead of >= t.
-    else{
-      if(doc2vec==T) sub_pre <- d[d$d2v <= t,]$id
-      else sub_pre <- d[d$p_edge >= t,]$id
-    }
-    
-    i <- length(intersect(sub_cur,sub_pre))
-    u <- length(union(sub_cur,sub_pre))
-    jac <- i/u
-    num_cur <- length(sub_cur)
-    num_pred <- length(sub_pre)
-    
-    tp <- i
-    fp <- num_pred-i
-    fn <- num_cur-i
-    precision <- tp/(tp+fp)
-    recall <- tp/(tp+fn)
-    f1 <- (2*precision*recall)/(precision+recall)
-    
-    jac <- round(jac,3)
-    precision <- round(precision,3)
-    recall <- round(recall,3)
-    f1 <- round(f1,3)
-    
-    edges[nrow(edges)+1,] <- c(t, num_cur, num_pred, i, jac, precision, recall, f1)
+  # Sort them in descending order.
+  ordered_target_ids <- d[order(-d$target),]$id
+  ordered_predicted_ids <- d[order(-d$predicted),]$id
+  # Find the F1 score at each threshold.
+  for (i in range(1,length(thresholds))){
+    t <- thresholds[i]
+    level <- levels[i]
+    n <- nrow(d)
+    k <- ceiling(t*n)
+    f1 <- compare_edges(ordered_target_ids, ordered_predicted_ids, k)
+    table[nrow(table)+1,] <- c(method_name, round(t,3), level, k, round(f1,3))
   }
-  write.csv(edges, file=output_path, row.names=F)
-  
+  return(table)
 }
 
 
 
 
 
-# The file specifying the network edges.
-dir <- "/Users/irbraun/Desktop/droplet/path/networks/"
-file <- "output_for_split_phenotypes/phenotype_network_modified.csv"
-
 # Read it in and assign unique IDs to each row.
-d <- read(dir,file)
+d <- read(DIR,FILENAME)
 d$id <- row.names(d)
 
-# Which doc2vec model should be used?
-colnames(d)[colnames(d)=="enwiki_dbow"] <- "d2v"
 
-# Use different predicted sets of edges and check performance.
-check_edges(d, "/Users/irbraun/Desktop/droplet/path/networks/results_regular_edges.csv", retain_edge_quantity=F, doc2vec=F)
-check_edges(d, "/Users/irbraun/Desktop/droplet/path/networks/results_matched_edges.csv", retain_edge_quantity=T, doc2vec=F)
-check_edges(d, "/Users/irbraun/Desktop/droplet/path/networks/results_d2v_edges.csv", retain_edge_quantity=T, doc2vec=T)
+
+# Create an output table.
+table <- get_empty_table(c("method","threshold","level","num_phenologs","f1"))
+
+# Define thresholds for what fraction of edges to retain. Calculated in subsets_approach1.R
+fraction_within_class <- 0.2688608
+fraction_within_subset <- 0.03944202
+thresholds <- c(fraction_within_class,fraction_within_subset)
+levels <- c("subset","class")
+
+
+# Define what the target values are.
+d$target <- d$cur_m2_edge
+
+
+
+# Test each of the predictive methods.
+d$predicted <- d$pre_m1_edge
+table <- get_score_for_method(table,thresholds,levels,d,"predeq1")
+
+d$predicted <- d$pre_m2_edge
+table <- get_score_for_method(table,thresholds,levels,d,"predeq2")
+
+d$predicted <- d$jaccard
+table <- get_score_for_method(table,thresholds,levels,d,"jacm")
+
+d$predicted <- d$cosine
+table <- get_score_for_method(table,thresholds,levels,d,"cosm")
+
+
+
+# Write the output table to a file.
+write.csv(table, file=OUTPUT_PATH, row.names=F)
+
 
 
 
