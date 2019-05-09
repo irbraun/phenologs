@@ -1,7 +1,7 @@
 
 
 
-source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
+source("/work/dillpicl/irbraun/term-mapping/path/r/utils.R")
 
 
 
@@ -13,30 +13,28 @@ source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
 # filename: a csv file in that directory with a 'prob' column or 'score' column.
 adjust_range_in_file <- function(dir,filename){
   df <- read(dir,filename)
-  
-  if("prob" %in% colnames(df))
-  {
+  # The classprob files.
+  if("prob" %in% colnames(df)){
     df$prob <- range01(df$prob)
     df$prob <- round(df$prob, 3)
-    path <- paste(dir,filename,sep="")
-    # Commented out to alter the file in place.
-    #path <- substring(path,1,nchar(path)-4)
-    #path <- paste(path,".0to1.csv",sep="")
-    write.csv(df, file=path, row.names=F)
+    # Dissallowing blank strings in the node column to be replaced by NA.
+    # Unclear on why this is necesary, script wasn't automatically replacing the blank strings in the other files.
+    df[is.na(df)] <- ""
   }
+  # The eval files.
   else if("score" %in% colnames(df)){
-    df$score <- range01(df$score)
-    df$score <- round(df$score, 3)
-    path <- paste(dir,filename,sep="")
-    # Commmented out to alter the file in place.
-    #path <- substring(path,1,nchar(path)-4)
-    #path <- paste(path,".0to1.csv",sep="")
-    write.csv(df, file=path, row.names=F)
+    df[df$score!="none",]$score <-round(range01(as.numeric(df[df$score!="none",]$score)),3)
   }
+  # Something wrong with the table.
   else{
     cat("not able to adjust range in file")
     quit()
   }
+  path <- paste(dir,filename,sep="")
+  # Only do the commented out section if don't want to adjust file in place.
+  #path <- substring(path,1,nchar(path)-4)
+  #path <- paste(path,".0to1.csv",sep="")
+  write.csv(df, file=path, row.names=F)
 }
 
 

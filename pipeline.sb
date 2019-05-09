@@ -2,7 +2,7 @@
 
 #Submit this script with: sbatch thefilename
 
-#SBATCH -t 1:00:00   # walltime
+#SBATCH -t 5:00:00   # walltime
 #SBATCH -N 1   # number of nodes in this job
 #SBATCH -n 16   # total number of processor cores in this job
 #SBATCH -J "pi"   # job name

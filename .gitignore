@@ -28,6 +28,7 @@ licenseheader.txt
 nb-configuration.xml
 nbactions.xml
 pom.xml
+note.txt
 *.history
 *.Rhistory
 *.pyc

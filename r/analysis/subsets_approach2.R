@@ -5,21 +5,22 @@ library(data.table)
 library(car)
 library(data.table)
 
-source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
-source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_subsets.R")
+source("/work/dillpicl/irbraun/term-mapping/path/r/utils.R")
+source("/work/dillpicl/irbraun/term-mapping/path/r/subset_functions.R")
 
 
 
 
 # Network files.
-NETWORKS_DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
+NETWORKS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/networks/"
 PHENOTYPE_EDGES_FILE <- "phenotype_network_modified.csv"
 # Function categorization files.
-SUBSETS_DIR <- "/Users/irbraun/Desktop/"
-SUBSETS_FILENAME <- "out.csv"
+SUBSETS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/r/"
+SUBSETS_FILENAME <- "classifications.csv"
 # Output files.
-OUT_THRESHOLDS_FILE <- "/Users/irbraun/Desktop/outA.csv"
-OUT_PREDICTIONS_FILE <- "/Users/irbraun/Desktop/outB.csv"
+OUT_THRESHOLDS_FILE <- "/work/dillpicl/irbraun/term-mapping/path/r/output/d2v_thresholds.csv"
+OUT_PREDICTIONS_FILE <- "/work/dillpicl/irbraun/term-mapping/path/r/output/d2v_predictions.csv"
+OUT_TEXT_FILE <- "/work/dillpicl/irbraun/term-mapping/path/r/output/d2v.txt"
 
 
 
@@ -36,7 +37,7 @@ subset_name_list <- unique(subsets_df$subset)
 
 
 # Define which similarity metric from the network edge file to use.
-phenotype_network$value_to_use <- range01((1/phenotype_network$enwiki_dbow))
+phenotype_network$value_to_use <- phenotype_network$enwiki_dbow
 
 
 
@@ -44,8 +45,6 @@ phenotype_network$value_to_use <- range01((1/phenotype_network$enwiki_dbow))
 
 # Get the phenotype ID's that refer to phenotypes for genes in Arabidopsis.
 phenotype_ids <- unique(subsets_df$chunk)
-# Reduce the number of phenotypes for testing purposes.
-phenotype_ids <- phenotype_ids[1:20]
 phenotype_network_table <- data.table(phenotype_network)
 
 
@@ -127,8 +126,9 @@ final_f1 <- get_f_score(final_binary_pred_matrix, final_binary_target_matrix)
 # Results of estimating the threshold for each phenotype and predicting subset membership.
 write.csv(final_thresholds_table, file=OUT_THRESHOLDS_FILE, row.names=F)
 write.csv(final_predictions_table, file=OUT_PREDICTIONS_FILE, row.names=F)
+sink(OUT_TEXT_FILE)
 paste(final_f1)
-
+closeAllConnections()
 
 
 
