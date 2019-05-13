@@ -1,0 +1,11 @@
+﻿Method,Gene,Phenotype Network,,,Phene Network,,
+,,Similarity,Node,Gene,Similarity,Node,Gene
+EQ Pipeline,\textit{c2},1,1,1,1,1,1
+EQ Pipeline,\textit{c1},1,1,1,1,1,1
+EQ Pipeline,\textit{b1},0.856,5,5,0.856,5,5
+EQ Pipeline,\textit{r1},0.028,2282,2282,,,
+Doc2Vec,\textit{c2},,,,,,
+Doc2Vec,\textit{c1},,,,,,
+Doc2Vec,\textit{b1},,,,,,
+Doc2Vec,\textit{r1},,,,,,
+"Note that this would only apply for using the phene descriptions, using the phenotype descriptions would not be shown here.",,,,,,,

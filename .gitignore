@@ -19,7 +19,7 @@ output/*
 pubmed/*
 !pubmed/scripts
 randomforest/
-supplemental/
+saved_paper_progress/
 target/
 
 tm.db

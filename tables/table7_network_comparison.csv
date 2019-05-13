@@ -1,0 +1,25 @@
+﻿Text,Network,Threshold,Level,Num. Phenologs,Method,F1,,,,Phenotypes,,Phenes,
+\text{Ph},\text{Ph},$t$=0.269,subset,1135634,predeq,0.167,,,,$t$=0.269,$t$=0.039,$t$=0.269,$t$=0.039
+\text{Ph},\text{Ph},$t$=0.269,subset,1135634,doc2vec,0.244,,,Method,0.167,0.167,0.167,0.167
+\text{Ph},\text{Ph},$t$=0.269,subset,1135634,bag of words,0.245,,,Curated EQs,0.244,0.244,0.244,0.244
+\text{Ph},\text{Ph},$t$=0.269,subset,1135634,set of words,0.221,,,Predicted EQs,0.245,0.245,0.245,0.245
+\text{Ph},\text{Ph},$t$=0.039,class,166599,predeq,0.232,,,doc2vec,0.221,0.221,0.221,0.221
+\text{Ph},\text{Ph},$t$=0.039,class,166599,doc2vec,0.289,,,Set of Words,0.232,0.232,0.232,0.232
+\text{Ph},\text{Ph},$t$=0.039,class,166599,bag of words,0.232,,,Bag of Words,0.289,0.289,0.289,0.289
+\text{Ph},\text{Ph},$t$=0.039,class,166599,set of words,0.289,,,,,,,
+$ph$,$ph$,$t$=0.269,subset,1135634,predeq,0.226,,,,,,,
+$ph$,$ph$,$t$=0.269,subset,1135634,doc2vec,0.265,,,,,,,
+$ph$,$ph$,$t$=0.269,subset,1135634,bag of words,0.357,,,,,,,
+$ph$,$ph$,$t$=0.269,subset,1135634,set of words,0.275,,,,,,,
+$ph$,$ph$,$t$=0.039,class,166599,predeq,0.303,,,,,,,
+$ph$,$ph$,$t$=0.039,class,166599,doc2vec,0.656,,,,,,,
+$ph$,$ph$,$t$=0.039,class,166599,bag of words,0.303,,,,,,,
+$ph$,$ph$,$t$=0.039,class,166599,set of words,0.656,,,,,,,
+$ph$,\text{Ph},$t$=0.269,subset,1135634,predeq,0.277,,,,,,,
+$ph$,\text{Ph},$t$=0.269,subset,1135634,doc2vec,0.234,,,,,,,
+$ph$,\text{Ph},$t$=0.269,subset,1135634,bag of words,0.257,,,,,,,
+$ph$,\text{Ph},$t$=0.269,subset,1135634,set of words,0.332,,,,,,,
+$ph$,\text{Ph},$t$=0.039,class,166599,predeq,0.277,,,,,,,
+$ph$,\text{Ph},$t$=0.039,class,166599,doc2vec,0.234,,,,,,,
+$ph$,\text{Ph},$t$=0.039,class,166599,bag of words,0.257,,,,,,,
+$ph$,\text{Ph},$t$=0.039,class,166599,set of words,0.332,,,,,,,

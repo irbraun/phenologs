@@ -1,0 +1,20 @@
+﻿Annotator,Ontology,$n$,Phenotype Description,,,Phene Descriptions,,
+,,,$PP$,$PR$,$PF_1$,$PP$,$PR$,$PF_1$
+NOBLE Coder (precise),PATO,7882,0.641,0.627,0.634,0.601,0.572,0.586
+NOBLE Coder (precise),PO,6326,0.622,0.339,0.439,0.546,0.262,0.354
+NOBLE Coder (precise),GO,1505,0.514,0.521,0.517,0.51,0.514,0.512
+NOBLE Coder (partial),PATO,,,,,,,
+NOBLE Coder (partial),PO,,,,,,,
+NOBLE Coder (partial),GO,,,,,,,
+NCBO Annotator,PATO,7882,0.64,0.619,0.629,0.598,0.563,0.58
+NCBO Annotator,PO,6326,0.55,0.231,0.325,0.458,0.151,0.227
+NCBO Annotator,GO,1505,0.478,0.433,0.454,0.48,0.424,0.45
+NCBO Annotator,ChEBI,775,0.429,0.888,0.579,0.431,0.913,0.586
+Naïve Bayes Classifier,PATO,7882,0.355,0.284,0.316,0.642,0.484,0.552
+Naïve Bayes Classifier,PO,6326,0.43,0.229,0.299,0.597,0.406,0.483
+Naïve Bayes Classifier,GO,1505,0,0,0,0.155,0.157,0.156
+Naïve Bayes Classifier,ChEBI,775,0,0,0,0.001,0.001,0.001
+Aggregate Annotations,PATO,7882,0.574,0.681,0.623,0.573,0.696,0.628
+Aggregate Annotations,PO,6326,0.577,0.452,0.507,0.564,0.525,0.544
+Aggregate Annotations,GO,1505,0.342,0.542,0.419,0.306,0.526,0.387
+Aggregate Annotations,ChEBI,775,0.377,0.89,0.529,0.327,0.913,0.482
