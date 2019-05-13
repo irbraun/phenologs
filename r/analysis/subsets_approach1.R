@@ -4,6 +4,7 @@ library(dplyr)
 library(data.table)
 library(car)
 library(hashmap)
+library(parallel)
 
 source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
 source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_subsets.R")
@@ -11,17 +12,26 @@ source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_subset
 
 
 # Network files.
-NETWORKS_DIR <- "/Users/irbraun/Desktop/droplet/path/networks/old/"
-PHENOTYPE_EDGES_FILE <- "phenotype_network_modified.csv"
+NETWORKS_DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
+PHENOTYPE_EDGES_FILE <- "phenotype_network_modified_NEW.csv"
 # Function categorization files.
 SUBSETS_DIR <- "/Users/irbraun/Desktop/"
 SUBSETS_FILENAME <- "out.csv"
 # Define properties of the output files.
-OUT_PATH_SUMMARY <- "/Users/irbraun/Desktop/subsets_approach1_summary.csv"
-OUT_PATH_CURATEDEQ <- "/Users/irbraun/Desktop/subsets_approach1_cureq.csv"
-OUT_PATH_PREDEQ <- "/Users/irbraun/Desktop/subsets_approach1_predeq.csv"
-OUT_PATH_DOC2VEC <- "/Users/irbraun/Desktop/summary_table_doc2vec.csv"
+OUTPUT_DIR <- "/Users/irbraun/Desktop/temp/"
 OUT_FILE_COLUMNS <- c("group","class","subset","combined","num_in","num_out","mean_within","mean_between","p_value","greater","significant")
+
+# The column names in the network file for each predictive method.
+PRED_COLUMN_NAMES <- c("cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge", "jaccard", "cosine")
+
+
+# Get the number of cores available for parallelization.
+numCores <- detectCores()
+cat(paste(numCores,"cores available"))
+
+
+
+
 
 
 
@@ -71,21 +81,37 @@ fraction_within_subset
 
 
 
-# Will use df$value_to_use to evaluate similarities.
-summarize_method <- function(df, output_path){
+
+renamer <- function(df, cols_to_update, postfix){
+  # Update suffixes in the output tables so the merged table makes sense.
+  for(oldname in cols_to_update){
+    names(df)[names(df) == oldname] <- paste(oldname,postfix,sep=".")
+  }
+  return(df)
+}
+
+
+
+summarize_method <- function(pred_col_name, df, output_dir){
+  # Specify which predictive method to use.
+  df$value_to_use <- df[,pred_col_name]
+  # Generate the empty table.
   table <- get_empty_table(OUT_FILE_COLUMNS)
   # Iterate through all the subsets.
   for (subset in subset_name_list){
-    results <- mean_similarity_within_and_between(phenotype_network, subsets_df, c(subset))
+    results <- mean_similarity_within_and_between(df, subsets_df, c(subset))
     table[nrow(table)+1,] <- c(subset2group[[subset]], subset2class[[subset]], subset, 0, results)
   }
   # Iterate through all the classes.
   for (class in class_name_list){
     subset_names <- unique(subsets_df[subsets_df$class==class,]$subset)
-    results <- mean_similarity_within_and_between(phenotype_network, subsets_df, subset_names)
+    results <- mean_similarity_within_and_between(df, subsets_df, subset_names)
     table[nrow(table)+1,] <- c(subset2group[[subset_names[[1]]]], class, "combined", 1, results)
   }
-  write.csv(table, file=output_path, row.names=F)
+  # Write a method specific file, fix naming in columns and return.
+  write.csv(table, file=paste(output_dir,"summary_of_",pred_col_name,".csv",sep=""),row.names=F)
+  cols_to_update <- c("num_in","num_out","mean_within","mean_between","p_value","greater","significant")
+  table <- renamer(table, cols_to_update, pred_col_name)
   return(table)
 }
 
@@ -94,46 +120,9 @@ summarize_method <- function(df, output_path){
 
 
 
-# Produce table iterating through each loci, using curated EQ statemnts.
-phenotype_network$value_to_use <- phenotype_network$c_edge
-table1 <- summarize_method(phenotype_network, OUT_PATH_CURATEDEQ)
 
-
-
-# Produce table iterating through each loci, using predicted EQ statements.
-# Note: Edges with a value of -1 indicate that no edge was calculated due to missing data.
-# These are replaced here with 0 to indicate minimal semantic similarity.
-phenotype_network$value_to_use <- phenotype_network$p_edge
-phenotype_network$value_to_use <- pmax(phenotype_network$value_to_use, 0.000)
-table2 <- summarize_method(phenotype_network, OUT_PATH_PREDEQ)
-
-
-# Produce table iterating through each loci, using document embeddings from doc2vec.
-phenotype_network$value_to_use <- range01((1/phenotype_network$enwiki_dbow))
-table3 <- summarize_method(phenotype_network, OUT_PATH_DOC2VEC)
-
-
-
-
-
-
-
-
-
-# Update suffixes in the output tables so the merged table makes sense.
-renamer <- function(df, cols_to_update, postfix){
-  for(oldname in cols_to_update){
-    names(df)[names(df) == oldname] <- paste(oldname,postfix,sep=".")
-  }
-  return(df)
-}
-cols_to_update <- c("num_in","num_out","mean_within","mean_between","p_value","greater","significant")
-table1 <- renamer(table1, cols_to_update, "cureq")
-table2 <- renamer(table2, cols_to_update, "predeq")
-table3 <- renamer(table3, cols_to_update, "doc2vec")
-
-
-
+# Trying to do them all at once.
+method_dfs <- mclapply(PRED_COLUMN_NAMES, summarize_method, df=phenotype_network, output_dir=OUTPUT_DIR, mc.cores=numCores)
 
 
 
@@ -147,11 +136,10 @@ f_class <- function(x){return(class_names_map[[x]])}
 
 
 # Generate a table that summarizes the overall results.
-summary <- Reduce(function(x,y) merge(x = x, y = y, by=c("group","class","combined","subset")), list(table1,table2,table3))
+summary <- Reduce(function(x,y) merge(x = x, y = y, by=c("group","class","combined","subset")), method_dfs)
 summary$group <- f_group(summary$group)
 summary$class <- f_class(summary$class)
-write.csv(summary, file=OUT_PATH_SUMMARY, row.names=F)
-
+write.csv(summary, file=paste(OUTPUT_DIR,"summary_of_all_methods.csv",sep=""), row.names=F)
 
 
 

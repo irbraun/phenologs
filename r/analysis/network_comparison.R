@@ -16,7 +16,7 @@ DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
 IN_FILE <- "phenotype_network_modified_NEW.csv"
 # Other constants.
 SAMPLING_RATIO <- 0.9
-OUT_PATH <- "/Users/irbraun/Desktop/network_comparison.csv"
+OUT_PATH <- "/Users/irbraun/Desktop/droplet/path/r/network_comparison.csv"
 NUM_ITER <- 10
 
 
@@ -141,7 +141,7 @@ ribbon_colors = c("grey10","grey20","grey30","grey40")
 
 ggplot(data=df_long, aes(x=k, y=value, linetype=method)) + geom_line() +
   scale_linetype_manual("Legend", values=line_types, breaks=method_names, labels=labels) +
-  coord_cartesian(xlim=c(100000,0),ylim = c(0.0,1.0)) +
+  coord_cartesian(xlim=c(4000000,0),ylim = c(0.0,1.0)) +
   theme_bw() +
   theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
   ylab("F1") +
