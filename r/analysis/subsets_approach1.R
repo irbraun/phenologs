@@ -106,7 +106,7 @@ summarize_method <- function(pred_col_name, df, output_dir){
   for (class in class_name_list){
     subset_names <- unique(subsets_df[subsets_df$class==class,]$subset)
     results <- mean_similarity_within_and_between(df, subsets_df, subset_names)
-    table[nrow(table)+1,] <- c(subset2group[[subset_names[[1]]]], class, "combined", 1, results)
+    table[nrow(table)+1,] <- c(subset2group[[subset_names[[1]]]], class, "all", 1, results)
   }
   # Write a method specific file, fix naming in columns and return.
   write.csv(table, file=paste(output_dir,"summary_of_",pred_col_name,".csv",sep=""),row.names=F)

@@ -16,7 +16,7 @@ DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
 IN_FILE <- "phenotype_network_modified_NEW.csv"
 # Other constants.
 SAMPLING_RATIO <- 0.9
-OUT_PATH <- "/Users/irbraun/Desktop/droplet/path/r/network_comparison.csv"
+OUT_PATH <- "/Users/irbraun/Desktop/droplet/path/r/output/network_comparison.csv"
 NUM_ITER <- 10
 
 

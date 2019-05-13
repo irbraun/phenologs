@@ -68,18 +68,12 @@ mean_similarity_within_and_between <- function(network_df, subsets_df, subset_na
 
 
 
-
-
-
-
-
-
 get_similarity_to_cluster <- function(network_df, subsets_df, subset, phenotype_id){
   # Find the average similarity between a phenotype and all phenotypes in a certain functional subset.
   # -- parameters --
-  # network_df: the dataframe defining all edges between all nodes
-  # subsets_df: the dataframe defining which phenotype are in which subsets
-  # subset: the name of a particular subset
+  # network_df: the dataframe defining all edges between all nodes, has to have a value_to_use column.
+  # subsets_df: the dataframe defining which phenotype are in which groups, classes, and subsets.
+  # subset: the name of a particular subset.
   # phenotype_id: the integer for a particular phenotype
   # -- returns --
   # the mean similarity value between this phenotype and all other phenotypes in the subset/cluster.
@@ -99,6 +93,57 @@ get_similarity_to_cluster <- function(network_df, subsets_df, subset, phenotype_
   similarity <- mean(slice$value_to_use)
   return(similarity)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+get_similarity_to_class <- function(network_df, subsets_df, class, phenotype_id){
+  # Find the average similarity between a phenotype and all phenotypes in a certain functional subset.
+  # -- parameters --
+  # network_df: the dataframe defining all edges between all nodes, has to have a value_to_use column.
+  # subsets_df: the dataframe defining which phenotype are in which groups, classes, and subsets.
+  # class: the name of a particular class.
+  # phenotype_id: the integer for a particular phenotype
+  # -- returns --
+  # the mean similarity value between this phenotype and all other phenotypes in the subset/cluster.
+  
+  # Get the list of phenotype IDs that are in this subset/cluster.
+  phenotype_ids_in_class <- subsets_df[subsets_df$class %in% c(class),]$chunk
+  
+  # Get the network edges connecting this phenotype's node to any node in the subset/cluster.
+  # Note that separating the subsetting into two calls then rowbinding is faster than using an or statement.
+  phenotype_ids_in_class <- phenotype_ids_in_class[!phenotype_ids_in_class %in% c(phenotype_id)]
+  slice_part1 <- network_df[network_df$phenotype_1 == phenotype_id,]
+  slice_part2 <- network_df[network_df$phenotype_2 == phenotype_id,]
+  slice <- rbind(slice_part1,slice_part2)
+  slice <- slice[slice$phenotype_1 %in% phenotype_ids_in_class | slice$phenotype_2 %in% phenotype_ids_in_class,]
+  
+  # Measure similarity between the phenotype and the cluster. Could do mean to all nodes or maximum to any node?
+  similarity <- mean(slice$value_to_use)
+  return(similarity)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
