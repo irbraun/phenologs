@@ -36,9 +36,9 @@ cat(paste(numCores,"cores available"))
 
 run_one_method_class_level <- function(pred_column_name, phenotype_network, subsets_df, class_name_list){
   
-  out_thresholds_file <- paste(OUTPUT_DIR,"class",pred_column_name,"_thresholds.csv",sep="")
-  out_predictions_file <- paste(OUTPUT_DIR,"class",pred_column_name,"_predictions.csv",sep="")
-  out_text_file <- paste(OUTPUT_DIR,"class",pred_column_name,"_f1.csv",sep="")
+  out_thresholds_file <- paste(OUTPUT_DIR,"class_thresh_",pred_column_name,".csv",sep="")
+  out_predictions_file <- paste(OUTPUT_DIR,"class_predct_",pred_column_name,".csv",sep="")
+  out_text_file <- paste(OUTPUT_DIR,"class_fscore_",pred_column_name,".csv",sep="")
   
   phenotype_network$value_to_use <- phenotype_network[,pred_column_name]
   
@@ -107,9 +107,9 @@ run_one_method_class_level <- function(pred_column_name, phenotype_network, subs
 run_one_method_subset_level <- function(pred_column_name, phenotype_network, subsets_df, subset_name_list){
   
   # Generate method specific output files.
-  out_thresholds_file <- paste(OUTPUT_DIR,"subset",pred_column_name,"_thresholds.csv",sep="")
-  out_predictions_file <- paste(OUTPUT_DIR,"subset",pred_column_name,"_predictions.csv",sep="")
-  out_text_file <- paste(OUTPUT_DIR,"subset",pred_column_name,"_f1.csv",sep="")
+  out_thresholds_file <- paste(OUTPUT_DIR,"subset_thresh_",pred_column_name,".csv",sep="")
+  out_predictions_file <- paste(OUTPUT_DIR,"subset_predct_",pred_column_name,".csv",sep="")
+  out_text_file <- paste(OUTPUT_DIR,"subset_fscore_",pred_column_name,".csv",sep="")
   
   
   # Define which similarity metric from the network edge file to use.
@@ -211,8 +211,6 @@ class_name_list <- unique(subsets_df$class)
 # Check the performance of each method on the classification task in parallel.
 mclapply(PRED_COLUMN_NAMES, run_one_method_subset_level, phenotype_network=phenotype_network, subsets_df=subsets_df, subset_name_list=subset_name_list, mc.cores=numCores)
 mclapply(PRED_COLUMN_NAMES, run_one_method_class_level, phenotype_network=phenotype_network, subsets_df=subsets_df, class_name_list=class_name_list, mc.cores=numCores)
-
-
 
 
 
