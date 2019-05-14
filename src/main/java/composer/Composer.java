@@ -22,6 +22,7 @@ import ontology.Onto;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import objects.Chunk;
 import objects.OntologyTerm;
+import text.ReadValues;
 import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
@@ -646,16 +647,18 @@ public class Composer {
         }
 
         // Phenotype network.
+        ReadValues readValues = new ReadValues(Config.predefinedSimilaritiesPath);
         for (int i=0; i<phenotypeIDs.size(); i++){
             for (int j=i+1; j<phenotypeIDs.size(); j++){
                 int phenotypeID1 = phenotypeIDs.get(i);
                 int phenotypeID2 = phenotypeIDs.get(j);
+                double predefinedSim = readValues.getSimilarity(text.getGeneIDFromPhenotypeID(phenotypeID1), text.getGeneIDFromPhenotypeID(phenotypeID2));
                 double predictedSimM1 = Utils.getEQSimilarityNoWeighting(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
                 double predictedSimM2 = Utils.getTermSetSimilarity(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
                 double curatedSimM1 = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
                 double curatedSimM2 = Utils.getTermSetSimilarity(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
-                Object[] items = {phenotypeID1, phenotypeID2, predictedSimM1, predictedSimM2, curatedSimM1, curatedSimM2};
-                phenotypeWriter.println(String.format("%s,%s,%.3f,%.3f,%.3f,%.3f",items));
+                Object[] items = {phenotypeID1, phenotypeID2, predefinedSim, predictedSimM1, predictedSimM2, curatedSimM1, curatedSimM2};
+                phenotypeWriter.println(String.format("%s,%s,%.3f,%.3f,%.3f,%.3f,%.3f",items));
             }
         }
         pheneWriter.close();

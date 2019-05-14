@@ -40,6 +40,7 @@ public class Config {
     public static boolean removeStopWords;
     public static String subsetsInputPath;
     public static String subsetsOutputPath;
+    public static String predefinedSimilaritiesPath;
     
     public static boolean checkFuzzyScore;
     public static String passedInName;
@@ -141,6 +142,7 @@ public class Config {
         numPartitions = Integer.valueOf(properties.getProperty("numPartitions"));
         seedValue = Integer.valueOf(properties.getProperty("seedValue"));
         subsetsInputPath = properties.getProperty("categories_path").trim();
+        predefinedSimilaritiesPath = properties.getProperty("predefined_path").trim();
         
         
         // Files containing the ontologies to be used.

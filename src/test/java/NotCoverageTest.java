@@ -20,6 +20,7 @@ import enums.Role;
 import enums.Species;
 import enums.TextDatatype;
 import infocontent.InfoContent;
+import java.io.BufferedReader;
 import randomforest.index.FeatureIndices;
 import java.io.File;
 import randomforest.process.SimilarityFinder;
@@ -99,8 +100,38 @@ public class NotCoverageTest {
     @Test
     public void testA() throws IOException, SQLException, FileNotFoundException, ParseException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
  
-        
         /*
+        Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/config/");
+        Connect conn = new Connect();
+        CoreNLP.setup(); 
+        
+        
+        HashMap<String,Double> map = new HashMap<>();
+        
+        BufferedReader reader = new BufferedReader(new FileReader("/Users/irbraun/NetBeansProjects/term-mapping/data/original_datasets/OellrichWallsSupplement/13007_2015_53_MOESM9_ESM.txt"));
+        String line;
+        String delimiter = ":";
+        while ((line = reader.readLine()) != null)
+        {
+            String[] lineValues = line.split("\\s+");
+            String geneID1 = lineValues[0];
+            String geneID2 = lineValues[1];
+            Double similarity = Double.valueOf(lineValues[2]);
+            String keyVersion1 = String.format("%s%s%s", geneID1, delimiter, geneID2);
+            String keyVersion2 = String.format("%s%s%s", geneID2, delimiter, geneID1);
+            map.put(keyVersion1, similarity);
+            map.put(keyVersion2, similarity);
+        }
+        reader.close();
+        System.out.println("done doing that");
+  
+
+        System.out.println(map.getOrDefault(String.format("%s:%s", "At5g26820","At3g09260"), 0.000));
+        System.out.println(map.getOrDefault(String.format("%s:%s", "At3g24140","At1g08510"), 0.000));
+        System.out.println(map.getOrDefault(String.format("%s:%s", "At1g08510","At3g24140"), 0.000));
+        System.out.println(map.getOrDefault(String.format("%s:%s", "At1g08510","asdfasdf"), 0.000));
+        
+
         Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/path/config/");
         Connect conn = new Connect();
         CoreNLP.setup(); 

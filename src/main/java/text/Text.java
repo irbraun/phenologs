@@ -30,6 +30,8 @@ public class Text {
     private final HashMap<Integer,Integer> atomIDtoPhenotypeID;
     private final HashMap<Integer,Integer> splitIDtoPhenotypeID;
     private final HashMap<Integer,EQStatement> atomIDtoEQStatement;
+    private final HashMap<String,Integer> geneIDtoPhenotypeID;
+    private final HashMap<Integer,String> phenotypeIDtoGeneID;
 
     // Lists holding the entirety of data for each type.
     private ArrayList<Chunk> phChunks;
@@ -52,6 +54,8 @@ public class Text {
         atomIDtoPhenotypeID = new HashMap<>();
         atomIDtoEQStatement = new HashMap<>();
         splitIDtoPhenotypeID = new HashMap<>();
+        geneIDtoPhenotypeID = new HashMap<>();
+        phenotypeIDtoGeneID = new HashMap<>();
         phChunkMap = new HashMap<>();
         atChunkMap = new HashMap<>();
         spChunkMap = new HashMap<>();
@@ -439,6 +443,8 @@ public class Text {
             chunks.add(chunk);
             
             // Updating the ID maps.
+            geneIDtoPhenotypeID.put(geneIdentifier, chunkID);
+            phenotypeIDtoGeneID.put(chunkID, geneIdentifier);
             phenotypeIDtoAtomIDs.put(chunkID, (ArrayList<Integer>) atomIDs);
             for (int atomID: atomIDs){
                 atomIDtoPhenotypeID.put(atomID, chunkID);
@@ -537,6 +543,18 @@ public class Text {
     public ArrayList<EQStatement> getAllCuratedEQStatements(){
         return new ArrayList<>(atomIDtoEQStatement.values());
     }
+    
+    
+    
+    
+    
+    public String getGeneIDFromPhenotypeID(int phenotypeID){
+        return phenotypeIDtoGeneID.get(phenotypeID);
+    }
+    public int getPhenotypeIDFromGeneID(String geneID){
+        return geneIDtoPhenotypeID.get(geneID);
+    }
+    
     
     
     
