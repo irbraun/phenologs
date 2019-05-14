@@ -1,14 +1,11 @@
 Text,Method,Within,Between,Total,F1 (Class),F1 (Subset)
-Phenotypes,Curated EQs,42,0,42,,0.418
-Phenotypes,Predicted EQs,38,4,42,,0.440
-Phenotypes,doc2Vec,42,0,42,,
-Phenotypes,Set of Words,42,0,42,,0.386
-Phenotypes,Bag of Words,42,0,42,,0.414
-Phenes,Curated EQs,,,,,
-Phenes,Predicted EQs,,,,,
-Phenes,doc2Vec,,,,,
-Phenes,Set of Words,,,,,
-Phenes,Bag of Words,,,,,
+Anything,Curated EQs,42,0,42,0.513,0.418
+Phenotypes,Predicted EQs,38,4,42,0.444,0.444
+Phenes,Predicted EQs,38,4,42,0.416,0.440
+Phenotypes,doc2vec,42,0,42,0.444,0.444
+Phenotypes,Set of Words,42,0,42,0.485,0.386
+Phenotypes,Bag of Words,42,0,42,0.480,0.414
+,,,,,,
 ,,,,,,
 ,,,,,,
 ,,,,,,
