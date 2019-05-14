@@ -1,6 +1,6 @@
 {
 	"composer":{
-		"output_path":"/work/dillpicl/irbraun/term-mapping/path/output/annot.csv",
+		"output_path":"/work/dillpicl/irbraun/term-mapping/path/output/phenotype_text_annotations.csv",
 		"max_terms_per_ontology":5,
 		"class_probs":{
 			"pato":["/work/dillpicl/irbraun/term-mapping/path/annotators/noble/output_pato/group1_split_phenotype_classprobs.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/ncbo/output_pato/group1_split_phenotype_classprobs.csv","/work/dillpicl/irbraun/term-mapping/path/annotators/naive/output_pato/merged_split_phenotype_classprobs.csv"],
@@ -14,10 +14,10 @@
 		},
 		"network":{
 			"network_values":"true",
-			"phene_network":"/work/dillpicl/irbraun/term-mapping/path/networks/phene_network.csv",
-			"phenotype_network":"/work/dillpicl/irbraun/term-mapping/path/networks/phenotype_network.csv",
-			"phene_nodes_path":"/work/dillpicl/irbraun/term-mapping/path/networks/phene_nodes.csv",
-			"phenotype_nodes_path":"/work/dillpicl/irbraun/term-mapping/path/networks/phenotype_nodes.csv",
+			"phene_network":"/work/dillpicl/irbraun/term-mapping/path/networks/phenotype_text_phene_network.csv",
+			"phenotype_network":"/work/dillpicl/irbraun/term-mapping/path/networks/phenotype_text_phenotype_network.csv",
+			"phene_nodes_path":"/work/dillpicl/irbraun/term-mapping/path/networks/phenotype_text_phene_nodes.csv",
+			"phenotype_nodes_path":"/work/dillpicl/irbraun/term-mapping/path/networks/phenotype_text_phenotype_nodes.csv",
 		},
 	},
 	"nlp":{

@@ -1,0 +1,30 @@
+{
+	"composer":{
+		"output_path":"notused",
+		"max_terms_per_ontology":5,
+		"class_probs":{
+			"pato":["notused"],
+			"po":["notused"],
+			"go":["notused"],
+			"chebi":["notused"],
+		},
+		"dg_files":{
+			"q":["notused"],
+			"other":["notused"],
+		},
+		"network":{
+			"network_values":"true",
+			"phene_network":"notused",
+			"phenotype_network":"notused",
+			"phene_nodes_path":"notused",
+			"phenotype_nodes_path":"notused",
+		},
+	},
+	"nlp":{
+		"use_prior":"true",
+		"use_lemmas":"false",
+		"use_embeddings":"true",
+		"maxent_tol":"neg_five",
+		"max_features_per_term":5,
+	},
+}
