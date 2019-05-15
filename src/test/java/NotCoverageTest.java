@@ -101,11 +101,9 @@ public class NotCoverageTest {
     public void testA() throws IOException, SQLException, FileNotFoundException, ParseException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
  
         /*
-        Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/config/");
-        Connect conn = new Connect();
-        CoreNLP.setup(); 
-        
-        
+        Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/config/config_set_ph_ene/");
+        //Connect conn = new Connect();
+        //CoreNLP.setup(); 
         HashMap<String,Double> map = new HashMap<>();
         
         BufferedReader reader = new BufferedReader(new FileReader("/Users/irbraun/NetBeansProjects/term-mapping/data/original_datasets/OellrichWallsSupplement/13007_2015_53_MOESM9_ESM.txt"));
