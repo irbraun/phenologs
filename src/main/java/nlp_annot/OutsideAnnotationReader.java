@@ -397,9 +397,38 @@ public class OutsideAnnotationReader {
                             String joined = result.nodes;
                             double score = toolFoundTermsMap.get(c.chunkID).get(allTermIDsFoundBySearching.indexOf(id)).score;
                             
+                            
+                            
+                            
+                            // TODO This version was correct and was only in the phenotype and phene block, copied it here.
                             // Calculate the score for this annotated term on the fly instead if this option was desired.
                             if (Config.checkFuzzyScore){
                                 ArrayList<Double> scoresFromAllSyn = new ArrayList<>();
+                                ArrayList<String> labelAndSynonyms = new ArrayList<>();
+                                labelAndSynonyms.addAll(onto.getTermFromTermID(id).getAllSynonyms());
+                                labelAndSynonyms.add(onto.getTermFromTermID(id).label);
+                                for (String syn: labelAndSynonyms){
+                                    double scoreForThisSyn = FuzzySearch.ratio(joined, syn)/100.00;
+                                    scoresFromAllSyn.add(scoreForThisSyn);
+                                }
+                                try {
+                                    score = Collections.max(scoresFromAllSyn); 
+                                }
+                                catch(Exception e){
+                                    score = 0.00;
+                                }
+                            }
+                            String scoreStr = String.format("%.3f",score);
+                            Object[] line = {c.chunkID, id, scoreStr,joined};
+                            Utils.writeToClassProbFiles(line, c, groups);
+                            
+                            
+                            // TODO this is the old version that was only on the split_phenotype block, causing it to fail and exit.
+                            // Calculate the score for this annotated term on the fly instead if this option was desired.
+                            /*
+                            if (Config.checkFuzzyScore){
+                                ArrayList<Double> scoresFromAllSyn = new ArrayList<>();
+                                scoresFromAllSyn.add(score);
                                 for (String syn: onto.getTermFromTermID(id).getAllSynonyms()){
                                     double scoreForThisSyn = FuzzySearch.ratio(joined, syn)/100.00;
                                     scoresFromAllSyn.add(scoreForThisSyn);
@@ -410,6 +439,7 @@ public class OutsideAnnotationReader {
                             String scoreStr = String.format("%.3f",score);
                             Object[] line = {c.chunkID, id, scoreStr,joined};
                             Utils.writeToClassProbFiles(line, c, groups);
+                            */
                         }
                         else {
                             logger.info(String.format("%s should never see this, already checking for this above",id));
