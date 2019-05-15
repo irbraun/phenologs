@@ -27,7 +27,7 @@ import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
 import uk.ac.ebi.brain.error.NonExistingEntityException;
-import utils.Comparators.EQComparatorByAllMetricsAlternateOrder;
+import utils.Comparators.EQComparatorAvgScoreAndCoverage;
 import static utils.Utils.toRoundedString;
 
 
@@ -53,9 +53,9 @@ public class Composer {
         logger.info("reading in the text data");
         text = new Text();
         Partitions parts = new Partitions(text);
-        //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
+        chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
         //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0,1,text.getAllChunksOfDType(Config.format));
-        chunkIDs = utils.Utils.range(1,100);
+        //chunkIDs = utils.Utils.range(1,100);
         
         
         logger.info("building ontology representations");
@@ -810,7 +810,7 @@ public class Composer {
 
         // Only take a maximum of k EQ statements as output for each description input.
         int threshold = 4;
-        predictedEQs.sort(new EQComparatorByAllMetricsAlternateOrder());
+        predictedEQs.sort(new EQComparatorAvgScoreAndCoverage());
         predictedEQs = new ArrayList<>(predictedEQs.subList(0, Math.min(threshold, predictedEQs.size())));
 
 

@@ -265,11 +265,12 @@ public class Modifier {
         conflicts.add(target);
         List<Term> conflictsSorted = new ArrayList<>();
         
+        /*
         logger.info(String.format("conflict between %s terms", conflicts.size()));
         for (Term t: conflicts){
             System.out.println(t.id);
         }
-        
+        */
         
         // Define default order for how ontology terms should be retained.
         HashMap<Integer,Ontology> ontoOrder = new HashMap<>();
@@ -290,10 +291,12 @@ public class Modifier {
             conflictsSorted.addAll(fromThisO);
         }
         
+        /*
         logger.info(String.format("conflicts sorted has %s terms", conflictsSorted.size()));
         for (Term t: conflictsSorted){
             System.out.println(t.id);
         }
+        */
         
         return conflictsSorted;
     }

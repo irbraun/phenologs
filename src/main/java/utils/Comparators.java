@@ -33,7 +33,7 @@ public class Comparators {
     }
     
     
-    
+ 
     public static final class EQComparatorTotalScore implements Comparator<EQStatement>{
         @Override
         public int compare(EQStatement eq1, EQStatement eq2){
@@ -91,6 +91,40 @@ public class Comparators {
             return 0;
         }  
     }
+    
+    
+    
+    
+    
+    public static final class EQComparatorAvgScoreAndCoverage implements Comparator<EQStatement>{
+        @Override
+        public int compare(EQStatement eq1, EQStatement eq2){
+            if (eq1.getNodeOverlap() < eq2.getNodeOverlap()){
+                return 1;
+            }
+            else if (eq1.getNodeOverlap() > eq2.getNodeOverlap()){
+                return -1;
+            }
+            // The EQ's are equivalent in terms of token coverage.
+            else {
+                if (eq1.getAverageTermScore() < eq2.getAverageTermScore()){
+                    return 1;
+                }
+                else if (eq1.getAverageTermScore() > eq2.getAverageTermScore()){
+                    return -1;
+                }
+            }
+            // The EQ's are equivalent in terms of both coverage and average term score.
+            return 0;
+        }  
+    }
+    
+    
+    
+    
+    
+    
+    
     
     
     
