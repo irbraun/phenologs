@@ -53,9 +53,9 @@ public class Composer {
         logger.info("reading in the text data");
         text = new Text();
         Partitions parts = new Partitions(text);
-        chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
+        //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
         //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0,1,text.getAllChunksOfDType(Config.format));
-        //chunkIDs = utils.Utils.range(1,10);
+        chunkIDs = utils.Utils.range(1,100);
         
         
         logger.info("building ontology representations");
@@ -595,8 +595,8 @@ public class Composer {
         File phenotypeEdgeValuesFile = new File(Config.phenotypeNetworkPath);
         PrintWriter pheneWriter = new PrintWriter(pheneEdgeValuesFile);
         PrintWriter phenotypeWriter = new PrintWriter(phenotypeEdgeValuesFile);
-        pheneWriter.println("phene_1, phene_2, phenotype_1, phenotype_2, pre_m1_edge, pre_m2_edge, cur_m1_edge, cur_m2_edge");
-        phenotypeWriter.println("phenotype_1, phenotype_2, pre_m1_edge, pre_m2_edge, cur_m1_edge, cur_m2_edge");
+        pheneWriter.println("phene_1,phene_2,phenotype_1,phenotype_2,pre_m1_edge,pre_m2_edge,cur_m1_edge,cur_m2_edge");
+        phenotypeWriter.println("phenotype_1,phenotype_2,predefined,pre_m1_edge,pre_m2_edge,cur_m1_edge,cur_m2_edge");
         
         // Setup appropriately depending on what the datatype of the text descriptions are.
         HashSet<Integer> atomIDsSet = new HashSet<>();
