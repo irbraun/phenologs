@@ -4,15 +4,6 @@ import sys
 
 
 
-# Defines methods that work on different direcotories in ./annotators/
-
-
-
-
-
-
-
-
 
 def annotate_with_noblecoder(configs_path, dtype, fuzzy, group_name, level="precise-match", default_prob=1.000):
 	"""

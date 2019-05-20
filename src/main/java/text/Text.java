@@ -560,4 +560,42 @@ public class Text {
     
     
     
+    
+    
+    
+    
+    
+    
+    private String getConcatenatedPheneText(int phenotypeID){
+        StringBuilder sb = new StringBuilder();
+        for (int atomID: this.getAtomIDsFromPhenotypeID(phenotypeID)){
+            String desc = this.getAtomChunkFromID(atomID).getRawText();
+            sb.append(desc);
+            if (desc.charAt(desc.length()-1) != '.'){
+                sb.append(". ");
+            }
+        }
+        return sb.toString();
+    }
+    
+    public ArrayList<Chunk> getAllPhenotypeChunksWithConcatenatedPheneText() throws SQLException{
+        ArrayList<Chunk> concatPhenotypeChunks = new ArrayList<>();
+        for (Chunk c: this.getAllPhenotypeChunks()){
+            String concatendatedPheneDescriptions = getConcatenatedPheneText(c.chunkID); 
+            Chunk modified = new Chunk(c.chunkID, c.textType, concatendatedPheneDescriptions, c.species, c.geneIdentifier);
+            concatPhenotypeChunks.add(modified);
+        }
+        return concatPhenotypeChunks;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }

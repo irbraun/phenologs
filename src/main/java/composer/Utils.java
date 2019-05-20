@@ -490,8 +490,13 @@ public class Utils {
             for (String termID: (HashSet<String>) union){
                 sumUnion += InfoContent.getICofTermFromCorpus(termID);
             }
-            double similarity = sumIntersection / sumUnion;
-            return similarity;
+            if (sumUnion!=0.000){
+                double similarity = sumIntersection / sumUnion;
+                return similarity;
+            }
+            else {
+                return 0.000;
+            }
         }
         catch (Exception e){
             logger.info("problem getting the corpus-based information content of a term");

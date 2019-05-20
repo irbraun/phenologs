@@ -43,6 +43,7 @@ public class Config {
     public static String predefinedSimilaritiesPath;
     
     public static boolean checkFuzzyScore;
+    public static boolean concatenate;
     public static String passedInName;
     
     public static boolean undersample;

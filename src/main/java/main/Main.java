@@ -76,6 +76,8 @@ public class Main {
     // Specify the type of text data if it's applicable.
     @Option(name="-d", usage="text datatype")
     private String dtype = "";
+    @Option(name="-concat", usage="concatenate phene descriptions")
+    private String concat = "false";
     
 
     
@@ -119,6 +121,7 @@ public class Main {
         Config.checkFuzzyScore = fuzzy;
         Config.passedInName = name;
         Config.subsetsOutputPath = locus;
+        Config.concatenate = Boolean.valueOf(concat);
         
 
         

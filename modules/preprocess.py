@@ -14,7 +14,7 @@ from word_utils import make_synonym_file
 
 
 
-def preprocessing(word2vec_model_path, configs_path, dtype, topn=10, threshold=1.00, dbsetup=1, embeddings=1, split=1):
+def preprocessing(word2vec_model_path, configs_path, dtype, topn=10, threshold=1.00, dbsetup=1, embeddings=1, split=1, concat="false"):
 	"""
     Function to setup the necessary objects for running text descriptions through the pipeline.
     Args:
@@ -63,4 +63,4 @@ def preprocessing(word2vec_model_path, configs_path, dtype, topn=10, threshold=1
 			os.system("rm "+os.path.join(split_chunks_path,regex_to_remove))
 		else:
 			os.makedirs(split_chunks_path)
-		os.system("java -jar term-mapping.jar -n1 "+split_chunks_path+" -thresh "+str(threshold)+" -d "+dtype+" "+configs_path)
+		os.system("java -jar term-mapping.jar -n1 "+split_chunks_path+" -thresh "+str(threshold)+" -d "+dtype+" "+" -concat "+concat+" "+configs_path)

@@ -21,6 +21,7 @@ from collections import Counter
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
+import string
 
 
 LabeledSentence = gensim.models.doc2vec.LabeledSentence
@@ -120,6 +121,9 @@ def update_networkfile_bow(chunks_path, network_filename, revised_network_filena
 	for filepath in glob.iglob(os.path.join(chunks_path,r"*.txt")):
 		file = open(filepath)
 		sentence = file.read()
+		# Preprocessing to remove puncutation.
+		sentence = sentence.translate(None, string.punctuation)
+		# End preprocessing.
 		chunk_id = int(filepath.split("/")[-1].split(".")[0])
 		jac_dict[chunk_id] = set(sentence.lower().split())
 		

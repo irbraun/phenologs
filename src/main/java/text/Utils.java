@@ -97,8 +97,19 @@ public class Utils {
                 logger.info("file containing word embedding results could not be read");
             }
             
+            
+            // Generate the text object and pull out the appropriate chunks. 
+            // Account for cases where we want to use concatenated phene descriptions for the phenotype chunks.
             Text text = new Text();
-            List<Chunk> chunks = text.getAllChunksOfDType(format);
+            List<Chunk> chunks;
+            if (Config.concatenate){
+                chunks = text.getAllPhenotypeChunksWithConcatenatedPheneText();
+            }
+            else{
+                chunks = text.getAllChunksOfDType(format);
+            }
+            
+            
             
             for (Chunk c: chunks){
                 File outputFile = new File(String.format("%s%s.txt",dir,c.chunkID));

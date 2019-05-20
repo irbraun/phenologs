@@ -102,8 +102,14 @@ public class NotCoverageTest {
  
         /*
         Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/config/config_set_ph_ene/");
-        //Connect conn = new Connect();
+        Connect conn = new Connect();
         //CoreNLP.setup(); 
+        
+        Text text = new Text();
+        System.out.println(text.getConcatenatedPheneText(44));
+        System.out.println(text.getConcatenatedPheneText(1));
+        System.out.println(text.getConcatenatedPheneText(1942));
+        
         HashMap<String,Double> map = new HashMap<>();
         
         BufferedReader reader = new BufferedReader(new FileReader("/Users/irbraun/NetBeansProjects/term-mapping/data/original_datasets/OellrichWallsSupplement/13007_2015_53_MOESM9_ESM.txt"));
