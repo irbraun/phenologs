@@ -33,9 +33,6 @@ cat(paste(numCores,"cores available"))
 
 
 
-
-
-
 # Read in the phenotype and phene network files output from the pipeline.
 phenotype_network <- read(NETWORKS_DIR,PHENOTYPE_EDGES_FILE)
 
@@ -120,7 +117,7 @@ summarize_method <- function(pred_col_name, df, output_dir){
 
 
 
-summarize_method_2 <- function(pred_col_name, df, output_dir){
+summarize_method_for_figure <- function(pred_col_name, df, output_dir){
   # Specify which predictive method to use.
   df$value_to_use <- df[,pred_col_name]
   # Generate the empty table.
@@ -138,10 +135,8 @@ summarize_method_2 <- function(pred_col_name, df, output_dir){
     diff <- (as.numeric(results[3])-as.numeric(results[4]))/sd(df$value_to_use)
     table[nrow(table)+1,] <- c(subset2group[[subset_names[[1]]]], class, "all", 1, results, diff)
   }
-  # Write a method specific file, fix naming in columns and return.
+  # Write a method specific file, add method column and return.
   write.csv(table, file=paste(output_dir,"summary_of_",pred_col_name,".csv",sep=""),row.names=F)
-  
-  # New stuff
   table$method <- pred_col_name
   return(table)
 }
@@ -150,18 +145,12 @@ summarize_method_2 <- function(pred_col_name, df, output_dir){
 
 
 
-# Trying to do them all at once.
+
+
+
+
+# Determine the within and between information for all the methods.
 method_dfs <- mclapply(PRED_COLUMN_NAMES, summarize_method, df=phenotype_network, output_dir=OUTPUT_DIR, mc.cores=numCores)
-
-
-
-
-
-
-
-
-
-
 
 # Include the full names of each group and class.
 names_df <-read("/Users/irbraun/NetBeansProjects/term-mapping/data/original_datasets/cleaned/","subset_names_cleaned.csv")
@@ -169,7 +158,6 @@ group_names_map <- hashmap(unique(names_df$Group.Symbol), unique(names_df$Group.
 class_names_map <- hashmap(unique(names_df$Class.Symbol), unique(names_df$Class.Name))
 f_group <- function(x){return(group_names_map[[x]])}
 f_class <- function(x){return(class_names_map[[x]])}
-
 
 # Generate a table that summarizes the overall results.
 summary <- Reduce(function(x,y) merge(x = x, y = y, by=c("group","class","combined","subset")), method_dfs)
@@ -182,18 +170,22 @@ write.csv(summary, file=paste(OUTPUT_DIR,"summary_of_all_methods.csv",sep=""), r
 
 
 
-# Trying it a new way that creates a single dataframe with a column specifying the method used.
-method_dfs <- mclapply(PRED_COLUMN_NAMES, summarize_method_2, df=phenotype_network, output_dir=OUTPUT_DIR, mc.cores=numCores)
+
+
+# Same thing but using the version that makes generating the figure easy.
+method_dfs <- mclapply(PRED_COLUMN_NAMES, summarize_method_for_figure, df=phenotype_network, output_dir=OUTPUT_DIR, mc.cores=numCores)
 method_df <- do.call("rbind", method_dfs)
 method_df$diff <- as.numeric(method_df$diff)
+method_df <- method_df[method_df$subset!="all",]
 
-max_y <- 5
-min_y <- -1
-step_y <- 1
+max_y <- 8
+min_y <- -2
+step_y <- 2
 
-y_label <- "Difference inf whatever"
-x_label <- "something on the x axis"
+y_label <- "Sim(within) - Sim(between)"
+x_label <- "Functional Subsets"
 
+library(grid)
 ggplot(data=method_df, aes(x=subset, y=diff)) + geom_bar(stat="identity") +
   theme_bw() +
   scale_y_continuous(breaks=seq(min_y,max_y,step_y), expand=c(0,0), limits=c(min_y,max_y)) +
@@ -201,22 +193,8 @@ ggplot(data=method_df, aes(x=subset, y=diff)) + geom_bar(stat="identity") +
   ylab(y_label) +
   xlab(x_label) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) +
-  facet_grid(method  ~ .)
-
-
-
-
-
-
-# Only want to include the x-axis label on some of the plots.
-if(x_label==""){
-  plt <- plt + theme(axis.title.x=element_blank()) 
-  plt <- plt + theme(axis.text.x=element_blank())
-}else{
-  plt <- plt + xlab(x_label)
-  plt <- plt + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
-}
-return(plt)
+  facet_grid(method  ~ .) + 
+  theme(panel.spacing = unit(0.8, "lines"))
 
 
 
@@ -225,23 +203,6 @@ return(plt)
 
 
 
-big_df <- do.call("rbind", list(method_dfs[[1]], method_dfs[[2]], method_dfs[[3]]))
-big_df$diff <- as.numeric(big_df$diff)
-big_df <- big_df[big_df$subset!="all",]
-
-
-
-
-
-plt <- ggplot(data=big_df, aes(x=subset, y=diff)) + geom_bar(stat="identity") +
-  theme_bw() +
-  scale_y_continuous(breaks=seq(min_y,max_y,step_y), expand=c(0,0), limits=c(min_y,max_y)) +
-  theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
-  facet_grid(method  ~ .)
-  
-
-plt <- plt + facet_grid(rows = vars(big_df$method))
-plt
 
 
 
@@ -250,91 +211,92 @@ plt
 
 
 
-prepare_one_plot <- function(method_df, x_label, y_label){
-  max_y <- 5
-  min_y <- -1
-  step_y <- 1
-  diff_col_index <- grepl('diff', colnames(method_df))
-  method_df$diff <- as.numeric(method_df[,diff_col_index])
-  method_df <- method_df[method_df$subset!="all",]
-  
-  plt <- ggplot(data=method_df, aes(x=subset, y=diff)) + geom_bar(stat="identity") +
-    theme_bw() +
-    scale_y_continuous(breaks=seq(min_y,max_y,step_y), expand=c(0,0), limits=c(min_y,max_y)) +
 
-    theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
-    ylab(y_label)
-  
-  # Only want to include the x-axis label on some of the plots.
-  if(x_label==""){
-    plt <- plt + theme(axis.title.x=element_blank()) 
-    plt <- plt + theme(axis.text.x=element_blank())
-  }else{
-    plt <- plt + xlab(x_label)
-    plt <- plt + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
-  }
-  return(plt)
-}
-
-
-p1 <- prepare_one_plot(method_dfs[[1]], "soetuh", "predefined")
-p2 <- prepare_one_plot(method_dfs[[2]], "tasdkj", "cur_m1")
-p3 <- prepare_one_plot(method_dfs[[3]], "", "cur_m2")
-p4 <- prepare_one_plot(method_dfs[[4]], "", "pre_m1")
-p5 <- prepare_one_plot(method_dfs[[5]], "", "pre_m2")
-p6 <- prepare_one_plot(method_dfs[[6]], "", "doc2vec")
-p7 <- prepare_one_plot(method_dfs[[7]], "", "word set")
-p8 <- prepare_one_plot(method_dfs[[8]], "categories", "word bag")
-
-
-
-
-
-p + facet_grid(rows = vars(drv))
-
-
-
-library(gridExtra)
-grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, nrow = 8)
-
-
-
-library(grid)
-grid.newpage()
-grid.draw(rbind(ggplotGrob(p1), ggplotGrob(p2), size = "last"))
-
-
-
-
-
-a <- method_dfs[[5]]
-a <- a[a$subset!="all",]
-a$diff.enwiki_dbow <- as.numeric(a$diff.enwiki_dbow)
-
-p1 <- ggplot(data=a, aes(x=subset, y=diff.enwiki_dbow)) + geom_bar(stat="identity") +
-  theme_bw() +
-  scale_y_continuous(breaks=seq(-1,5,1.0), expand=c(0,0), limits=c(-1,5)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) +
-  theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
-  theme(axis.title.x=element_blank()) + 
-  ylab("doc2vec")
-
-
-a <- method_dfs[[3]]
-a <- a[a$subset!="all",]
-a$diff.pre_m1_edge <- as.numeric(a$diff.pre_m1_edge)
-
-p2 <- ggplot(data=a, aes(x=subset, y=diff.pre_m1_edge)) + geom_bar(stat="identity") +
-  theme_bw() +
-  scale_y_continuous(breaks=seq(-1,5,1.0), expand=c(0,0), limits=c(-1,5)) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) +
-  theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
-  ylab("Predicted EQs") +
-  xlab("Functional Subsets")
-
-
-library(gridExtra)
-grid.arrange(p1, p2, nrow = 2)
+# prepare_one_plot <- function(method_df, x_label, y_label){
+#   max_y <- 5
+#   min_y <- -1
+#   step_y <- 1
+#   diff_col_index <- grepl('diff', colnames(method_df))
+#   method_df$diff <- as.numeric(method_df[,diff_col_index])
+#   method_df <- method_df[method_df$subset!="all",]
+#   
+#   plt <- ggplot(data=method_df, aes(x=subset, y=diff)) + geom_bar(stat="identity") +
+#     theme_bw() +
+#     scale_y_continuous(breaks=seq(min_y,max_y,step_y), expand=c(0,0), limits=c(min_y,max_y)) +
+# 
+#     theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
+#     ylab(y_label)
+#   
+#   # Only want to include the x-axis label on some of the plots.
+#   if(x_label==""){
+#     plt <- plt + theme(axis.title.x=element_blank()) 
+#     plt <- plt + theme(axis.text.x=element_blank())
+#   }else{
+#     plt <- plt + xlab(x_label)
+#     plt <- plt + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5))
+#   }
+#   return(plt)
+# }
+# 
+# 
+# p1 <- prepare_one_plot(method_dfs[[1]], "soetuh", "predefined")
+# p2 <- prepare_one_plot(method_dfs[[2]], "tasdkj", "cur_m1")
+# p3 <- prepare_one_plot(method_dfs[[3]], "", "cur_m2")
+# p4 <- prepare_one_plot(method_dfs[[4]], "", "pre_m1")
+# p5 <- prepare_one_plot(method_dfs[[5]], "", "pre_m2")
+# p6 <- prepare_one_plot(method_dfs[[6]], "", "doc2vec")
+# p7 <- prepare_one_plot(method_dfs[[7]], "", "word set")
+# p8 <- prepare_one_plot(method_dfs[[8]], "categories", "word bag")
+# 
+# 
+# 
+# 
+# 
+# p + facet_grid(rows = vars(drv))
+# 
+# 
+# 
+# library(gridExtra)
+# grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, nrow = 8)
+# 
+# 
+# 
+# library(grid)
+# grid.newpage()
+# grid.draw(rbind(ggplotGrob(p1), ggplotGrob(p2), size = "last"))
+# 
+# 
+# 
+# 
+# 
+# a <- method_dfs[[5]]
+# a <- a[a$subset!="all",]
+# a$diff.enwiki_dbow <- as.numeric(a$diff.enwiki_dbow)
+# 
+# p1 <- ggplot(data=a, aes(x=subset, y=diff.enwiki_dbow)) + geom_bar(stat="identity") +
+#   theme_bw() +
+#   scale_y_continuous(breaks=seq(-1,5,1.0), expand=c(0,0), limits=c(-1,5)) +
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) +
+#   theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
+#   theme(axis.title.x=element_blank()) + 
+#   ylab("doc2vec")
+# 
+# 
+# a <- method_dfs[[3]]
+# a <- a[a$subset!="all",]
+# a$diff.pre_m1_edge <- as.numeric(a$diff.pre_m1_edge)
+# 
+# p2 <- ggplot(data=a, aes(x=subset, y=diff.pre_m1_edge)) + geom_bar(stat="identity") +
+#   theme_bw() +
+#   scale_y_continuous(breaks=seq(-1,5,1.0), expand=c(0,0), limits=c(-1,5)) +
+#   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) +
+#   theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
+#   ylab("Predicted EQs") +
+#   xlab("Functional Subsets")
+# 
+# 
+# library(gridExtra)
+# grid.arrange(p1, p2, nrow = 2)
 
 
 
