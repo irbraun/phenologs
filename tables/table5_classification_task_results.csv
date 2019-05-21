@@ -1,0 +1,8 @@
+Method,Phene descriptions,,Phenotype descriptions,
+,Class,Subset,Class,Subset
+PPN,,,,
+EQs S1,,,0.262,0.277
+EQs S2,,,0.389,0.397
+Set of Words,,,0.488,0.426
+Bag of Words,,,0.482,0.409
+Doc2Vec,,,0.388,0.382
