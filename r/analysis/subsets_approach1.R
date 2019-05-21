@@ -15,8 +15,8 @@ source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_subset
 NETWORKS_DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
 PHENOTYPE_EDGES_FILE <- "phenotype_text_phenotype_network.csv"
 # Function categorization files.
-SUBSETS_DIR <- "/Users/irbraun/Desktop/"
-SUBSETS_FILENAME <- "out.csv"
+SUBSETS_DIR <- "/Users/irbraun/NetBeansProjects/term-mapping/data/original_datasets/cleaned/"
+SUBSETS_FILENAME <- "phenotype_classification_list.csv"
 # Define properties of the output files.
 OUTPUT_DIR <- "/Users/irbraun/Desktop/temp/"
 OUT_FILE_COLUMNS <- c("group","class","subset","combined","num_in","num_out","mean_within","mean_between","p_value","greater","significant","diff")
@@ -186,7 +186,7 @@ method_df$subset_number <- as.numeric(method_df$subset_number)
 method_df <- method_df[method_df$subset!="all",]
 
 # Specifications for each plot.
-max_y <- 8
+max_y <- 6
 min_y <- -2
 step_y <- 2
 y_label <- "Similarity(within) - Similarity(between)"
@@ -194,16 +194,23 @@ x_label <- "Functional Subsets"
 
 # Convert how methods are specified in the table to names that work in the figure.
 method_names <- list(
-  "predefined"="Cur. EQs",
+  "predefined"="PPN",
   "cur_m1_edge"="cm1", 
   "cur_m2_edge"="cm2", 
-  "pre_m1_edge"="Pred. EQs", 
-  "pre_m2_edge"="Pred. EQs", 
+  "pre_m1_edge"="EQs S1", 
+  "pre_m2_edge"="EQs S2", 
   "enwiki_dbow"="Doc2Vec", 
   "jaccard"="Word Set", 
   "cosine"="Word Bag"
 )
 method_labeller <- function(variable,value){return(method_names[value])}
+
+# Drop methods to not include in the figure.
+do_not_include <- c("cur_m1_edge","cur_m2_edge")
+method_df <- method_df[!(method_df$method %in% do_not_include),]
+
+
+
 
 # Make the figure.
 library(grid)

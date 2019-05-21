@@ -9,6 +9,7 @@ annotators/noble/*
 !annotators/noble/nc_parse.py
 
 data/*
+figures/*
 gensim/*
 lib/*
 logs/*
