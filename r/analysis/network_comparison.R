@@ -6,17 +6,17 @@ library(car)
 library(parallel)
 
 
-source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
-source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_networks.R")
+source("/work/dillpicl/irbraun/term-mapping/path/r/utils.R")
+source("/work/dillpicl/irbraun/term-mapping/path/r/utils_for_networks.R")
 
 
 
 # The file specifying the network edges.
-DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
-IN_FILE <- "phenotype_network_modified_NEW.csv"
+DIR <- "/work/dillpicl/irbraun/term-mapping/path/networks/"
+IN_FILE <- "phenotype_text_phenotype_network.csv"
 # Other constants.
-SAMPLING_RATIO <- 0.9
-OUT_PATH <- "/Users/irbraun/Desktop/droplet/path/r/output/network_comparison.csv"
+SAMPLING_RATIO <- 0.8
+OUT_PATH <- "/work/dillpicl/irbraun/term-mapping/path/r/output/network_comparison.csv"
 NUM_ITER <- 10
 
 
@@ -48,8 +48,8 @@ for(i in seq(1, num_iter)){
 
 # Define the range of k values to use.
 k_start <- 1000 
-k_step <- 100000
-k_max <- 1001000
+k_step <- 10000
+k_max <- 4000000
 total_number_of_edges <- nrow(d)
 k_max <- min(k_max,total_number_of_edges)
 k_values <- seq(k_start, k_max, k_step)
@@ -82,26 +82,38 @@ get_df_for_method <- function(pred_col_name, target_col_name, d){
 
 
 # trying to do them all at once.
-TARGET_COL_NAME <- "cur_m1_edge"
-PRED_COL_NAMES <- c("cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge")
+TARGET_COL_NAME <- "predefined"
+PRED_COL_NAMES <- c("predefined", "cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "cosine", "jaccard")
 
 method_dfs <- mclapply(PRED_COL_NAMES, get_df_for_method, target_col_name=TARGET_COL_NAME, d=d, mc.cores=numCores)
 
 # This part is still hardcoded, has to be changed here if using additional metrics.
 # Do this a better way.
 df <- data.frame(k=k_values,
-                 cur1_all=method_dfs[[1]][1,],
-                 cur1_min=method_dfs[[1]][2,],
-                 cur1_max=method_dfs[[1]][3,],
-                 cur2_all=method_dfs[[2]][1,],
-                 cur2_min=method_dfs[[2]][2,],
-                 cur2_max=method_dfs[[2]][3,],
-                 pre1_all=method_dfs[[3]][1,],
-                 pre1_min=method_dfs[[3]][2,],
-                 pre1_max=method_dfs[[3]][3,],
-                 pre2_all=method_dfs[[4]][1,],
-                 pre2_min=method_dfs[[4]][2,],
-                 pre2_max=method_dfs[[4]][3,]
+                 ppn_all=method_dfs[[1]][1,],
+                 ppn_min=method_dfs[[1]][2,],
+                 ppn_max=method_dfs[[1]][3,],
+                 cur1_all=method_dfs[[2]][1,],
+                 cur1_min=method_dfs[[2]][2,],
+                 cur1_max=method_dfs[[2]][3,],
+                 cur2_all=method_dfs[[3]][1,],
+                 cur2_min=method_dfs[[3]][2,],
+                 cur2_max=method_dfs[[3]][3,],
+                 pre1_all=method_dfs[[4]][1,],
+                 pre1_min=method_dfs[[4]][2,],
+                 pre1_max=method_dfs[[4]][3,],
+                 pre2_all=method_dfs[[5]][1,],
+                 pre2_min=method_dfs[[5]][2,],
+                 pre2_max=method_dfs[[5]][3,],
+                 enw_all=method_dfs[[6]][1,],
+                 enw_min=method_dfs[[6]][2,],
+                 enw_max=method_dfs[[6]][3,],
+                 cos_all=method_dfs[[7]][1,],
+                 cos_min=method_dfs[[7]][2,],
+                 cos_max=method_dfs[[7]][3,],
+                 jac_all=method_dfs[[8]][1,],
+                 jac_min=method_dfs[[8]][2,],
+                 jac_max=method_dfs[[8]][3,]
 )
 
 
@@ -114,7 +126,7 @@ df <- read("",OUT_PATH)
 
 
 # Converting the dataframe to long format to have multiple methods on the same plot.
-df_long <- gather(df, method, value, cur1_all, cur2_all, pre1_all, pre2_all, factor_key=TRUE)
+df_long <- gather(df, method, value, cur1_all, cur2_all, pre1_all, pre2_all, ppn_all, enw_all, cos_all, jac_all, factor_key=TRUE)
 
 # Do this a better way.
 df_long[df_long$method=="cur1_all","min"] <- df_long[df_long$method=="cur1_all",]$cur1_min
@@ -125,34 +137,54 @@ df_long[df_long$method=="pre1_all","min"] <- df_long[df_long$method=="pre1_all",
 df_long[df_long$method=="pre1_all","max"] <- df_long[df_long$method=="pre1_all",]$pre1_max
 df_long[df_long$method=="pre2_all","min"] <- df_long[df_long$method=="pre2_all",]$pre2_min
 df_long[df_long$method=="pre2_all","max"] <- df_long[df_long$method=="pre2_all",]$pre2_max
+df_long[df_long$method=="ppn_all","min"] <- df_long[df_long$method=="ppn_all",]$ppn_min
+df_long[df_long$method=="ppn_all","max"] <- df_long[df_long$method=="ppn_all",]$ppn_max
+df_long[df_long$method=="enw_all","min"] <- df_long[df_long$method=="enw_all",]$enw_min
+df_long[df_long$method=="enw_all","max"] <- df_long[df_long$method=="enw_all",]$enw_max
+df_long[df_long$method=="cos_all","min"] <- df_long[df_long$method=="cos_all",]$cos_min
+df_long[df_long$method=="cos_all","max"] <- df_long[df_long$method=="cos_all",]$cos_max
+df_long[df_long$method=="jac_all","min"] <- df_long[df_long$method=="jac_all",]$jac_min
+df_long[df_long$method=="jac_all","max"] <- df_long[df_long$method=="jac_all",]$jac_max
+
+
+
+
+
 df_long <- df_long[,c("k","method","value","min","max")]
 
 
 
 
 
+
+
+# Drop methods to not include in the figure.
+do_not_include <- c("cur1_all","cur2_all")
+df_long <- df_long[!(df_long$method %in% do_not_include),]
+
+
 # Make the plot out of obtained dataframe.
-line_types <- c("dashed", "solid", "dotted", "dotdash")
-method_names <- c("cur1_all","cur2_all","pre1_all","pre2_all")
-labels <- c("Curated 1", "Curated 2", "Predicted 1", "Predicted 2")
-ribbon_colors = c("grey10","grey20","grey30","grey40")
+line_types <- c("dashed", "solid", "dotted", "dotdash", "longdash", "twodash")
+method_names <- c("ppn_all", "pre1_all","pre2_all","enw_all","cos_all","jac_all")
+labels <- c("PPN", "EQs S1", "EQs S2", "Doc2Vec", "Bag of Words", "Set of Words")
+ribbon_colors = c("grey10","grey10","grey10","grey10","grey10","grey10")
 
 
-max_num_phenologs <- 2000000
-max_y = 1.0
 
 ggplot(data=df_long, aes(x=k, y=value, linetype=method)) + geom_line() +
   scale_linetype_manual("Legend", values=line_types, breaks=method_names, labels=labels) +
-  coord_cartesian(xlim=c(max_num_phenologs,0), ylim = c(0.0,max_y)) +
+  coord_cartesian(xlim=c(4000000,0),ylim = c(0.0,1.0)) +
   theme_bw() +
   theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
   ylab("F1-Score") +
-  xlab("Number of Phenologs") +
+  xlab("Number of Edges") +
   scale_x_continuous(expand=c(0,0)) +
   scale_y_continuous(expand=c(0,0)) +
   # Adding ribbons to show how robust the results are to changes in input phenotypes in this dataset.
   geom_ribbon(aes(ymin=df_long$min, ymax=df_long$max, fill=df_long$method, alpha=0.1), show.legend=F) +
   scale_fill_manual(breaks=method_names, values=ribbon_colors)
+
+
 
 
 
@@ -202,7 +234,7 @@ ggplot(d, aes(x=method)) + geom_density(colour="black", fill="blue", alpha=0.3) 
 # Find out what that value of k is in each case, (should be somewhat similar between methods).
 # Then mark that value of k on the x-axis in the F1 score plot, and everything to the left of that point should be meaningful.
 # This is a method of figuring out which similarity scores are likely to be biologically meaningful when we don't have data to answer this.
-                    
+
 
 
 
@@ -234,13 +266,10 @@ ggplot(d, aes(x=method)) + geom_density(colour="black", fill="blue", alpha=0.3) 
 
 
 
+
+
+
                     
                     
   
   
-
-
-
-
-
-
