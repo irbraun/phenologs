@@ -138,14 +138,16 @@ labels <- c("Curated 1", "Curated 2", "Predicted 1", "Predicted 2")
 ribbon_colors = c("grey10","grey20","grey30","grey40")
 
 
+max_num_phenologs <- 2000000
+max_y = 1.0
 
 ggplot(data=df_long, aes(x=k, y=value, linetype=method)) + geom_line() +
   scale_linetype_manual("Legend", values=line_types, breaks=method_names, labels=labels) +
-  coord_cartesian(xlim=c(4000000,0),ylim = c(0.0,1.0)) +
+  coord_cartesian(xlim=c(max_num_phenologs,0), ylim = c(0.0,max_y)) +
   theme_bw() +
   theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
-  ylab("F1") +
-  xlab("Number of Edges") +
+  ylab("F1-Score") +
+  xlab("Number of Phenologs") +
   scale_x_continuous(expand=c(0,0)) +
   scale_y_continuous(expand=c(0,0)) +
   # Adding ribbons to show how robust the results are to changes in input phenotypes in this dataset.
