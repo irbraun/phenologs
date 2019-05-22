@@ -24,9 +24,11 @@ public class DependencyParsing {
     private final HashMap<Integer,Integer> countsPE1toQ;
     private final HashMap<Integer,Integer> countsPE1toPE2;
     private final HashMap<Integer,Integer> countsPE1toSE1;
+    private final HashMap<Integer,Integer> countsSE1toSE2;
     private int sumPE1toQ;
     private int sumPE1toPE2;
     private int sumPE1toSE1;
+    private int sumSE1toSE2;
     
     
     
@@ -55,12 +57,21 @@ public class DependencyParsing {
             otherSets.add(new OwlSet(filepath));
         }
         
+        
+        
+        
+        
+        
+        
+        
         countsPE1toQ = new HashMap<>();
         countsPE1toPE2 = new HashMap<>();
         countsPE1toSE1 = new HashMap<>();
+        countsSE1toSE2 = new HashMap<>();
         sumPE1toQ = 0;
         sumPE1toPE2 = 0;
         sumPE1toSE1 = 0;
+        sumSE1toSE2 = 0;
         
         Text text = new Text();
         
@@ -124,22 +135,56 @@ public class DependencyParsing {
                 count++;
                 countsPE1toSE1.put(length, count);            
             }
+            
+            length = Modifier.getMinPathLength(se1Tokens, se2Tokens, a);
+            if (length != 100){
+                int count = countsSE1toSE2.getOrDefault(length, 0);
+                count++;
+                countsSE1toSE2.put(length, count);            
+            }
            
         }    
         
-
+        // Get the sums of the counts of all lengths observed for each relationship.
         for (int l: countsPE1toQ.keySet()){
             sumPE1toQ += countsPE1toQ.get(l);
-            System.out.println(l + ":" + countsPE1toQ.get(l));
         }
         for (int l: countsPE1toPE2.keySet()){
             sumPE1toPE2 += countsPE1toPE2.get(l);
-            System.out.println(l + ":" + countsPE1toPE2.get(l));
         }
         for (int l: countsPE1toSE1.keySet()){
             sumPE1toSE1 += countsPE1toSE1.get(l);
-            System.out.println(l + ":" + countsPE1toSE1.get(l));
         }
+        for (int l: countsSE1toSE2.keySet()){
+            sumSE1toSE2 += countsSE1toSE2.get(l);
+        }
+        
+        
+        
+        // Printing out the distributions for the table.
+        System.out.println("Distribution of primary E1 to Q (n="+sumPE1toQ+")");
+        for (int l: countsPE1toQ.keySet()){
+            System.out.println(String.format("Length=%s, Probability=%s", l, getProbability(Role.PRIMARY_ENTITY1_ID, Role.QUALITY_ID, l)));
+        }
+        
+        System.out.println("Distribution of primary E1 to primary E2 (n="+sumPE1toPE2+")");
+        for (int l: countsPE1toQ.keySet()){
+            System.out.println(String.format("Length=%s, Probability=%s", l, getProbability(Role.PRIMARY_ENTITY1_ID, Role.PRIMARY_ENTITY2_ID, l)));
+        }
+        
+        System.out.println("Distribution of primary E1 to secondary E1 (n="+sumPE1toSE1+")");
+        for (int l: countsPE1toQ.keySet()){
+            System.out.println(String.format("Length=%s, Probability=%s", l, getProbability(Role.PRIMARY_ENTITY1_ID, Role.SECONDARY_ENTITY1_ID, l)));
+        }
+        
+        System.out.println("Distribution of secondary E1 to secondary E2 (n="+sumSE1toSE2+")");
+        for (int l: countsSE1toSE2.keySet()){
+            System.out.println(String.format("Length=%s, Probability=%s", l, getProbability(Role.SECONDARY_ENTITY1_ID, Role.SECONDARY_ENTITY2_ID, l)));
+        }
+        
+        
+        
+        
         
         
         
@@ -160,6 +205,9 @@ public class DependencyParsing {
         }
         else if (r1.equals(Role.PRIMARY_ENTITY1_ID) && r2.equals(Role.SECONDARY_ENTITY1_ID)){
             prob = (double) countsPE1toSE1.getOrDefault(length, 0) / (double) sumPE1toSE1;
+        }
+        else if (r1.equals(Role.SECONDARY_ENTITY1_ID) && r2.equals(Role.SECONDARY_ENTITY2_ID)){
+            prob = (double) countsSE1toSE2.getOrDefault(length, 0) / (double) sumSE1toSE2;
         }
         else {
             throw new Exception();

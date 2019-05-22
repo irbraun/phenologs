@@ -43,6 +43,7 @@ import main.Partitions;
 import nlp.CoreNLP;
 import nlp.MyAnnotation;
 import nlp.MyAnnotation.Token;
+import nlp_annot.DependencyParsing;
 import ontology.Onto;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -100,13 +101,24 @@ public class NotCoverageTest {
     @Test
     public void testA() throws IOException, SQLException, FileNotFoundException, ParseException, OWLOntologyCreationException, NewOntologyException, ClassExpressionException, Exception{
  
-        /*
+
         Config config = new Config("/Users/irbraun/NetBeansProjects/term-mapping/config/config_set_ph_ene/");
         Connect conn = new Connect();
-        //CoreNLP.setup(); 
+        CoreNLP.setup(); 
         
-        Text text = new Text();
-        System.out.println(text.getConcatenatedPheneText(44));
+        DependencyParsing dG = new DependencyParsing();
+        System.out.println("done");
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        /*System.out.println(text.getConcatenatedPheneText(44));
         System.out.println(text.getConcatenatedPheneText(1));
         System.out.println(text.getConcatenatedPheneText(1942));
         
