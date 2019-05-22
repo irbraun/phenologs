@@ -38,7 +38,8 @@
 				"/Users/irbraun/Desktop/droplet/path/annotators/ncbo/output_po/group1_phene_eval.csv",
 				"/Users/irbraun/Desktop/droplet/path/annotators/noble/output_go/group1_phene_eval.csv",
 				"/Users/irbraun/Desktop/droplet/path/annotators/noble/output_go/group2_phene_eval.csv",
-				"/Users/irbraun/Desktop/droplet/path/annotators/ncbo/output_go/group1_phene_eval.csv"
+				"/Users/irbraun/Desktop/droplet/path/annotators/ncbo/output_go/group1_phene_eval.csv",
+				"/Users/irbraun/Desktop/droplet/path/annotators/ncbo/output_chebi/group1_phene_eval.csv"
 			],
 		},
 		"network":{

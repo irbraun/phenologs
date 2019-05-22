@@ -116,28 +116,28 @@ public class DependencyParsing {
             int length;
             
             length = Modifier.getMinPathLength(qTokens, pe1Tokens, a);
-            if (length != 100){
+            if (length!=100 && length !=0){
                 int count = countsPE1toQ.getOrDefault(length, 0);
                 count++;
                 countsPE1toQ.put(length, count);
             }
             
             length = Modifier.getMinPathLength(pe1Tokens, pe2Tokens, a);
-            if (length != 100){
+            if (length!=100 && length !=0){
                 int count = countsPE1toPE2.getOrDefault(length, 0);
                 count++;
                 countsPE1toPE2.put(length, count); 
             }
             
             length = Modifier.getMinPathLength(pe1Tokens, se1Tokens, a);
-            if (length != 100){
+            if (length!=100 && length !=0){
                 int count = countsPE1toSE1.getOrDefault(length, 0);
                 count++;
                 countsPE1toSE1.put(length, count);            
             }
             
             length = Modifier.getMinPathLength(se1Tokens, se2Tokens, a);
-            if (length != 100){
+            if (length!=100 && length !=0){
                 int count = countsSE1toSE2.getOrDefault(length, 0);
                 count++;
                 countsSE1toSE2.put(length, count);            
@@ -168,12 +168,12 @@ public class DependencyParsing {
         }
         
         System.out.println("Distribution of primary E1 to primary E2 (n="+sumPE1toPE2+")");
-        for (int l: countsPE1toQ.keySet()){
+        for (int l: countsPE1toPE2.keySet()){
             System.out.println(String.format("Length=%s, Probability=%s", l, getProbability(Role.PRIMARY_ENTITY1_ID, Role.PRIMARY_ENTITY2_ID, l)));
         }
         
         System.out.println("Distribution of primary E1 to secondary E1 (n="+sumPE1toSE1+")");
-        for (int l: countsPE1toQ.keySet()){
+        for (int l: countsPE1toSE1.keySet()){
             System.out.println(String.format("Length=%s, Probability=%s", l, getProbability(Role.PRIMARY_ENTITY1_ID, Role.SECONDARY_ENTITY1_ID, l)));
         }
         
