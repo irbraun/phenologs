@@ -146,44 +146,55 @@ df_long[df_long$method=="cos_all","max"] <- df_long[df_long$method=="cos_all",]$
 df_long[df_long$method=="jac_all","min"] <- df_long[df_long$method=="jac_all",]$jac_min
 df_long[df_long$method=="jac_all","max"] <- df_long[df_long$method=="jac_all",]$jac_max
 
-
-
-
-
 df_long <- df_long[,c("k","method","value","min","max")]
 
 
 
-
-
-
-
 # Drop methods to not include in the figure.
-do_not_include <- c("cur1_all","cur2_all")
+do_not_include <- c("cur1_all","cur2_all","ppn_all")
 df_long <- df_long[!(df_long$method %in% do_not_include),]
 
 
-# Make the plot out of obtained dataframe.
-line_types <- c("dashed", "solid", "dotted", "dotdash", "longdash", "twodash")
-method_names <- c("ppn_all", "pre1_all","pre2_all","enw_all","cos_all","jac_all")
-labels <- c("PPN", "EQs S1", "EQs S2", "Doc2Vec", "Bag of Words", "Set of Words")
-ribbon_colors = c("grey10","grey10","grey10","grey10","grey10","grey10")
+
+# Creating the faceted plot shown in the figure.
+# Read in df_long for each method.
+# Add 'facet' column to each with the value either "Phenotype Descriptions" or "Phene Descriptions".
+# Create the faceted plot below.
+# Otherwise comment out the facet_wrap line.
 
 
 
-ggplot(data=df_long, aes(x=k, y=value, linetype=method)) + geom_line() +
-  scale_linetype_manual("Legend", values=line_types, breaks=method_names, labels=labels) +
-  coord_cartesian(xlim=c(4000000,0),ylim = c(0.0,1.0)) +
+
+# Make the plot out of obtained dataframe, color version.
+# Number of S(P1,P2) = 0 rows in the dataframe is 583971, limit x-axis to that.
+library("viridis")      
+library("grid")
+color_codes <- viridis(n=6)
+color_codes <- color_codes[1:5]
+method_names <- c("pre1_all","pre2_all","enw_all","cos_all","jac_all")
+labels <- c("EQs S1", "EQs S2", "Doc2Vec", "Bag of Words", "Set of Words")
+ribbon_colors = rep("grey70",5)
+max_num_phenologs <- 583971
+x_step <- 100000
+options(scipen=10000)
+ggplot(data=df_long, aes(x=k, y=value, color=method)) + geom_line(size=0.5,alpha=0.9) +
+  facet_wrap(~facet, ncol=2) +
+  scale_color_manual("Methods", values=color_codes, breaks=method_names, labels=labels) +
+  coord_cartesian(xlim=c(583971,0),ylim = c(0.0,1.0)) +
   theme_bw() +
-  theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
+  #theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
   ylab("F1-Score") +
-  xlab("Number of Edges") +
-  scale_x_continuous(expand=c(0,0)) +
-  scale_y_continuous(expand=c(0,0)) +
+  xlab("Number of Phenologs") +
+  scale_x_continuous(expand=c(0,0), breaks=seq(0,max_num_phenologs,x_step)) +
+  scale_y_continuous(expand=c(0,0), breaks=seq(0,1,0.2)) +
   # Adding ribbons to show how robust the results are to changes in input phenotypes in this dataset.
-  geom_ribbon(aes(ymin=df_long$min, ymax=df_long$max, fill=df_long$method, alpha=0.1), show.legend=F) +
+  geom_ribbon(aes(ymin=df_long$min, ymax=df_long$max, fill=df_long$method, alpha=0.5), show.legend=F) +
   scale_fill_manual(breaks=method_names, values=ribbon_colors)
 
+# Save the image of the plot.
+filename <- "/Users/irbraun/Desktop/network_comparison.png"
+ggsave(filename, plot=last_plot(), device="png", path=NULL, scale=1, width=20, height=8, units=c("cm"), dpi=300, limitsize=FALSE)
 
 
 

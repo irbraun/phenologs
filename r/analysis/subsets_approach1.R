@@ -13,7 +13,7 @@ source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_subset
 
 # Network files.
 NETWORKS_DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
-PHENOTYPE_EDGES_FILE <- "phenotype_text_phenotype_network.csv"
+PHENOTYPE_EDGES_FILE <- "phene_text_phenotype_network.csv"
 # Function categorization files.
 SUBSETS_DIR <- "/Users/irbraun/NetBeansProjects/term-mapping/data/original_datasets/cleaned/"
 SUBSETS_FILENAME <- "phenotype_classification_list.csv"
@@ -150,6 +150,13 @@ summarize_method_for_figure <- function(pred_col_name, df, output_dir){
 
 
 
+# Treating the not-found edges in the predicted network using EQ statements as no similarity
+phenotype_network[is.na(phenotype_network)==TRUE] <- 0.00
+phenotype_network$pre_m1_edge <- pmax(phenotype_network$pre_m1_edge,0.00)
+phenotype_network$pre_m2_edge <- pmax(phenotype_network$pre_m2_edge,0.00)
+
+
+
 
 
 
@@ -186,7 +193,7 @@ method_df$subset_number <- as.numeric(method_df$subset_number)
 method_df <- method_df[method_df$subset!="all",]
 
 # Specifications for each plot.
-max_y <- 6
+max_y <- 10
 min_y <- -2
 step_y <- 2
 y_label <- "Similarity(within) - Similarity(between)"
@@ -203,26 +210,43 @@ method_names <- list(
   "jaccard"="Word Set", 
   "cosine"="Word Bag"
 )
-method_labeller <- function(variable,value){return(method_names[value])}
+method_labeller <- function(value){return(method_names[value])}
+method_labeller <- as_labeller(method_labeller)
 
 # Drop methods to not include in the figure.
 do_not_include <- c("cur_m1_edge","cur_m2_edge")
 method_df <- method_df[!(method_df$method %in% do_not_include),]
-
-
-
+# Fix the order of the included facets.
+method_df$method_factor <- factor(method_df$method, levels=c("predefined","pre_m1_edge","pre_m2_edge","enwiki_dbow","cosine","jaccard"))
 
 # Make the figure.
 library(grid)
 ggplot(data=method_df, aes(x=reorder(subset,subset_number), y=diff)) + geom_bar(stat="identity") +
+  labs(tag = 'A') +
   theme_bw() +
   scale_y_continuous(breaks=seq(min_y,max_y,step_y), expand=c(0,0), limits=c(min_y,max_y)) +
   theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
   ylab(y_label) +
   xlab(x_label) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) +
-  facet_grid(method  ~ ., labeller=method_labeller) + 
+  facet_grid(method_factor  ~ ., labeller=method_labeller) + 
   theme(panel.spacing = unit(0.8, "lines"))
+
+
+
+# Save the image of the plot.
+filename <- "/Users/irbraun/Desktop/subsets_approach_1_inserthere_text.png"
+ggsave(filename, plot=last_plot(), device="png", path=NULL, scale=1, width=28, height=14, units=c("cm"), dpi=300, limitsize=TRUE)
+
+
+
+
+
+
+
+
+
+
 
 
 
