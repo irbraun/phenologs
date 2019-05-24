@@ -7,7 +7,7 @@ Phenologs are defined as similar phenotypes with hypothesized shared genetic bas
 The dataset of phenotype descriptions for this work is taken from "[An ontology approach to comparative phenomics in plants][4]" (Oellrich, Walls et al., 2015). In that work, each phenotype description was translated into EQ statement(s) composed of ontology terms by curators.
 
 ### Generating computable representations
-Both EQ statements and numerical vectors were used to as computable representations for phenotype descriptions to be generated without curators. EQ statement generation was performed using a pipeline that combines semantic annotation tools [NOBLE Coder][2], [NCBO Annotator][1], machine learning methods, and a rule-based approach. Descriptions were additionlly embedded into numerical vectors using [Doc2Vec][6] models and bag of words methods.
+Both EQ statements and numerical vectors were used to as computable representations for phenotype descriptions to be generated without curators. EQ statement generation was performed using a pipeline that combines semantic annotation tools [NOBLE Coder][2], [NCBO Annotator][1], machine learning methods, and a rule-based approach. Descriptions were additionally embedded into numerical vectors using [Doc2Vec][6] models and bag of words methods.
 
 ### References
 Publication in preparation.
