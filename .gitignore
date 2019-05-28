@@ -19,6 +19,7 @@ ontologies/*
 output/*
 pubmed/*
 !pubmed/scripts
+src/test/
 randomforest/
 target/
 zipped/
