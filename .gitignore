@@ -20,8 +20,8 @@ output/*
 pubmed/*
 !pubmed/scripts
 randomforest/
-saved/
 target/
+zipped/
 
 tm.db
 term-mapping.jar
@@ -30,6 +30,7 @@ nb-configuration.xml
 nbactions.xml
 pom.xml
 note.txt
+references.bib
 *.history
 *.Rhistory
 *.pyc
