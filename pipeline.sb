@@ -2,10 +2,10 @@
 
 #Submit this script with: sbatch thefilename
 
-#SBATCH -t 5:00:00   # walltime
+#SBATCH -t 16:00:00   # walltime
 #SBATCH -N 1   # number of nodes in this job
 #SBATCH -n 16   # total number of processor cores in this job
-#SBATCH -J "pi"   # job name
+#SBATCH -J "ph"   # job name
 #SBATCH --mail-user=irbraun@iastate.edu   # email address
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
@@ -28,4 +28,6 @@ module load py-scikit-learn/0.18.1-py2-uqbs5ic
 module load jdk/8u172-b11-rnauqmr
 module load jdk/8u141-b15-xf726oe
 
-python pipeline.py -d phene -c /work/dillpicl/irbraun/term-mapping/path/config/
+python pipeline.py -d phene -c /work/dillpicl/irbraun/term-mapping/path/config/config_set_ph_ene/
+python pipeline.py -d phenotype -c /work/dillpicl/irbraun/term-mapping/path/config/config_set_ph_full/
+python pipeline.py -d split_phenotype -c /work/dillpicl/irbraun/term-mapping/path/config/config_set_ph_split/
