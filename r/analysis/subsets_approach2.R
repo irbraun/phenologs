@@ -4,8 +4,7 @@ library(dplyr)
 library(data.table)
 library(car)
 library(parallel)
-
-
+library(hashmap)
 
 
 source("/work/dillpicl/irbraun/term-mapping/path/r/utils.R")
@@ -13,14 +12,16 @@ source("/work/dillpicl/irbraun/term-mapping/path/r/utils_for_subsets.R")
 
 
 # Specify column in the network file to be used as predicted values. Has to match the csv file.
-PRED_COLUMN_NAMES <- c("cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge","jaccard", "cosine")
+#PRED_COLUMN_NAMES <- c("predefined", "cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "jaccard", "cosine")
+PRED_COLUMN_NAMES <- c("predefined", "cur_m1_edge")
 
 # Network files.
 NETWORKS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/networks/"
-PHENOTYPE_EDGES_FILE <- "phenotype_network_modified_NEW.csv"
+PHENOTYPE_EDGES_FILE <- "phenotype_text_phenotype_network.csv"
 # Function categorization files.
 SUBSETS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/r/"
-SUBSETS_FILENAME <- "classifications.csv"
+SUBSETS_FILENAME <- "phenotype_classification_list.csv"
+CATEGORY_HIERARCHY_FILENAME <- "subset_names_cleaned.csv"
 # Output files.
 OUTPUT_DIR <- "/work/dillpicl/irbraun/term-mapping/path/r/output/"
 
@@ -203,14 +204,19 @@ run_one_method_subset_level <- function(pred_column_name, phenotype_network, sub
 phenotype_network <- read(NETWORKS_DIR,PHENOTYPE_EDGES_FILE)
 
 # Read in the categorization file for functional subsets of Arabidopsis genes.
+names_df <-read(SUBSETS_DIR,CATEGORY_HIERARCHY_FILENAME)
+subset_name_list <- unique(names_df$Subset.Symbol)
+class_name_list <- unique(names_df$Class.Symbol)
+subset2group <- hashmap(names_df$Subset.Symbol, names_df$Group.Symbol)
+subset2class <- hashmap(names_df$Subset.Symbol, names_df$Class.Symbol)
+
+
 subsets_df <- read(SUBSETS_DIR, SUBSETS_FILENAME)
-subset_name_list <- unique(subsets_df$subset)
-class_name_list <- unique(subsets_df$class)
+subsets_df$class <- subset2class[[subsets_df$subset]]
+subsets_df$group <- subset2group[[subsets_df$subset]]
+
 
 
 # Check the performance of each method on the classification task in parallel.
 mclapply(PRED_COLUMN_NAMES, run_one_method_subset_level, phenotype_network=phenotype_network, subsets_df=subsets_df, subset_name_list=subset_name_list, mc.cores=numCores)
 mclapply(PRED_COLUMN_NAMES, run_one_method_class_level, phenotype_network=phenotype_network, subsets_df=subsets_df, class_name_list=class_name_list, mc.cores=numCores)
-
-
-
