@@ -159,6 +159,7 @@ df_long <- df_long[!(df_long$method %in% do_not_include),]
 # Creating the faceted plot shown in the figure.
 # Read in df_long for each method.
 # Add 'facet' column to each with the value either "Phenotype Descriptions" or "Phene Descriptions".
+# rbind them to each other to a new df_long.
 # Create the faceted plot below.
 # Otherwise comment out the facet_wrap line.
 
@@ -169,23 +170,33 @@ df_long <- df_long[!(df_long$method %in% do_not_include),]
 # Number of S(P1,P2) = 0 rows in the dataframe is 583971, limit x-axis to that.
 library("viridis")      
 library("grid")
-color_codes <- viridis(n=6)
-color_codes <- color_codes[1:5]
+color_codes <- viridis(n=5)
+color_codes[5] <- "#DBE318"
+
 method_names <- c("pre1_all","pre2_all","enw_all","cos_all","jac_all")
 labels <- c("EQs S1", "EQs S2", "Doc2Vec", "Bag of Words", "Set of Words")
 ribbon_colors = rep("grey70",5)
 max_num_phenologs <- 583971
+
+# Adjusting the x-axis
+units <- 1000
 x_step <- 100000
+x_max <- 583971
+x_max <- x_max/units
+x_step <- x_step/units
+df_long$k <- df_long$k/units
 options(scipen=10000)
+
+
 ggplot(data=df_long, aes(x=k, y=value, color=method)) + geom_line(size=0.5,alpha=0.9) +
   facet_wrap(~facet, ncol=2) +
   scale_color_manual("Methods", values=color_codes, breaks=method_names, labels=labels) +
-  coord_cartesian(xlim=c(583971,0),ylim = c(0.0,1.0)) +
+  coord_cartesian(xlim=c(x_max,0),ylim = c(0.0,1.0)) +
   theme_bw() +
   #theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
   theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
   ylab("F1-Score") +
-  xlab("Number of Phenologs") +
+  xlab("Number of Phenologs (1000's)") +
   scale_x_continuous(expand=c(0,0), breaks=seq(0,max_num_phenologs,x_step)) +
   scale_y_continuous(expand=c(0,0), breaks=seq(0,1,0.2)) +
   # Adding ribbons to show how robust the results are to changes in input phenotypes in this dataset.
@@ -194,7 +205,7 @@ ggplot(data=df_long, aes(x=k, y=value, color=method)) + geom_line(size=0.5,alpha
 
 # Save the image of the plot.
 filename <- "/Users/irbraun/Desktop/network_comparison.png"
-ggsave(filename, plot=last_plot(), device="png", path=NULL, scale=1, width=20, height=8, units=c("cm"), dpi=300, limitsize=FALSE)
+ggsave(filename, plot=last_plot(), device="png", path=NULL, scale=1, width=20, height=14, units=c("cm"), dpi=300, limitsize=FALSE)
 
 
 
