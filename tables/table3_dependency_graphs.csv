@@ -1,4 +1,4 @@
-﻿Term 1,Term 2,n,$p(l=1)$,$p(l=2)$,$p(l\geq 3)$,
-primary $E_1$,$Q$,554,0.854,0.134,0.012,1
-primary $E_1$,primary $E_2$,95,0.616,0.295,0.089,1
-primary $E_1$,secondary $E_1$,120,0.233,0.708,0.059,1
+﻿Term 1,Term 2,$n$,$p(l=1)$,$p(l=2)$,$p(l\geq 3)$
+primary $E$,$Q$,146,0.863,0.11,0.027
+$E_1$,$E_2$,20,0.7,0.25,0.05
+primary $E$,secondary $E$,28,0.286,0.643,0.071
