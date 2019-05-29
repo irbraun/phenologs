@@ -49,6 +49,13 @@ public class Utils {
         r.addAll(IntStream.rangeClosed(min2,max2).boxed().collect(Collectors.toList()));
         return r;
     }
+    public static int sum(ArrayList<Integer> l){
+        int sum = 0;
+        for (int i: l){
+            sum += i;
+        }
+        return sum;
+    }
     public static int product(ArrayList<Integer> l){
         int product = 1;
         for (int i: l){
@@ -64,9 +71,21 @@ public class Utils {
         double mean = sum / (double) l.size();
         return mean;
     }
-    public static String toRoundedString(double val){
-        return String.format("%.3f",val);
+    public static String toRoundedString(double value, int decimalPlaces){
+        StringBuilder sb = new StringBuilder();
+        sb.append("%.");
+        sb.append(String.valueOf(decimalPlaces));
+        sb.append("f");
+        return String.format(sb.toString(),value);
     }
+    
+    
+    
+  
+    
+  
+    
+    
     
     
     
