@@ -102,15 +102,18 @@ public class LocusSubsets {
         // Produce a file which species which chunk IDs go with which subsets.
         File outf = new File(Config.subsetsOutputPath);
         PrintWriter writer = new PrintWriter(outf);
-        String header = "chunk,group,class,subset";
+        //String header = "chunk,group,class,subset";
+        String header = "chunk,subset";
         writer.println(header);
         for (String subset: subsetToChunkIDMap.keySet()){
             ArrayList<Integer> chunkIDs = subsetToChunkIDMap.get(subset);
             for (Integer chunkID: chunkIDs){
                 String group = subsetToGroupMap.get(subset);
                 String class_ = subsetToClassMap.get(subset);
-                Object[] data = {chunkID, group, class_, subset};
-                writer.println(String.format("%s,%s,%s,%s",data));
+                //Object[] data = {chunkID, group, class_, subset};
+                //writer.println(String.format("%s,%s,%s,%s",data));
+                Object[] data = {chunkID, subset};
+                writer.println(String.format("%s,%s",data));
             }
         }
         writer.close();
