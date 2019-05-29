@@ -16,21 +16,15 @@ import pred.OwlClass;
 import pred.OwlSet;
 import objects.Chunk;
 import text.Text;
+import static utils.Utils.toRoundedString;
 
 
 public class DependencyParsing {
     
+   
     
-    private final HashMap<Integer,Integer> countsPE1toQ;
-    private final HashMap<Integer,Integer> countsPE1toPE2;
-    private final HashMap<Integer,Integer> countsPE1toSE1;
-    private final HashMap<Integer,Integer> countsSE1toSE2;
-    private int sumPE1toQ;
-    private int sumPE1toPE2;
-    private int sumPE1toSE1;
-    private int sumSE1toSE2;
-    
-    
+    private final HashMap<String,MinPathCounter> tagToDistObjectMap;
+    private final HashMap<String,MinPathCounter> tagToMergedDistObjectMap;
     
     
     /**
@@ -39,10 +33,11 @@ public class DependencyParsing {
      * know which atomized statement is referring to which EQ statement and estimation
      * comes from these associations. The evaluation files that are specified in the 
      * config file should be from the semantic annotation of the phene descriptions.
+     * @param print
      * @throws SQLException
      * @throws FileNotFoundException 
      */
-    public DependencyParsing() throws SQLException, FileNotFoundException, Exception{
+    public DependencyParsing(boolean print) throws SQLException, FileNotFoundException, Exception{
         
 
         // Establish a list of files to be used as training data for word to term associations.
@@ -57,164 +52,190 @@ public class DependencyParsing {
             otherSets.add(new OwlSet(filepath));
         }
         
-        
-        
-        
-        
-        
-        
-        
-        countsPE1toQ = new HashMap<>();
-        countsPE1toPE2 = new HashMap<>();
-        countsPE1toSE1 = new HashMap<>();
-        countsSE1toSE2 = new HashMap<>();
-        sumPE1toQ = 0;
-        sumPE1toPE2 = 0;
-        sumPE1toSE1 = 0;
-        sumSE1toSE2 = 0;
-        
+
+        // Build text data object.
         Text text = new Text();
+              
+
         
+        // Pairs that define a path between the primary entity and the quality.
+        ArrayList<RolePair> pairsEtoQ = new ArrayList<>();
+        pairsEtoQ.add(new RolePair(Role.PRIMARY_ENTITY1_ID, Role.QUALITY_ID));
+        pairsEtoQ.add(new RolePair(Role.PRIMARY_ENTITY2_ID, Role.QUALITY_ID));
+        
+        // Pairs that define a path between to terms in a post composed entity.
+        ArrayList<RolePair> pairsPostComposed = new ArrayList<>();
+        pairsPostComposed.add(new RolePair(Role.PRIMARY_ENTITY1_ID, Role.PRIMARY_ENTITY2_ID));
+        pairsPostComposed.add(new RolePair(Role.SECONDARY_ENTITY1_ID, Role.SECONDARY_ENTITY2_ID));
+        
+        // Pairs that define a path between entities related through a quality.
+        ArrayList<RolePair> pairsRelational = new ArrayList<>();
+        pairsRelational.add(new RolePair(Role.PRIMARY_ENTITY1_ID, Role.SECONDARY_ENTITY1_ID));
+        pairsRelational.add(new RolePair(Role.PRIMARY_ENTITY1_ID, Role.SECONDARY_ENTITY2_ID));
+        pairsRelational.add(new RolePair(Role.PRIMARY_ENTITY2_ID, Role.SECONDARY_ENTITY1_ID));
+        pairsRelational.add(new RolePair(Role.PRIMARY_ENTITY2_ID, Role.SECONDARY_ENTITY2_ID));
+  
+        // Define which pairs of roles will be used to look for path lengths.
+        ArrayList<RolePair> pairs = new ArrayList<>();
+        pairs.addAll(pairsEtoQ);
+        pairs.addAll(pairsPostComposed);
+        pairs.addAll(pairsRelational);
+        
+        // Create mapping between each tag and its own distribution.
+        tagToDistObjectMap = new HashMap<>();
+        for (RolePair rp: pairs){
+            tagToDistObjectMap.put(rp.tag, rp.distCounter);
+        }
+        
+        
+
+        
+        
+        
+        
+        
+        // Iterate through each text chunk in the dataset.
         for (Chunk c: text.getAllAtomChunks()){
             EQStatement eq = text.getCuratedEQStatementFromAtomID(c.chunkID);
-            HashSet<String> qTokens = new HashSet<>();
-            HashSet<String> qlfrTokens = new HashSet<>();
+            
+            // Create empty lists of nodes values for each term role.
+            HashMap<Role,HashSet<String>> tokenMap = new HashMap<>();
+            for (Role role: Role.values()){
+                tokenMap.put(role, new HashSet<>());
+            }
+            
+            // Find all nodes related to qualities.
             for (OwlSet p: patoSets){
                 for (OwlClass oc: p.classes.getOrDefault(c.chunkID, new ArrayList<>())){
                     if (oc.termID.equals(eq.quality.id)){
-                        qTokens.addAll(oc.nodes);
+                        tokenMap.put(Role.QUALITY_ID, oc.nodes);
                     }
                     if (eq.qualifier!=null && oc.termID.equals(eq.qualifier.id)){
-                        qlfrTokens.addAll(oc.nodes);
+                        tokenMap.put(Role.QUALIFIER_ID, oc.nodes);
                     }
                 }
             }
             
-            HashSet<String> pe1Tokens = new HashSet<>();
-            HashSet<String> pe2Tokens = new HashSet<>();
-            HashSet<String> se1Tokens = new HashSet<>();
-            HashSet<String> se2Tokens = new HashSet<>();
+            // Find all nodes related to entities.
             for (OwlSet p: otherSets){
                 for (OwlClass oc: p.classes.getOrDefault(c.chunkID, new ArrayList<>())){
                     if (oc.termID.equals(eq.primaryEntity1.id)){
-                        pe1Tokens.addAll(oc.nodes);
+                        tokenMap.put(Role.PRIMARY_ENTITY1_ID, oc.nodes);
                     }
                     if (eq.primaryEntity2!=null && oc.termID.equals(eq.primaryEntity2.id)){
-                        pe2Tokens.addAll(oc.nodes);
+                        tokenMap.put(Role.PRIMARY_ENTITY2_ID, oc.nodes);
                     }
                     if (eq.secondaryEntity1!=null && oc.termID.equals(eq.secondaryEntity1.id)){
-                        se1Tokens.addAll(oc.nodes);
+                        tokenMap.put(Role.SECONDARY_ENTITY1_ID, oc.nodes);
                     }
                     if (eq.secondaryEntity2!=null && oc.termID.equals(eq.secondaryEntity2.id)){
-                        se2Tokens.addAll(oc.nodes);
+                        tokenMap.put(Role.SECONDARY_ENTITY2_ID, oc.nodes);
                     }
                 }
             }
             
+            // Get the dependency graph using Stanford CoreNLP libraries.
             MyAnnotation a = Modifier.getAnnotation(c);
             
-            int length;
             
-            length = Modifier.getMinPathLength(qTokens, pe1Tokens, a);
-            if (length!=100 && length !=0){
-                int count = countsPE1toQ.getOrDefault(length, 0);
-                count++;
-                countsPE1toQ.put(length, count);
+            // Update the the distributions of minimal path lengths.
+            for (RolePair rp: pairs){
+                int length = Modifier.getMinPathLength(tokenMap.get(rp.r1), tokenMap.get(rp.r2), a);
+                rp.distCounter.addLengthValue(length);
             }
-            
-            length = Modifier.getMinPathLength(pe1Tokens, pe2Tokens, a);
-            if (length!=100 && length !=0){
-                int count = countsPE1toPE2.getOrDefault(length, 0);
-                count++;
-                countsPE1toPE2.put(length, count); 
-            }
-            
-            length = Modifier.getMinPathLength(pe1Tokens, se1Tokens, a);
-            if (length!=100 && length !=0){
-                int count = countsPE1toSE1.getOrDefault(length, 0);
-                count++;
-                countsPE1toSE1.put(length, count);            
-            }
-            
-            length = Modifier.getMinPathLength(se1Tokens, se2Tokens, a);
-            if (length!=100 && length !=0){
-                int count = countsSE1toSE2.getOrDefault(length, 0);
-                count++;
-                countsSE1toSE2.put(length, count);            
-            }
-           
         }    
         
-        // Get the sums of the counts of all lengths observed for each relationship.
-        for (int l: countsPE1toQ.keySet()){
-            sumPE1toQ += countsPE1toQ.get(l);
-        }
-        for (int l: countsPE1toPE2.keySet()){
-            sumPE1toPE2 += countsPE1toPE2.get(l);
-        }
-        for (int l: countsPE1toSE1.keySet()){
-            sumPE1toSE1 += countsPE1toSE1.get(l);
-        }
-        for (int l: countsSE1toSE2.keySet()){
-            sumSE1toSE2 += countsSE1toSE2.get(l);
-        }
         
         
-        
-        // Printing out the distributions for the table.
-        System.out.println("Distribution of primary E1 to Q (n="+sumPE1toQ+")");
-        for (int l: countsPE1toQ.keySet()){
-            System.out.println(String.format("Length=%s, Probability=%s", l, getProbability(Role.PRIMARY_ENTITY1_ID, Role.QUALITY_ID, l)));
+        // Create mappings between multiple tags from a group and their merged distributions.
+        tagToMergedDistObjectMap = new HashMap<>();
+        MinPathCounter mergedEtoQ = mergeDistributions(pairsEtoQ);
+        for (RolePair rp: pairsEtoQ){
+            tagToMergedDistObjectMap.put(rp.tag,mergedEtoQ);
+        }
+        MinPathCounter mergedPostComposed = mergeDistributions(pairsPostComposed);
+        for (RolePair rp: pairsPostComposed){
+            tagToMergedDistObjectMap.put(rp.tag, mergedPostComposed);
+        }
+        MinPathCounter mergedRelational = mergeDistributions(pairsRelational);
+        for (RolePair rp: pairsRelational){
+            tagToMergedDistObjectMap.put(rp.tag, mergedRelational);
         }
         
-        System.out.println("Distribution of primary E1 to primary E2 (n="+sumPE1toPE2+")");
-        for (int l: countsPE1toPE2.keySet()){
-            System.out.println(String.format("Length=%s, Probability=%s", l, getProbability(Role.PRIMARY_ENTITY1_ID, Role.PRIMARY_ENTITY2_ID, l)));
+       
+        if (print){
+            
+            // The individual distributions for each path type.
+            for (RolePair rp: pairs){
+                System.out.println(String.format("\nDistribution of paths from %s to %s (n=%s)", rp.r1, rp.r2, rp.distCounter.getN()));
+                for (int l: rp.distCounter.getAllValuesInPathDistribution()){
+                    System.out.println(String.format("Length=%s, Probability=%s", l, toRoundedString(rp.distCounter.getProbability(l),3)));
+                }
+            }
+            
+            // The merged distributions that included multiple path types.
+            System.out.println(String.format("\nDistribution of paths in merged E to Q (n=%s)", mergedEtoQ.getN()));
+            for (int l: mergedEtoQ.getAllValuesInPathDistribution()){
+                System.out.println(String.format("Length=%s, Probability=%s", l, toRoundedString(mergedEtoQ.getProbability(l),3)));
+            }
+            System.out.println(String.format("\nDistribution of paths in merged post composed entities (n=%s)", mergedPostComposed.getN()));
+            for (int l: mergedPostComposed.getAllValuesInPathDistribution()){
+                System.out.println(String.format("Length=%s, Probability=%s", l, toRoundedString(mergedPostComposed.getProbability(l),3)));
+            }
+            System.out.println(String.format("\nDistribution of paths in merged relational qualities (n=%s)", mergedRelational.getN()));
+            for (int l: mergedRelational.getAllValuesInPathDistribution()){
+                System.out.println(String.format("Length=%s, Probability=%s", l, toRoundedString(mergedRelational.getProbability(l),3)));
+            }
+
         }
         
-        System.out.println("Distribution of primary E1 to secondary E1 (n="+sumPE1toSE1+")");
-        for (int l: countsPE1toSE1.keySet()){
-            System.out.println(String.format("Length=%s, Probability=%s", l, getProbability(Role.PRIMARY_ENTITY1_ID, Role.SECONDARY_ENTITY1_ID, l)));
-        }
-        
-        System.out.println("Distribution of secondary E1 to secondary E2 (n="+sumSE1toSE2+")");
-        for (int l: countsSE1toSE2.keySet()){
-            System.out.println(String.format("Length=%s, Probability=%s", l, getProbability(Role.SECONDARY_ENTITY1_ID, Role.SECONDARY_ENTITY2_ID, l)));
-        }
-        
-        
-        
-        
-        
-        
-        
-        
+
     }
     
 
+   
 
     
     
-    public double getProbability(Role r1, Role r2, int length) throws Exception{
-        double prob;
-        if (r1.equals(Role.PRIMARY_ENTITY1_ID) && r2.equals(Role.QUALITY_ID)){
-            prob = (double) countsPE1toQ.getOrDefault(length, 0) / (double) sumPE1toQ;
-        }
-        else if (r1.equals(Role.PRIMARY_ENTITY1_ID) && r2.equals(Role.PRIMARY_ENTITY2_ID)){
-            prob = (double) countsPE1toPE2.getOrDefault(length, 0) / (double) sumPE1toPE2;
-        }
-        else if (r1.equals(Role.PRIMARY_ENTITY1_ID) && r2.equals(Role.SECONDARY_ENTITY1_ID)){
-            prob = (double) countsPE1toSE1.getOrDefault(length, 0) / (double) sumPE1toSE1;
-        }
-        else if (r1.equals(Role.SECONDARY_ENTITY1_ID) && r2.equals(Role.SECONDARY_ENTITY2_ID)){
-            prob = (double) countsSE1toSE2.getOrDefault(length, 0) / (double) sumSE1toSE2;
-        }
-        else {
-            throw new Exception();
-        }
-        return prob;
+    
+    
+   
+    public class RolePair{
+        public Role r1;
+        public Role r2;
+        public String tag;
+        public MinPathCounter distCounter;
+        public RolePair(Role r1, Role r2){
+            this.r1 = r1;
+            this.r2 = r2;
+            this.tag = getTag(r1,r2);
+            this.distCounter = new MinPathCounter();
+        } 
     }
     
+    
+    public double getProbability(Role r1, Role r2, int length){
+        return tagToDistObjectMap.get(getTag(r1,r2)).getProbability(length);
+        
+    }
+    
+    private String getTag(Role r1, Role r2){
+        return String.format("%s:%s", r1.toString(), r2.toString());
+    }    
+    
+    
+    
+    private MinPathCounter mergeDistributions(ArrayList<RolePair> pairObjects){
+        MinPathCounter newDistCounter = new MinPathCounter();
+        for (RolePair rp: pairObjects){
+            for (int length: rp.distCounter.getAllValuesInPathDistribution()){
+                for (int i=0; i<rp.distCounter.getCount(length); i++){
+                    newDistCounter.addLengthValue(length);
+                }
+            }
+        }
+        return newDistCounter;
+    }
     
     
     
