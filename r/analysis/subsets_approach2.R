@@ -12,8 +12,8 @@ source("/work/dillpicl/irbraun/term-mapping/path/r/utils_for_subsets.R")
 
 
 # Specify column in the network file to be used as predicted values. Has to match the csv file.
-#PRED_COLUMN_NAMES <- c("predefined", "cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "jaccard", "cosine")
-PRED_COLUMN_NAMES <- c("predefined", "cur_m1_edge")
+PRED_COLUMN_NAMES <- c("predefined", "cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "jaccard", "cosine")
+#PRED_COLUMN_NAMES <- c("predefined", "cur_m1_edge")
 
 # Network files.
 NETWORKS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/networks/"

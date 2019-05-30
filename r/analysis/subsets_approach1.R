@@ -231,12 +231,12 @@ method_df$method_factor <- factor(method_df$method, levels=c("predefined","pre_m
 # Make the figure.
 library(grid)
 ggplot(data=method_df, aes(x=reorder(subset,subset_number), y=diff)) + geom_bar(stat="identity") +
-  #labs(tag = 'A') +
   theme_bw() +
   scale_y_continuous(breaks=seq(min_y,max_y,step_y), expand=c(0,0), limits=c(min_y,max_y)) +
   theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.border = element_blank(), axis.line = element_line(colour = "black")) +
-  ylab(y_label) +
-  xlab(x_label) +
+  #ylab(y_label) +
+  #xlab(x_label) +
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank()) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = .5)) +
   facet_grid(method_factor  ~ ., labeller=method_labeller) + 
   theme(panel.spacing = unit(0.8, "lines"))

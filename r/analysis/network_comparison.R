@@ -48,8 +48,8 @@ for(i in seq(1, num_iter)){
 
 # Define the range of k values to use.
 k_start <- 1000 
-k_step <- 10000
-k_max <- 4000000
+k_step <- 1000
+k_max <- 600000
 total_number_of_edges <- nrow(d)
 k_max <- min(k_max,total_number_of_edges)
 k_values <- seq(k_start, k_max, k_step)
@@ -178,6 +178,20 @@ labels <- c("EQs S1", "EQs S2", "Doc2Vec", "Bag of Words", "Set of Words")
 ribbon_colors = rep("grey70",5)
 max_num_phenologs <- 583971
 
+
+
+
+# Leaving in the curated stuff instead.
+# do_not_include <- c("ppn_all")
+# df_long <- df_long[!(df_long$method %in% do_not_include),]
+# color_codes <- viridis(n=7)
+# method_names <- c("pre1_all","pre2_all","enw_all","cos_all","jac_all","cur1_all","cur2_all")
+# labels <- c("EQs S1", "EQs S2", "Doc2Vec", "Bag of Words", "Set of Words", "Curated 1", "Curated 2")
+# ribbon_colors = rep("grey70",7)
+
+
+
+
 # Adjusting the x-axis
 units <- 1000
 x_step <- 100000
@@ -256,33 +270,6 @@ ggplot(d, aes(x=method)) + geom_density(colour="black", fill="blue", alpha=0.3) 
 # Find out what that value of k is in each case, (should be somewhat similar between methods).
 # Then mark that value of k on the x-axis in the F1 score plot, and everything to the left of that point should be meaningful.
 # This is a method of figuring out which similarity scores are likely to be biologically meaningful when we don't have data to answer this.
-
-
-
-
-
-
-# Older versions of these methods.
-# get_df_for_method_with_subsampling <- function(d){
-#   # Sort them in descending order.
-#   ordered_target_ids <- d[order(-d$target),]$id
-#   ordered_predicted_ids <- d[order(-d$predicted),]$id
-#   # Populate the lists of F-scores varying k with subsampling.
-#   method_specific_df <- sapply(k_values, compare_edges_with_subsampling, targets=ordered_target_ids, predictions=ordered_predicted_ids, subsampled_id_sets=relevant_id_sets, sampling_ratio=SAMPLING_RATIO)
-#   return(method_specific_df)
-# }
-# 
-# 
-# get_df_for_method_without_subsampling <- function(d){
-#   # Sort them in descending order.
-#   ordered_target_ids <- d[order(-d$target),]$id
-#   ordered_predicted_ids <- d[order(-d$predicted),]$id
-#   
-#   # Populate the lists of F-scores varying k without subsampling.
-#   method_specific_df <- sapply(k_values, compare_edges, targets=ordered_target_ids, predictions=ordered_predicted_ids)
-#   return(method_specific_df)
-# }
-
 
 
 
