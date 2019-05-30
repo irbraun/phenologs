@@ -170,16 +170,15 @@ df_long <- df_long[!(df_long$method %in% do_not_include),]
 # Number of S(P1,P2) = 0 rows in the dataframe is 583971, limit x-axis to that.
 library("viridis")      
 library("grid")
-color_codes <- viridis(n=5)
-color_codes[5] <- "#DBE318"
+library("wesanderson")
+library("RColorBrewer")
+color_codes <- wes_palette("Cavalcanti1", 5)
+
 
 method_names <- c("pre1_all","pre2_all","enw_all","cos_all","jac_all")
 labels <- c("EQs S1", "EQs S2", "Doc2Vec", "Bag of Words", "Set of Words")
 ribbon_colors = rep("grey70",5)
 max_num_phenologs <- 583971
-
-
-
 
 # Leaving in the curated stuff instead.
 # do_not_include <- c("ppn_all")
@@ -189,9 +188,6 @@ max_num_phenologs <- 583971
 # labels <- c("EQs S1", "EQs S2", "Doc2Vec", "Bag of Words", "Set of Words", "Curated 1", "Curated 2")
 # ribbon_colors = rep("grey70",7)
 
-
-
-
 # Adjusting the x-axis
 units <- 1000
 x_step <- 100000
@@ -200,7 +196,6 @@ x_max <- x_max/units
 x_step <- x_step/units
 df_long$k <- df_long$k/units
 options(scipen=10000)
-
 
 ggplot(data=df_long, aes(x=k, y=value, color=method)) + geom_line(size=0.5,alpha=0.9) +
   facet_wrap(~facet, ncol=2) +
