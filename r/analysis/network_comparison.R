@@ -173,6 +173,7 @@ library("grid")
 library("wesanderson")
 library("RColorBrewer")
 color_codes <- wes_palette("Cavalcanti1", 5)
+color_codes <- c("#1A2F52", "#A6CE39", "#B0D4F1", "#B18AD5", "#C25350")
 
 
 method_names <- c("pre1_all","pre2_all","enw_all","cos_all","jac_all")
