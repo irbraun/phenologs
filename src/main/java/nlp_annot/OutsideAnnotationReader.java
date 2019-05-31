@@ -397,10 +397,6 @@ public class OutsideAnnotationReader {
                             String joined = result.nodes;
                             double score = toolFoundTermsMap.get(c.chunkID).get(allTermIDsFoundBySearching.indexOf(id)).score;
                             
-                            
-                            
-                            
-                            // TODO This version was correct and was only in the phenotype and phene block, copied it here.
                             // Calculate the score for this annotated term on the fly instead if this option was desired.
                             if (Config.checkFuzzyScore){
                                 ArrayList<Double> scoresFromAllSyn = new ArrayList<>();
@@ -421,25 +417,7 @@ public class OutsideAnnotationReader {
                             String scoreStr = String.format("%.3f",score);
                             Object[] line = {c.chunkID, id, scoreStr,joined};
                             Utils.writeToClassProbFiles(line, c, groups);
-                            
-                            
-                            // TODO this is the old version that was only on the split_phenotype block, causing it to fail and exit.
-                            // Calculate the score for this annotated term on the fly instead if this option was desired.
-                            /*
-                            if (Config.checkFuzzyScore){
-                                ArrayList<Double> scoresFromAllSyn = new ArrayList<>();
-                                scoresFromAllSyn.add(score);
-                                for (String syn: onto.getTermFromTermID(id).getAllSynonyms()){
-                                    double scoreForThisSyn = FuzzySearch.ratio(joined, syn)/100.00;
-                                    scoresFromAllSyn.add(scoreForThisSyn);
-                                }
-                                score = Collections.max(scoresFromAllSyn); 
-                            }
-                            
-                            String scoreStr = String.format("%.3f",score);
-                            Object[] line = {c.chunkID, id, scoreStr,joined};
-                            Utils.writeToClassProbFiles(line, c, groups);
-                            */
+
                         }
                         else {
                             logger.info(String.format("%s should never see this, already checking for this above",id));

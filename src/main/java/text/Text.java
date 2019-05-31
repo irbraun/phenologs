@@ -292,6 +292,8 @@ public class Text {
             return getAllTermIDsAtom(id);
         case PHENOTYPE:
             return getAllTermIDsPhen(id);
+        case SPLIT_PHENOTYPE:
+            return getAllTermIDsSplit(id);
         default:
             return null;
         }
@@ -303,6 +305,8 @@ public class Text {
             return getAllTermRolesAtom(id);
         case PHENOTYPE:
             return getAllTermRolesPhen(id);
+        case SPLIT_PHENOTYPE:
+            return getAllTermRolesSplit(id);
         default:
             return null;
         }
@@ -327,6 +331,24 @@ public class Text {
         return allTermsIDs;
     }
     private List getAllTermRolesPhen(int phenotypeID){
+        ArrayList<Integer> atomIDs = phenotypeIDtoAtomIDs.get(phenotypeID);
+        ArrayList<String> allTermRoles = new ArrayList<>();
+        for (int atomID: atomIDs){
+            allTermRoles.addAll(getAllTermRolesAtom(atomID));
+        }
+        return allTermRoles;
+    }
+    private List getAllTermIDsSplit(int splitID){
+        int phenotypeID = splitIDtoPhenotypeID.get(splitID);
+        ArrayList<Integer> atomIDs = phenotypeIDtoAtomIDs.get(phenotypeID);
+        ArrayList<String> allTermsIDs = new ArrayList<>();
+        for (int atomID: atomIDs){
+            allTermsIDs.addAll(getAllTermIDsAtom(atomID));
+        }
+        return allTermsIDs;
+    }
+    private List getAllTermRolesSplit(int splitID){
+        int phenotypeID = splitIDtoPhenotypeID.get(splitID);
         ArrayList<Integer> atomIDs = phenotypeIDtoAtomIDs.get(phenotypeID);
         ArrayList<String> allTermRoles = new ArrayList<>();
         for (int atomID: atomIDs){
@@ -538,6 +560,10 @@ public class Text {
     public ArrayList<EQStatement> getCuratedEQStatementsFromPhenotypeID(int phenotypeID){
         ArrayList<Integer> atomIDs = getAtomIDsFromPhenotypeID(phenotypeID);
         return getCuratedEQStatementsFromAtomIDs(atomIDs);
+    }
+    public ArrayList<EQStatement> getCuratedEQStatementsFromSplitPhenotypeID(int splitID){
+        int phenotypeID = getPhenotypeIDfromSplitPhenotypeID(splitID);
+        return getCuratedEQStatementsFromPhenotypeID(phenotypeID);
     }
     
     public ArrayList<EQStatement> getAllCuratedEQStatements(){

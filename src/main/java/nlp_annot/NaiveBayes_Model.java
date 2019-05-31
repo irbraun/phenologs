@@ -1,6 +1,7 @@
 
 package nlp_annot;
 
+import composer.EQStatement;
 import composer.Modifier;
 import composer.Term;
 import config.Config;
@@ -60,7 +61,7 @@ public class NaiveBayes_Model {
         // Add all the synonyms that surpass the threshold of similarity to the existing word in question.
         if (Config.useEmbeddings){
             System.out.println("embeddings are being used");
-            File file = new File("/Users/irbraun/NetBeansProjects/term-mapping/path/data/allpairs.txt");
+            File file = new File(Config.allPairsPath);
             try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -79,11 +80,10 @@ public class NaiveBayes_Model {
                 }
             }
             catch (Exception e){
-                System.out.println("problem with building the dictionary");
                 logger.info("problem with building the dictionary");
             }
         }
-        System.out.println("After reading in dict " + (w2vs.keySet().size()/2) + " were added due to threshold="+threshold);
+        logger.info("After reading in dict " + (w2vs.keySet().size()/2) + " were added due to threshold="+threshold);
         
         int totalWordsInModel=0;
         
@@ -99,33 +99,45 @@ public class NaiveBayes_Model {
             if (Config.useLemmas){
                 MyAnnotation annotations = Modifier.getAnnotation(chunk);
                 tokens = annotations.lemmas;
-                // new bit
                 for (String s: tokens){
                     additionalTokens.addAll(w2vs.getOrDefault(s, new ArrayList<>()));
                 }
             }
             else {
                 tokens = chunk.getBagValues();
-                // new bit
                 for (String s: tokens){
                     additionalTokens.addAll(w2vs.getOrDefault(s, new ArrayList<>()));
                 }
             }
-            
-            // new bit
             tokens.addAll(additionalTokens);
-            
             totalWordsInModel += tokens.size();
-            
-            
-           
             
             // The size of the vocabulary reflects lemmatization or not.
             uniqueWords.addAll(chunk.getBagValues());
             uniqueLemmas.addAll(tokens);
-
-           
-            List<String> termIDs = text.getCuratedEQStatementFromAtomID(chunk.chunkID).getAllTermIDs();
+            
+            
+            // Find all the curated terms for this chunk.
+            ArrayList<String> termIDs = new ArrayList<>();
+            switch(utils.Utils.inferTextType(Config.format)){
+                case PHENE:
+                    termIDs.addAll(text.getCuratedEQStatementFromAtomID(chunk.chunkID).getAllTermIDs());
+                    break;
+                case PHENOTYPE:
+                    for (EQStatement eq: text.getCuratedEQStatementsFromPhenotypeID(chunk.chunkID)){
+                        termIDs.addAll(eq.getAllTermIDs());
+                    }
+                    break;
+                case SPLIT_PHENOTYPE:
+                    for (EQStatement eq: text.getCuratedEQStatementsFromSplitPhenotypeID(chunk.chunkID)){
+                        termIDs.addAll(eq.getAllTermIDs());
+                    }
+                    break;
+                default:
+                    throw new Exception();
+            }
+            
+            // Update co-occurence frequencies.
             for (String token: tokens){
                 for (String termID: termIDs){
                     // Update the counts for this word and this term class.

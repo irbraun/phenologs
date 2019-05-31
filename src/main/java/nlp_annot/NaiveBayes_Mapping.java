@@ -2,6 +2,7 @@
 
 package nlp_annot;
 
+import composer.EQStatement;
 import composer.Term;
 import config.Config;
 import enums.Ontology;
@@ -48,18 +49,41 @@ public class NaiveBayes_Mapping {
     }
     
 
-    private HashMap<Ontology,Double> getLearnedRatios(Text text, List<Chunk> trainingChunks){
+    private HashMap<Ontology,Double> getLearnedRatios(Text text, List<Chunk> trainingChunks) throws Exception{
         HashMap<Ontology,Integer> counts = new HashMap<>();
         for (Ontology o: Ontology.values()){
             counts.put(o, 0);
         }
         // Count the occurences of terms from each ontology in the training set.
         for (Chunk c: trainingChunks){
-            for (String termID: text.getCuratedEQStatementFromAtomID(c.chunkID).getAllTermIDs()){
-                int count = counts.get(utils.Utils.inferOntology(termID));
-                count++;
-                counts.put(utils.Utils.inferOntology(termID), count);
-            }
+            switch(utils.Utils.inferTextType(Config.format)){
+                case PHENOTYPE:
+                    for (EQStatement eq: text.getCuratedEQStatementsFromPhenotypeID(c.chunkID)){
+                        for (String termID: eq.getAllTermIDs()){
+                            int count = counts.get(utils.Utils.inferOntology(termID));
+                            count++;
+                            counts.put(utils.Utils.inferOntology(termID), count);
+                        }
+                    }
+                    break;
+                case SPLIT_PHENOTYPE:
+                    for (EQStatement eq: text.getCuratedEQStatementsFromSplitPhenotypeID(c.chunkID)){
+                        for (String termID: eq.getAllTermIDs()){
+                            int count = counts.get(utils.Utils.inferOntology(termID));
+                            count++;
+                            counts.put(utils.Utils.inferOntology(termID), count);
+                        }
+                    }
+                case PHENE:
+                    for (String termID: text.getCuratedEQStatementFromAtomID(c.chunkID).getAllTermIDs()){
+                        int count = counts.get(utils.Utils.inferOntology(termID));
+                        count++;
+                        counts.put(utils.Utils.inferOntology(termID), count);
+                    }
+                    break;
+                default:
+                    throw new Exception();
+            }  
         }
         // Output the ratios as term per chunk of text for each ontology.
         HashMap<Ontology,Double> ratios = new HashMap<>();
@@ -69,6 +93,11 @@ public class NaiveBayes_Mapping {
         }
         return ratios;
     }
+    
+    
+    
+    
+    
     
     
     
@@ -103,30 +132,85 @@ public class NaiveBayes_Mapping {
        
     }
     
-    private void runOneFold(NaiveBayes_Model nb, String fold, List<Integer> allParts, List<Integer> testParts, List<Integer> trainParts, HashMap<Ontology,Double> ratios) throws FileNotFoundException, SQLException, Exception{
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    private void runOneFold(NaiveBayes_Model nb, String fold, List<Integer> allPartitionNumbers, List<Integer> testingPartitionNumbers, List<Integer> trainingPartitionNumbers, HashMap<Ontology,Double> ratios) throws FileNotFoundException, SQLException, Exception{
         
 
         String baseDirectory = Config.nbPath;
-        
-        // Partition numbers for testing and training.
-        List<Integer> testingPartitionNumbers = testParts;
-        List<Integer> trainingPartitionNumbers = trainParts;
-        List<Integer> allPartitionNumbers = allParts;
         
         Text text = new Text();
         Partitions p = new Partitions(text);  
         String dtypeTag = String.format("_%s",utils.Utils.inferTextType(Config.format).toString().toLowerCase());
         
 
+        
         // Find the fraction of the testing set that is directly present in the training set.
+        // Create a set of the unique combinations of text with annotations in the testing set.
         List<String> testSetInstances = new ArrayList<>();
-        for (Chunk c: p.getChunksFromPartitions(testParts, text.getAllAtomChunks())){
-            testSetInstances.add(String.format("%s:%s",c.getRawText(),text.getCuratedEQStatementFromAtomID(c.chunkID).toIDText()));
+        for (Chunk c: p.getChunksFromPartitions(testingPartitionNumbers, text.getAllChunksOfDType(Config.format))){
+            String chunkTextString = c.getRawText();
+            StringBuilder sb = new StringBuilder();
+            switch(utils.Utils.inferTextType(Config.format)){
+                case PHENOTYPE:
+                    for (EQStatement eq: text.getCuratedEQStatementsFromPhenotypeID(c.chunkID)){
+                        sb.append(eq.toIDText());
+                    }
+                    break;
+                case SPLIT_PHENOTYPE:
+                    for (EQStatement eq: text.getCuratedEQStatementsFromSplitPhenotypeID(c.chunkID)){
+                        sb.append(eq.toIDText());
+                    }
+                    break;
+                case PHENE:
+                    sb.append(text.getCuratedEQStatementFromAtomID(c.chunkID).toIDText());
+                    break;
+                default:
+                    throw new Exception();
+            } 
+            String annotationsString = sb.toString();
+            testSetInstances.add(String.format("%s:%s", chunkTextString, annotationsString));
         }
+        
+        
+        
+        // Create a set of the unique combinations of text with annotations in the training set.
         HashSet<String> trainingSetInstances = new HashSet<>();
-        for (Chunk c: p.getChunksFromPartitions(trainParts, text.getAllAtomChunks())){
-            trainingSetInstances.add(String.format("%s:%s",c.getRawText(),text.getCuratedEQStatementFromAtomID(c.chunkID).toIDText()));
+        for (Chunk c: p.getChunksFromPartitions(trainingPartitionNumbers, text.getAllChunksOfDType(Config.format))){
+            String chunkTextString = c.getRawText();
+            StringBuilder sb = new StringBuilder();
+            switch(utils.Utils.inferTextType(Config.format)){
+                case PHENOTYPE:
+                    for (EQStatement eq: text.getCuratedEQStatementsFromPhenotypeID(c.chunkID)){
+                        sb.append(eq.toIDText());
+                    }
+                    break;
+                case SPLIT_PHENOTYPE:
+                    for (EQStatement eq: text.getCuratedEQStatementsFromSplitPhenotypeID(c.chunkID)){
+                        sb.append(eq.toIDText());
+                    }
+                    break;
+                case PHENE:
+                    sb.append(text.getCuratedEQStatementFromAtomID(c.chunkID).toIDText());
+                    break;
+                default:
+                    throw new Exception();
+            } 
+            String annotationsString = sb.toString();
+            trainingSetInstances.add(String.format("%s:%s", chunkTextString, annotationsString));
         }
+        
+        // Output the resulst of checking for overlaps between all the testing instances and training instances.
         int numOverlappingInstances = 0;
         for (String instance: testSetInstances){
             if (trainingSetInstances.contains(instance)){
@@ -136,6 +220,8 @@ public class NaiveBayes_Mapping {
         double fractionOfTestingInTraining = (double) numOverlappingInstances / (double) testSetInstances.size();
         System.out.println(String.format("For fold %s %s of the testing instances are observed in the training data.", fold, fractionOfTestingInTraining));
 
+        
+        
         
         
         
@@ -175,13 +261,26 @@ public class NaiveBayes_Mapping {
     
     
     
+    
+    
+    
+    
+    
     private void search(Ontology ontology, Text text, List<DataGroup> groups, NaiveBayes_Model nb, HashMap<Ontology,Double> ratios) throws SQLException, Exception{
         
         // Which ontology currently working on.
         logger.info(String.format("working on terms from %s",ontology.toString()));
         
         // Plant PhenomeNET text data.
-        List<Chunk> chunks = text.getAllAtomChunks();
+        List<Chunk> chunks = text.getAllChunksOfDType(Config.format);
+        
+        
+        
+        System.out.println("looking through " + chunks.size() + " chunks in the search function");
+        
+        
+        
+        
         Partitions partsObj = new Partitions(text);
                
         Onto onto = ontoObjects.get(ontology);
@@ -256,8 +355,29 @@ public class NaiveBayes_Mapping {
  
             
             // Find all the ontology terms that were curated for this chunk and which components they are.
-            ArrayList<String> termIDs = text.getCuratedEQStatementFromAtomID(chunk.chunkID).getAllTermIDs();
-            ArrayList<Role> termRoles = text.getCuratedEQStatementFromAtomID(chunk.chunkID).getAllTermRoles();
+            ArrayList<String> termIDs = new ArrayList<>();
+            ArrayList<Role> termRoles = new ArrayList<>();
+            switch(utils.Utils.inferTextType(Config.format)){
+                case PHENE:
+                    termIDs = text.getCuratedEQStatementFromAtomID(chunk.chunkID).getAllTermIDs();
+                    termRoles = text.getCuratedEQStatementFromAtomID(chunk.chunkID).getAllTermRoles();
+                    break;
+                case PHENOTYPE:
+                    for (EQStatement eq: text.getCuratedEQStatementsFromPhenotypeID(chunk.chunkID)){
+                        termIDs.addAll(eq.getAllTermIDs());
+                        termRoles.addAll(eq.getAllTermRoles());
+                    }
+                    break;
+                case SPLIT_PHENOTYPE:
+                    for (EQStatement eq: text.getCuratedEQStatementsFromSplitPhenotypeID(chunk.chunkID)){
+                        termIDs.addAll(eq.getAllTermIDs());
+                        termRoles.addAll(eq.getAllTermRoles());
+                    }
+                    break;
+                default:
+                    throw new Exception();
+            }
+            
             
             // Iterate through the curated terms specific to this ontology.
             for (int i=0; i<termIDs.size(); i++){
