@@ -30,7 +30,7 @@ get_correlation <- function(df1, df2){
 
 
 
-
+# Annotation files obtained using the phene descriptions.
 
 # Naive Bayes files
 dir <- "/Users/irbraun/Desktop/droplet/path/annotators/naive/"
@@ -46,7 +46,7 @@ na <- df
 
 # NOBLE Coder files
 dir <- "/Users/irbraun/Desktop/droplet/path/annotators/noble/"
-df <- rbind(read(dir,"output_pato/group1_phene_eval.csv"), read(dir,"output_po/group1_phene_eval.csv"), read(dir,"output_go/group1_phene_eval.csv"))
+df <- rbind(read(dir,"output_pato/group2_phene_eval.csv"), read(dir,"output_po/group2_phene_eval.csv"), read(dir,"output_go/group2_phene_eval.csv"))
 df <- df[df$category %in% c("TP","FN"),]
 nc <- df
 
@@ -55,6 +55,51 @@ nc <- df
 get_correlation(na,nc)
 get_correlation(na,nb)
 get_correlation(nc,nb)
+
+
+
+
+
+
+
+# Annotation files obtained using the phenotype descriptions.
+
+# Naive Bayes files
+dir <- "/Users/irbraun/Desktop/droplet/path/annotators/naive/"
+df <- rbind(read(dir,"output_pato/merged_phenotype_eval.csv"), read(dir,"output_po/merged_phenotype_eval.csv"), read(dir,"output_go/merged_phenotype_eval.csv"), read(dir,"output_chebi/merged_phenotype_eval.csv"))
+df <- df[df$category %in% c("TP","FN"),]
+nb <- df
+
+# NCBO Annotator files
+dir <- "/Users/irbraun/Desktop/droplet/path/annotators/ncbo/"
+df <- rbind(read(dir,"output_pato/group1_phenotype_eval.csv"), read(dir,"output_po/group1_phenotype_eval.csv"), read(dir,"output_go/group1_phenotype_eval.csv"))
+df <- df[df$category %in% c("TP","FN"),]
+na <- df
+
+# NOBLE Coder files
+dir <- "/Users/irbraun/Desktop/droplet/path/annotators/noble/"
+df <- rbind(read(dir,"output_pato/group2_phenotype_eval.csv"), read(dir,"output_po/group2_phenotype_eval.csv"), read(dir,"output_go/group2_phenotype_eval.csv"))
+df <- df[df$category %in% c("TP","FN"),]
+nc <- df
+
+
+# In between similar methods
+get_correlation(na,nc)
+get_correlation(na,nb)
+get_correlation(nc,nb)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
