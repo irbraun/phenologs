@@ -76,9 +76,10 @@ public class Utils {
         HashMap<String,ArrayList<String>> w2vs = new HashMap<>();
         if (Config.useEmbeddings){
             File file = new File(Config.allPairsPath);
-            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                String line;
-                while ((line = br.readLine()) != null) {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            while ((line = br.readLine()) != null) {
+                try{
                     String[] parts = line.split(",");
                     String w1 = parts[0];
                     String w2 = parts[1];
@@ -92,10 +93,11 @@ public class Utils {
                         w2vs.put(w2, b);
                     }
                 }
+                catch(Exception e){
+                    logger.info(String.format("problem reading line %s from words pairs file", line));
+                }
             }
-            catch (Exception e){
-                logger.info("file containing word embedding results could not be read");
-            }
+            
             
             
             // Generate the text object and pull out the appropriate chunks. 
@@ -110,13 +112,15 @@ public class Utils {
             }
             
             
-            
             for (Chunk c: chunks){
                 File outputFile = new File(String.format("%s%s.txt",dir,c.chunkID));
                 PrintWriter writer = new PrintWriter(outputFile);
                 writer.println(c.getRawText());
 
                 // Append all other variations that could be possible using the allowed synonyms/related words at this threshold value.
+                int numVariants = 0;
+                int hardLimit = 100;
+                
                 for (int w=0; w<c.getBagValues().size(); w++){
                     String word = c.getBagValues().get(w);
                     ArrayList<String> synonyms = w2vs.getOrDefault(word, new ArrayList<>());
@@ -133,6 +137,10 @@ public class Utils {
                             }
                         }
                         writer.println(sb.toString());
+                        numVariants++;
+                    }
+                    if (numVariants>=hardLimit){
+                        break;
                     }
                 }
                 writer.close();
