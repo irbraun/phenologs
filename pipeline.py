@@ -112,7 +112,7 @@ configs_path = args.config_path
 
 
 # Running NOBLE Coder for semantic annotation with gridsearch for parameters.
-thresholds = [1.0]
+thresholds = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
 for t in thresholds:
 
 	'''
@@ -155,7 +155,7 @@ for t in thresholds:
 
 
 # Running NCBO Annotator for semantic annotation with gridsearch for parameters.
-thresholds = [1.0]
+thresholds = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
 for t in thresholds:
 
 	# Using the pre-trained word-embeddings from wikipedia.
@@ -164,12 +164,13 @@ for t in thresholds:
 	ppr.preprocessing(topn=20, threshold=t, dbsetup=1, embeddings=1, split=1, word2vec_model_path=r"./gensim/wiki_sg/word2vec.bin", configs_path=configs_path, dtype=dtype)
 	ann.annotate_with_ncbo_annotator(dtype=dtype, fuzzy=False, group_name="group1", configs_path=configs_path)
 	files = ["output_pato/group1_"+dtype+"_eval.csv", "output_po/group1_"+dtype+"_eval.csv", "output_go/group1_"+dtype+"_eval.csv", "output_chebi/group1_"+dtype+"_eval.csv"]
-	get_metrics(output, dtype, r"./annotators/ncbo/", files)
+	get_metrics(output, description, r"./annotators/ncbo/", files)
 
 
 
 # Running naive Bayes for semantic annotation with gridsearch for parameters.
-thresholds = [1.0]
+thresholds = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
+thresholds = []
 for t in thresholds:
 
 	# Using the pre-trained word embeddings from wikipedia.
@@ -193,7 +194,7 @@ for t in thresholds:
 
 
 
-
+'''
 
 
 
@@ -275,7 +276,7 @@ if dtype == "split_phenotype":
 	print "done generating additional similarity values for the phenotype network"
 
 
-
+'''
 
 
 print "done"
