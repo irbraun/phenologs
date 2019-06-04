@@ -32,10 +32,20 @@ table_row <- function(dir,filename,description){
   sum <- sum(d[d$category %in% c("FP"),]$similarity)
   avg <- sum/(fp)
   pp_fp <- avg
-
-  line = paste(n,pp,pr,pf1,description,sep=",")
+  
+  # Keeping track of how many predicted and target terms there were for averaging.
+  num_predicted <- tp+fp
+  num_target <- tp+fn
+  
+  line = c(num_target, num_predicted, pp, pr, pf1, description)
   return(line)
 }
+
+
+
+
+
+
 
 
 
@@ -55,8 +65,38 @@ filenames <- args[4:length(args)]
 
 
 # Create a summary file for each input annotation file.
-sink(output_file)
+cols <- c("num_target", "num_predicted", "pp", "pr", "pf1", "description")
+table <- data.frame(matrix(ncol=length(cols), nrow=0))
+colnames(table) <- cols
+
 for (filename in filenames){
-  cat(paste(table_row(dir,filename,desc),"\n",sep=""))
+  row_values <- table_row(dir, filename, desc)
+  table[nrow(table)+1,] <- row_values
 }
-closeAllConnections()
+
+table$num_target <- as.numeric(table$num_target)
+table$num_predicted <- as.numeric(table$num_predicted)
+table$pp <- as.numeric(table$pp)
+table$pr <- as.numeric(table$pr)
+table$pf1 <- as.numeric(table$pf1)
+
+# Aggregated values for this described method.
+num_target <- sum(table$num_target)
+num_predicted <- sum(table$num_predicted)
+pp <- (sum(table$pp * table$num_predicted) / num_predicted)
+pr <- (sum(table$pr * table$num_target)/ num_target)
+pf1 <- (2*pp*pr)/(pp+pr)
+description <- "aggregated version of the above for all ontologies"
+table[nrow(table)+1,] <- c(num_target, num_predicted, pp, pr, pf1, description)
+write.csv(table, output_file, row.names=FALSE)
+
+
+
+
+
+
+
+
+
+
+
