@@ -34,6 +34,7 @@ public class Config {
     public static String csvPath;
     public static String csvName;
     public static int seedValue;
+    public static int maxAnnotationsPerText;
     public static boolean useSaveStore;
     public static int numPartitions;
     public static boolean useStemmer;
@@ -45,7 +46,6 @@ public class Config {
     public static boolean checkFuzzyScore;
     public static boolean concatenate;
     public static String passedInName;
-    
     public static boolean undersample;
     public static int maxNegRetain;
     public static ArrayList<Integer> fullPartitions;
@@ -69,6 +69,7 @@ public class Config {
     public static boolean usePrior;
     public static boolean useLemmas;
     public static boolean useEmbeddings;
+    public static boolean useDGPaths;
     public static double maxentTol;
     public static int maxFeaturesPerTerm;
     public static boolean buildNetworks;
@@ -85,7 +86,6 @@ public class Config {
 
     public static String distributionsPath;
     public static String distributionsSerialName;
-    
     public static boolean quick;
     public static int quickLimit;
     public static String species;
@@ -127,8 +127,8 @@ public class Config {
     
     private void readGeneralProperties(String filename) throws FileNotFoundException, IOException{
         
+        // Reading in the configutation properties file. 
         File file = new File(filename);
-        
         Properties properties = new Properties();
         FileInputStream in = new FileInputStream(file);
         properties.load(in);
@@ -140,8 +140,9 @@ public class Config {
         stopWordsPath = properties.getProperty("stopPath").trim();
         allWordsPath = properties.getProperty("allWordsPath").trim();
         allPairsPath = properties.getProperty("allPairsPath").trim();
-        numPartitions = Integer.valueOf(properties.getProperty("numPartitions"));
+        numPartitions = Integer.valueOf(properties.getProperty("numPartitions").trim());
         seedValue = Integer.valueOf(properties.getProperty("seedValue"));
+        maxAnnotationsPerText = Integer.valueOf(properties.getProperty("maxAnnotationsPerText").trim());
         subsetsInputPath = properties.getProperty("categories_path").trim();
         predefinedSimilaritiesPath = properties.getProperty("predefined_path").trim();
         
@@ -282,31 +283,12 @@ public class Config {
         
         // Options relevant to using the NLP pipeline. Note, also used for the composer.  
         JSONObject nlp = (JSONObject) json.get("nlp");
-                
-        usePrior = Boolean.parseBoolean(nlp.get("use_prior").toString());
-        useLemmas = Boolean.parseBoolean(nlp.get("use_lemmas").toString());
-        useEmbeddings = Boolean.parseBoolean(nlp.get("use_embeddings").toString());
-        String maxentTolStr = nlp.get("maxent_tol").toString().trim();
-        switch (maxentTolStr) {
-            case "neg_four":
-                maxentTol = 1E-4;
-                break;
-            case "neg_five":
-                maxentTol = 1E-5;
-                break;
-            case "neg_six":
-                maxentTol = 1E-6;
-                break;
-            case "neg_seven":
-                maxentTol = 1E-7;
-                break;
-            case "neg_eight":
-                maxentTol = 1E-8;
-                break;
-            default:
-                throw new Exception();
-        }
+        usePrior = Boolean.parseBoolean(nlp.get("use_prior").toString().trim());
+        useLemmas = Boolean.parseBoolean(nlp.get("use_lemmas").toString().trim());
+        useEmbeddings = Boolean.parseBoolean(nlp.get("use_embeddings").toString().trim());
+        useDGPaths = Boolean.parseBoolean(nlp.get("use_dg_paths").toString());
         maxFeaturesPerTerm = Integer.valueOf(nlp.get("max_features_per_term").toString());
+        maxentTol = 1E-4;
     }
     
     

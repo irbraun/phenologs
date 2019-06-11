@@ -5,7 +5,7 @@
  */
 package maxent;
 
-import composer.Modifier;
+import composer.ListReducer;
 import composer.Term;
 import config.Config;
 import enums.Ontology;
@@ -93,7 +93,7 @@ public class MaxEnt_Model {
         //logger.info("extracting features");
         int numInstances = 0;
         for (Chunk chunk: chunks){
-            MyAnnotation annotations = Modifier.getAnnotation(chunk);
+            MyAnnotation annotations = ListReducer.getAnnotation(chunk);
             for (String termID: text.getCuratedEQStatementFromAtomID(chunk.chunkID).getAllTermIDs()){
                 
                 
@@ -111,7 +111,7 @@ public class MaxEnt_Model {
                     // See what features are present in this pairing, depending on whether lemmatization is used.
                     List<String> words = new ArrayList<>();
                     if (Config.useLemmas){
-                        annotations = Modifier.getAnnotation(chunk);
+                        annotations = ListReducer.getAnnotation(chunk);
                         words = annotations.lemmas;
                     }
                     else{
@@ -335,7 +335,7 @@ public class MaxEnt_Model {
         // Check whether want to use lemmatization or not.
         List<String> words = new ArrayList<>();
         if (Config.useLemmas){
-            MyAnnotation annotations = Modifier.getAnnotation(chunk);
+            MyAnnotation annotations = ListReducer.getAnnotation(chunk);
             words = annotations.lemmas;
         }
         else{

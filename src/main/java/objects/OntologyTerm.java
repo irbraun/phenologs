@@ -1,6 +1,6 @@
 package objects;
 
-import static composer.Utils.normalizeTermID;
+
 import enums.Aspect;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +12,7 @@ import org.semanticweb.owlapi.model.OWLOntology;
 import uk.ac.ebi.brain.core.Brain;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NonExistingEntityException;
+import static utils.Utils.normalizeTermID;
 
 
 public class OntologyTerm {

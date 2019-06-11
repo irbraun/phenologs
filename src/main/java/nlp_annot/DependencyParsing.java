@@ -2,7 +2,7 @@
 package nlp_annot;
 
 import composer.EQStatement;
-import composer.Modifier;
+import composer.ListReducer;
 import config.Config;
 import enums.Role;
 import java.io.FileNotFoundException;
@@ -135,12 +135,12 @@ public class DependencyParsing {
             }
             
             // Get the dependency graph using Stanford CoreNLP libraries.
-            MyAnnotation a = Modifier.getAnnotation(c);
+            MyAnnotation a = ListReducer.getAnnotation(c);
             
             
             // Update the the distributions of minimal path lengths.
             for (RolePair rp: pairs){
-                int length = Modifier.getMinPathLength(tokenMap.get(rp.r1), tokenMap.get(rp.r2), a);
+                int length = ListReducer.getMinPathLength(tokenMap.get(rp.r1), tokenMap.get(rp.r2), a);
                 rp.distCounter.addLengthValue(length);
             }
         }    
@@ -216,7 +216,10 @@ public class DependencyParsing {
     
     public double getProbability(Role r1, Role r2, int length){
         return tagToDistObjectMap.get(getTag(r1,r2)).getProbability(length);
-        
+    }
+       
+    public double getMergedProbability(Role r1, Role r2, int length){
+        return tagToMergedDistObjectMap.get(getTag(r1,r2)).getProbability(length);
     }
     
     private String getTag(Role r1, Role r2){
@@ -237,13 +240,6 @@ public class DependencyParsing {
         return newDistCounter;
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
+
     
 }

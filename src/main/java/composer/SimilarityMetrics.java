@@ -18,7 +18,7 @@ import objects.OntologyTerm;
 
 
 
-public class Utils {
+public class SimilarityMetrics {
   
     
     
@@ -191,18 +191,7 @@ public class Utils {
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+   
     
     /**
      * Get the weighted Jaccard similarity of two EQ statements. These two EQ statements
@@ -579,41 +568,7 @@ public class Utils {
     
     
     
-    /**
-     * Converts an ontology ID to use a specific number of digits.
-     * @param id
-     * @return 
-     */
-    public static String normalizeTermID(String id){
-        int correctNumDigits = 7;
-        
-        if (id.contains("_")){
-            String number = id.split("_")[1];
-            String name = id.split("_")[0];
-            int numDigits = number.length();
-            for (int i=0; i<(correctNumDigits-numDigits); i++){
-                number = String.format("%s%s","0",number);
-            }
-            String normalizedID = String.format("%s_%s", name, number);
-            return normalizedID;
-        }
-        else if (id.contains(":")){
-            String number = id.split(":")[1];
-            String name = id.split(":")[0];
-            int numDigits = number.length();
-            for (int i=0; i<(correctNumDigits-numDigits); i++){
-                number = String.format("%s%s","0",number);
-            }
-            String normalizedID = String.format("%s_%s", name, number);
-            return normalizedID;
-        }
-        else {
-            logger.info("problem with " + id);
-            return id;
-        }
 
-    }
-    
     
     
     

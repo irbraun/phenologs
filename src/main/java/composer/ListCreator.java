@@ -13,7 +13,7 @@ import objects.OntologyTerm;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 
 
-public class EQBuilder {
+public class ListCreator {
     
     /**
      * Returns a list of candidate EQ statements based on the candidate terms which were provided in the input files,

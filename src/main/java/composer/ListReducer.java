@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import static main.Main.logger;
 import nlp.MyAnnotation;
 import nlp.MyAnnotation.Token;
 import nlp.CoreNLP;
@@ -21,10 +20,19 @@ import utils.Comparators.TermComparatorByLabelLength;
 import utils.Comparators.TermComparatorByScore;
 
 
-public class Modifier {
+public class ListReducer {
+    
+    
+    
+    
+    
+    
     
     
     /**
+     * Obtain the annotations available from running the Stanford CoreNLP pipeline on this 
+     * text chunk, which includes the parts of speech of each of the tokens in the chunk and 
+     * the dependency graph of edges connecting these tokens. Default parameters are used.
      * Assumes there is only one sentence or fragment in the chunk, uses the first if the 
      * parser finds multiple. This method should only receive as input chunks thats are related 
      * to phenes or phenotypes that have already been split into multiple atomized statements 
@@ -42,18 +50,23 @@ public class Modifier {
     
     
 
-        
-    /*
-     * This method does not work. Goal was to detect when the subject is only implied using the
-     * NLP information rather than just a lack of finding other entities. That might not be the 
-     * right approach because it's much more difficult that just seeing what else was found
+
+    
+    
+    
+    
+    
+    
+    /**
+     * Unused, not working as intended. Goal was to detect when the subject is only implied using 
+     * the NLP information rather than just a lack of finding other entities. That might not be 
+     * the right approach because it's much more difficult that just seeing what else was found
      * during annotation and haven't found a reliable way to get that information out of the dG.
      * TODO figure out which edge types (if any) reliably imply the presence of a subject (enables
      * it to be a complete sentence as well).
      * @param annot
      * @return 
      */
-    /*
     public static boolean hasImpliedSubject(MyAnnotation annot){
         for (SemanticGraphEdge edge: annot.dependencyGraph.edgeListSorted()){
             if (edge.getRelation().getShortName().equals("nsubj")){
@@ -62,14 +75,21 @@ public class Modifier {
         }     
         return true;     
     }
-    */
     
     
     
     
     
     
-    // Find the EQ statements that are not using the term that is specified as the default primary entity. 
+    
+    /**
+     * Finds the EQ statements that are not using the term specified as the default primary
+     * entity. For the plant dataset currently used in this work that is whole plant which
+     * is a term in PO. A sublist of the passed in list of EQ statements is returned, which
+     * only includes the elements which match this criteria so that they can be removed.
+     * @param eqs
+     * @return 
+     */
     public static List<EQStatement> getNonImpliedSubjEQs(List<EQStatement> eqs){
         List<EQStatement> toDelete = new ArrayList<>();
         for (EQStatement eq: eqs){
@@ -85,7 +105,19 @@ public class Modifier {
     
     
    
-    // Find EQ statements that don't use the optional qualifier.
+    
+    
+    
+    
+    /**
+     * Finds the EQ statements that are not using an optional qualifier term. These terms
+     * are specified in the class containing additional hard coded information about which
+     * terms in PATO are treated with which rules. A sublist of the passed in list of EQ 
+     * statements is returned, which only includes the elements which match this criteria 
+     * so that they can be removed.
+     * @param eqs
+     * @return 
+     */
     public static List<EQStatement> getNonQualifierEQs(List<EQStatement> eqs){
         List<EQStatement> toDelete = new ArrayList<>();
         for (EQStatement eq: eqs){
@@ -98,8 +130,20 @@ public class Modifier {
     
     
 
+
+
+
     
-    // Find EQ statements that don't satisfy a dependency graph check.
+    
+    /**
+     * Not currently used. The probabilities of the minimal path lengths between terms in a 
+     * complex entity as well as those used within the context of relational entity are instead
+     * used to rank EQ statements rather than directly removing them from the list of viable 
+     * EQ statements.
+     * @param eqs
+     * @param annot
+     * @return 
+     */
     public static List<EQStatement> getInvalidComplexEQs(List<EQStatement> eqs, MyAnnotation annot){
         List<EQStatement> toDelete = new ArrayList<>();
         for (EQStatement eq: eqs){
@@ -116,6 +160,53 @@ public class Modifier {
         }
         return toDelete;
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    /**
+     * Not currently used. The probabilities of the minimal path lengths between terms in a 
+     * complex entity as well as those used within the context of relational entity are instead
+     * used to rank EQ statements rather than directly removing them from the list of viable 
+     * EQ statements.
+     * @param eqs
+     * @param annot
+     * @return 
+     */
+    public static List<EQStatement> getInvalidRelationalEQs(List<EQStatement> eqs, MyAnnotation annot){
+        List<EQStatement> toDelete = new ArrayList<>();
+        for (EQStatement eq: eqs){
+            if (EQFormat.hasComplexPrimaryEntity(eq.getFormat())){
+                if (!checkDependency(eq.primaryEntity1, eq.primaryEntity2, annot)){
+                    toDelete.add(eq);
+                }
+            }
+            if (EQFormat.hasComplexSecondaryEntity(eq.getFormat())){
+                if (checkDependency(eq.secondaryEntity1, eq.secondaryEntity2, annot)){
+                    toDelete.add(eq);
+                }
+            }  
+        }
+        return toDelete;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     
@@ -176,7 +267,16 @@ public class Modifier {
 
     
     
-    // Find the minimum path length between two nodes in the dG.
+    /**
+     * Find the minimal path length between any tokens in the dependency graph which
+     * match nodes from the first set and any that match nodes in the second set. The
+     * length obtained can then be used to find the probability of observing this path
+     * length in a high quality EQ statement as estimated from the training data.
+     * @param set1
+     * @param set2
+     * @param annot
+     * @return 
+     */
     public static int getMinPathLength(HashSet<String> set1, HashSet<String> set2, MyAnnotation annot){
         int arbitrarilyLargePathLength = 100;
         set1 = CoreNLP.removeStopWords(set1);
@@ -212,6 +312,29 @@ public class Modifier {
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * Returns terms from a list of terms that share nodes (tokens) with the target
      * term. This counts all the nodes that are reported to be aligned with the 
@@ -238,8 +361,12 @@ public class Modifier {
     
     
     
-    
-    // Return entity terms that overlap with another entity term but are ranked lower.
+
+    /**
+     * Return entity terms that overlap with another entity term but are ranked lower.
+     * @param terms
+     * @return 
+     */
     public static List<Term> findRedundantEntities(List<Term> terms){
         HashSet<Term> checked = new HashSet<>();
         List<Term> toDelete = new ArrayList<>();
@@ -257,28 +384,22 @@ public class Modifier {
 
     
     
-    // Helper function to figure out which entity to remove in the case of redundant entities.
+    
+    
+    
+    
+    
     private static List<Term> getConflictsOrderedByOntologyAndScore(Term target, List<Term> other){
-        
         // Figure out which terms are overlapping so that conflicts can be resolved.
         List<Term> conflicts = getOverlappingTerms(target,other);
         conflicts.add(target);
         List<Term> conflictsSorted = new ArrayList<>();
-        
-        /*
-        logger.info(String.format("conflict between %s terms", conflicts.size()));
-        for (Term t: conflicts){
-            System.out.println(t.id);
-        }
-        */
-        
         // Define default order for how ontology terms should be retained.
         HashMap<Integer,Ontology> ontoOrder = new HashMap<>();
         ontoOrder.put(1,Ontology.PO);
         ontoOrder.put(2,Ontology.UBERON);
         ontoOrder.put(3,Ontology.GO);
         ontoOrder.put(4,Ontology.CHEBI);
-     
         // Do the sorting based on those preferences.
         for (int order=1; order<=ontoOrder.keySet().size(); order++){
             List<Term> fromThisO = new ArrayList<>();
@@ -289,15 +410,7 @@ public class Modifier {
             }
             Collections.sort(fromThisO, new TermComparatorByScore());
             conflictsSorted.addAll(fromThisO);
-        }
-        
-        /*
-        logger.info(String.format("conflicts sorted has %s terms", conflictsSorted.size()));
-        for (Term t: conflictsSorted){
-            System.out.println(t.id);
-        }
-        */
-        
+        }        
         return conflictsSorted;
     }
         
@@ -333,6 +446,9 @@ public class Modifier {
         Collections.sort(conflicts, new TermComparatorByLabelLength());
         return conflicts.subList(1, conflicts.size());
     }
+    
+    
+    
     
     
     

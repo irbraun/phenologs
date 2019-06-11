@@ -1,11 +1,11 @@
 
 package composer;
 
-import static composer.Utils.normalizeTermID;
 import enums.Ontology;
 import enums.Role;
 import java.util.HashSet;
 import objects.OntologyTerm;
+import static utils.Utils.normalizeTermID;
 
 
 public class Term {

@@ -2,7 +2,7 @@
 package nlp_annot;
 
 import composer.EQStatement;
-import composer.Modifier;
+import composer.ListReducer;
 import composer.Term;
 import config.Config;
 import java.io.BufferedReader;
@@ -97,7 +97,7 @@ public class NaiveBayes_Model {
             // Check if lemmatization should be done before updating the word frequences.
             List<String> tokens = new ArrayList<>();
             if (Config.useLemmas){
-                MyAnnotation annotations = Modifier.getAnnotation(chunk);
+                MyAnnotation annotations = ListReducer.getAnnotation(chunk);
                 tokens = annotations.lemmas;
                 for (String s: tokens){
                     additionalTokens.addAll(w2vs.getOrDefault(s, new ArrayList<>()));
@@ -216,7 +216,7 @@ public class NaiveBayes_Model {
         // Only do this modification if lemmatization is used.
         List<String> chunkWords;
         if (Config.useLemmas){
-            MyAnnotation annotations = Modifier.getAnnotation(chunk);
+            MyAnnotation annotations = ListReducer.getAnnotation(chunk);
             chunkWords = annotations.lemmas;
         }
         else {

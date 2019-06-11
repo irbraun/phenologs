@@ -6,7 +6,6 @@ import randomforest.process.Run;
 import composer.Composer;
 import config.Config;
 import config.Connect;
-import unused.BNLPOutputReader;
 import unused.InputDataPreparer;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -40,8 +39,6 @@ public class Main {
     // Main functions.
     @Option(name="-t", usage="produce text files of phenotype descriptions from tagged data")
     private boolean textprep;
-    @Option(name="-a", usage="read charaparser output and write to annotations db")
-    private boolean annotate;
     @Option(name="-f", usage="produce a csv file containing feature vectors")
     private boolean generate;
     @Option(name="-c", usage="compose eq statements from class probabilities")
@@ -62,13 +59,13 @@ public class Main {
     // Methods that have to do with using the semantic annotation tools and aggregating.
     @Option(name="-n2", usage="noble coder evaluation")
     private boolean nceval;
-    @Option(name="-n22", usage="ncbo annot eval")
+    @Option(name="-n22", usage="ncbo annot evaluation")
     private boolean naeval;
     @Option(name="-fuzzy", usage="use fuzzy matching to infer term scores on the fly")
     private boolean fuzzy;
-    @Option(name="-name", usage="provides a name for a group object that is included in output files")
+    @Option(name="-name", usage="provides a name for a group object that is to be included in output files")
     private String name = "default";
-    @Option(name="-agg", usage="agg")
+    @Option(name="-agg", usage="aggregate the semantic annotation results across methods")
     private String agg = "";
     @Option(name="-w", usage="word file")
     private String wordFiles = "";
@@ -132,9 +129,6 @@ public class Main {
         if (textprep){
             InputDataPreparer idp = new InputDataPreparer();
             idp.findAndWriteAtoms();
-        }
-        if (annotate){
-            BNLPOutputReader outputReader = new BNLPOutputReader();
         }
         if (generate){
             Run dg = new Run();

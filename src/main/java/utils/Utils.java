@@ -1,8 +1,4 @@
-/*
- * Ian Braun
- * irbraun@iastate.edu
- * term-mapping 
- */
+
 package utils;
 
 
@@ -21,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import static main.Main.logger;
 import main.Partitions;
 import ontology.Onto;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -31,10 +28,7 @@ import text.Text;
 import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
 
-/**
- *
- * @author irbraun
- */
+
 public class Utils {
     
     
@@ -213,7 +207,58 @@ public class Utils {
     
     
     
-    // This version of the methods doesn't have any of the partition information.
+    /**
+     * Converts an ontology ID to use a specific number of digits.
+     * @param id
+     * @return 
+     */
+    public static String normalizeTermID(String id){
+        int correctNumDigits = 7;
+        
+        if (id.contains("_")){
+            String number = id.split("_")[1];
+            String name = id.split("_")[0];
+            int numDigits = number.length();
+            for (int i=0; i<(correctNumDigits-numDigits); i++){
+                number = String.format("%s%s","0",number);
+            }
+            String normalizedID = String.format("%s_%s", name, number);
+            return normalizedID;
+        }
+        else if (id.contains(":")){
+            String number = id.split(":")[1];
+            String name = id.split(":")[0];
+            int numDigits = number.length();
+            for (int i=0; i<(correctNumDigits-numDigits); i++){
+                number = String.format("%s%s","0",number);
+            }
+            String normalizedID = String.format("%s_%s", name, number);
+            return normalizedID;
+        }
+        else {
+            logger.info("problem with " + id);
+            return id;
+        }
+
+    }
+    
+    
+    
+    
+    
+    
+ 
+    /**
+     * Allows for obtaining similarity measurements between different terms in the ontologies.
+     * Target values are found from the curated EQ statements which are accessed from the passed
+     * in text object which contains all the information related to the previously tagged data.
+     * @param chunk
+     * @param term
+     * @param text
+     * @param onto
+     * @param ontology
+     * @return 
+     */
     public static Attributes populateAttributes(Chunk chunk, OntologyTerm term, Text text, Onto onto, Ontology ontology){
         
        
@@ -297,21 +342,39 @@ public class Utils {
     
     
     
+   
     
-    // Used with node representation that use a bar delimiter.
-    // Using a system where nodes matching is not case sensitive.
+    
+    /**
+     * Takes in a set of words (strings) and returns a set of nodes. This serves
+     * the purposes of normalizing the words to not be case-sensitive when checking
+     * nodes and also removing duplicates which may have come from matchings found
+     * by multiple annotation methods.
+     * @param nodes
+     * @return 
+     */
     public static HashSet<String> getNodeSetFromString(String nodes){
         HashSet<String> nodeSet = new HashSet<>();
         String[] nodesArr = nodes.toLowerCase().trim().split("\\|");
         nodeSet.addAll(Arrays.asList(nodesArr));
-        nodeSet.remove(""); // new make sure this works.
+        nodeSet.remove("");
         return nodeSet;
     }
     
     
     
     
-    // Make a mapping between ontology enums and their full objects.
+    
+    
+   
+    /**
+     * Make a mapping between ontology enumerations and their full objects.
+     * @param ontologies
+     * @return
+     * @throws OWLOntologyCreationException
+     * @throws NewOntologyException
+     * @throws ClassExpressionException 
+     */
     public static HashMap<Ontology,Onto> buildOntoObjects(List<Ontology> ontologies) throws OWLOntologyCreationException, NewOntologyException, ClassExpressionException{
         HashMap<Ontology,Onto> ontoObjects = new HashMap<>();
         for (Ontology o: ontologies){
@@ -326,8 +389,16 @@ public class Utils {
     
     
     
-    
-    // The lower and upper partition numbers passed in are meant to be inclusive.
+    /**
+     * Get the text chunks from a given partition number range in a partition object
+     * where the passed in numbers are inclusive in both cases.
+     * @param lowerPartNum
+     * @param upperPartNum
+     * @param chunks
+     * @param partitions
+     * @return
+     * @throws Exception 
+     */
     public static List<Chunk> getChunksGivenPartitionRange(int lowerPartNum, int upperPartNum, List<Chunk> chunks, Partitions partitions) throws Exception{
         List<Integer> parts = IntStream.rangeClosed(lowerPartNum,upperPartNum).boxed().collect(Collectors.toList());
         List<Chunk> relevantChunks = partitions.getChunksFromPartitions(parts, chunks);

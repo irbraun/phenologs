@@ -28,11 +28,15 @@ import uk.ac.ebi.brain.error.ClassExpressionException;
 import uk.ac.ebi.brain.error.NewOntologyException;
 import uk.ac.ebi.brain.error.NonExistingEntityException;
 import utils.Comparators.EQComparatorAvgScoreAndCoverage;
+import utils.Comparators.EQComparatorAvgScoreAndCoverageAndDG;
 import static utils.Utils.toRoundedString;
 
 
 
 public class Composer {
+    
+    
+    
     
     
     private final Text text;
@@ -54,12 +58,9 @@ public class Composer {
         text = new Text();
         Partitions parts = new Partitions(text);
         chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0, 31, text.getAllChunksOfDType(Config.format));
-        //chunkIDs = parts.getChunkIDsFromPartitionRangeInclusive(0,1,text.getAllChunksOfDType(Config.format));
-        //chunkIDs = utils.Utils.range(1,100);
         
         
         logger.info("building ontology representations");
-        //ontoObjects = utils.Utils.buildOntoObjects(Ontology.getSmallOntologies());
         ontoObjects = utils.Utils.buildOntoObjects(Ontology.getAllOntologies());
         InfoContent.setup(ontoObjects,text);
        
@@ -251,8 +252,8 @@ public class Composer {
 
                     // Iterate through the predicted EQs when they exist.
                     for (EQStatement predictedEQ: predictedEQs){
-                        double phene_similarityM1 = Utils.getEQSimilarityNoWeighting(predictedEQ, text.getCuratedEQStatementFromAtomID(curatedAtomID), ontoObjects);
-                        double phene_similarityM2 = Utils.getTermSetSimilarity(predictedEQ, text.getCuratedEQStatementFromAtomID(curatedAtomID), ontoObjects);
+                        double phene_similarityM1 = SimilarityMetrics.getEQSimilarityNoWeighting(predictedEQ, text.getCuratedEQStatementFromAtomID(curatedAtomID), ontoObjects);
+                        double phene_similarityM2 = SimilarityMetrics.getTermSetSimilarity(predictedEQ, text.getCuratedEQStatementFromAtomID(curatedAtomID), ontoObjects);
                         // Things that belong in the table (minus phenotype similarity).
                         Object[] data = {text.getAtomChunkFromID(curatedAtomID).species.toString().toLowerCase(),
                                         phenotypeID, 
@@ -297,8 +298,8 @@ public class Composer {
 
                 // Done with all the atomized statements in this phenotype. Find the phenotype similarity.
                 // Output all the rows for each of the phenes that were included within this phenotypes, they have all values now.
-                double phenotypeSimilarityM1 = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
-                double phenotypeSimilarityM2 = Utils.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);
+                double phenotypeSimilarityM1 = SimilarityMetrics.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
+                double phenotypeSimilarityM2 = SimilarityMetrics.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);
                 for (String dataRow: dataRowsForThisPhenotype){
                     writer.println(String.format("%s,%s,%s",dataRow,toRoundedString(phenotypeSimilarityM1, 3),toRoundedString(phenotypeSimilarityM2, 3)));
                 }
@@ -320,7 +321,14 @@ public class Composer {
     
     
     
-    
+    /**
+     * Version of the above method modified to only produce values for columns in the table related to phenotype descriptions.
+     * @param writer
+     * @throws SQLException
+     * @throws NonExistingEntityException
+     * @throws ClassExpressionException
+     * @throws Exception 
+     */
     private void produceOutputEQTableForPhenotypes(PrintWriter writer) throws SQLException, NonExistingEntityException, ClassExpressionException, Exception{
         
         String header = "species,"
@@ -418,8 +426,8 @@ public class Composer {
             predictedEQsPhenotypeMap.put(phenotypeID, eqs2);
 
             // Add the phenotype similarity value to the lines and write them to the file.
-            double phenotypeSimilarityM1 = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
-            double phenotypeSimilarityM2 = Utils.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);
+            double phenotypeSimilarityM1 = SimilarityMetrics.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);   
+            double phenotypeSimilarityM2 = SimilarityMetrics.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects);
             for (String dataRow: dataRowsForThisPhenotype){
                 writer.println(String.format("%s,%s,%s",dataRow,toRoundedString(phenotypeSimilarityM1, 3),toRoundedString(phenotypeSimilarityM2, 3)));
             }
@@ -432,7 +440,14 @@ public class Composer {
     
     
     
-    
+    /**
+     * Version of the above method modified to produce values for columns in the table related to interpreted atomized statements.
+     * @param writer
+     * @throws SQLException
+     * @throws NonExistingEntityException
+     * @throws ClassExpressionException
+     * @throws Exception 
+     */
     private void produceOutputEQTableForSplitPhenotypes(PrintWriter writer) throws SQLException, NonExistingEntityException, ClassExpressionException, Exception{
         
         String header = "species,"
@@ -560,8 +575,8 @@ public class Composer {
 
             // Done with all the atomized statements in this phenotype. Find the phenotype similarity
             // Output all the rows for each of the phenes that were included within this phenotypes, they have all values now.
-            double phenotypeSimilarityM1 = Utils.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
-            double phenotypeSimilarityM2 = Utils.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
+            double phenotypeSimilarityM1 = SimilarityMetrics.getEQSimilarityNoWeighting(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
+            double phenotypeSimilarityM2 = SimilarityMetrics.getTermSetSimilarity(allPredictedEQsForThisPhenotype, allCuratedEQsForThisPhenotype, ontoObjects); 
             for (String dataRow: dataRowsForThisPhenotype){
                 writer.println(String.format("%s,%s,%s",dataRow,toRoundedString(phenotypeSimilarityM1, 3),toRoundedString(phenotypeSimilarityM2, 3)));
             }
@@ -580,7 +595,7 @@ public class Composer {
     
     /**
      * Generate the edges and nodes files for network analysis for graphs built using the annotations.
-     * Edge and node file with relevant attributes for each link or node built separately to be used
+     * Edge and node file with relevant attributes for each link or node built separately can be used
      * with the igraph package. This file can then be modified to included additional measure of 
      * similarity that are calculated elsewhere by other methods of finding text similarity.
      * @throws NonExistingEntityException
@@ -636,11 +651,11 @@ public class Composer {
                 int associatedPhenotypeID1 = text.getPhenotypeIDfromAtomID(atomID1);
                 int associatedPhenotypeID2 = text.getPhenotypeIDfromAtomID(atomID2);
                 // Don't need to use try catch here because the -1 is already returned if there is an acceptable problem.
-                double predictedSimM1 = Utils.getEQSimilarityNoWeighting(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
-                double predictedSimM2 = Utils.getTermSetSimilarity(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
+                double predictedSimM1 = SimilarityMetrics.getEQSimilarityNoWeighting(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
+                double predictedSimM2 = SimilarityMetrics.getTermSetSimilarity(predictedEQsPheneMap.get(atomID1), predictedEQsPheneMap.get(atomID2), ontoObjects);
                 // Don't need to use try catch here for the same reason.
-                double curatedSimM1 = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
-                double curatedSimM2 = Utils.getTermSetSimilarity(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
+                double curatedSimM1 = SimilarityMetrics.getEQSimilarityNoWeighting(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
+                double curatedSimM2 = SimilarityMetrics.getTermSetSimilarity(text.getCuratedEQStatementFromAtomID(atomID1), text.getCuratedEQStatementFromAtomID(atomID2), ontoObjects);
                 Object[] items = {atomID1, atomID2, associatedPhenotypeID1, associatedPhenotypeID2, predictedSimM1, predictedSimM2, curatedSimM1, curatedSimM2};
                 pheneWriter.println(String.format("%s,%s,%s,%s,%.3f,%.3f,%.3f,%.3f",items));
             }
@@ -653,10 +668,10 @@ public class Composer {
                 int phenotypeID1 = phenotypeIDs.get(i);
                 int phenotypeID2 = phenotypeIDs.get(j);
                 double predefinedSim = readValues.getSimilarity(text.getGeneIDFromPhenotypeID(phenotypeID1), text.getGeneIDFromPhenotypeID(phenotypeID2));
-                double predictedSimM1 = Utils.getEQSimilarityNoWeighting(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
-                double predictedSimM2 = Utils.getTermSetSimilarity(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
-                double curatedSimM1 = Utils.getEQSimilarityNoWeighting(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
-                double curatedSimM2 = Utils.getTermSetSimilarity(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
+                double predictedSimM1 = SimilarityMetrics.getEQSimilarityNoWeighting(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
+                double predictedSimM2 = SimilarityMetrics.getTermSetSimilarity(predictedEQsPhenotypeMap.get(phenotypeID1), predictedEQsPhenotypeMap.get(phenotypeID2), ontoObjects);
+                double curatedSimM1 = SimilarityMetrics.getEQSimilarityNoWeighting(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
+                double curatedSimM2 = SimilarityMetrics.getTermSetSimilarity(text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID1)), text.getCuratedEQStatementsFromAtomIDs(text.getAtomIDsFromPhenotypeID(phenotypeID2)), ontoObjects);
                 Object[] items = {phenotypeID1, phenotypeID2, predefinedSim, predictedSimM1, predictedSimM2, curatedSimM1, curatedSimM2};
                 phenotypeWriter.println(String.format("%s,%s,%.3f,%.3f,%.3f,%.3f,%.3f",items));
             }
@@ -696,11 +711,20 @@ public class Composer {
     
     
     
+    
+    
+    
+    
     /**
      * Rule-based approach to constructing EQ statements from provided terms. See the document where
      * the steps used in this approach are described one by one. Make sure this is always written in
      * a way where it's easy to remove or add steps and the pipeline for creating EQs from the sets
      * of candidate terms still always works and all the metrics and scoring still apply the same way.
+     * The steps are numbered and should be ordered the same way they are described in the text and 
+     * anywhere else they are mentioned in any documentation. Overall this function accomplishes both
+     * A) generating all possible EQ statements from annotated terms, B) removing some of these terms
+     * based on parameters and additional criteria, and the C) sorting the resulting EQ statements and
+     * returning the best k of them based on this selected parameter in the configuration file.
      * @param chunkID
      * @return
      * @throws ClassExpressionException
@@ -708,18 +732,14 @@ public class Composer {
      */
     private ArrayList<EQStatement> getPredictedEQs(int chunkID) throws ClassExpressionException, Exception{
 
+        // [preprocessing Step] 
         // The starting lists of candidate EQs.
         ArrayList<Term> predictedQs = (ArrayList<Term>) qTermProbabilityTable.getOrDefault(chunkID, new ArrayList<>());
         ArrayList<Term> predictedEs = (ArrayList<Term>) eTermProbabilityTable.getOrDefault(chunkID, new ArrayList<>());
-
         // Run the NLP pipeline to get depedencies, constituencies, POS, any other information.
         Chunk chunk = text.getChunkFromIDWithDType(chunkID, utils.Utils.inferTextType(Config.format));
-        MyAnnotation annot = Modifier.getAnnotation(chunk);
-
-        // Retain only the most specific terms.
-        //predictedQs = collapse(predictedQs);
-        //predictedEs = collapse(predictedEs);
-
+        MyAnnotation annot = ListReducer.getAnnotation(chunk);
+        // Retain only the most specific terms. This is where collapse() would be called if used.
         // Categorizing PATO terms broadly into those belonging to the relational slim, optional qualifiers, and other.
         ArrayList<Term> predictedQsSimple = new ArrayList<>();
         ArrayList<Term> predictedQsRelational = new ArrayList<>();
@@ -736,7 +756,8 @@ public class Composer {
             }
         }
 
-        // Optional removal steps that try to pair down the possible terms.
+        
+        // [1] Optional removal steps that try to pair down the possible terms.
         logger.info(String.format("processing chunk %s (%s)\n",chunkID,text.getAtomChunkFromID(chunkID).getRawText()));
         logger.info(String.format("%s candidate E",predictedEs.size()));
         for (Term t: predictedEs){
@@ -747,15 +768,22 @@ public class Composer {
             logger.info(String.format("%s (%s)",t.id, ontoObjects.get(utils.Utils.inferOntology(t.id)).getTermFromTermID(t.id).label));
         }
 
-
-        // Optional removal step checking for redundant entities.
-        logDeleteTerms("removing %s redundant entity terms", Modifier.findRedundantEntities(predictedEs));
-        //predictedEs.removeAll(Modifier.findRedundantEntities(predictedEs));
+        
+        
+        
+        
+        // [2] Optional removal step checking for redundant entities.
+        logDeleteTerms("removing %s redundant entity terms", ListReducer.findRedundantEntities(predictedEs));
+        predictedEs.removeAll(ListReducer.findRedundantEntities(predictedEs));
         //predictedQsSimple.removeAll(Modifier.findRedundantQualities(predictedQsSimple));
         //predictedQsRelational.removeAll(Modifier.findRedundantQualities(predictedQsRelational));
         //predictedQualifiers.removeAll(Modifier.findRedundantQualities(predictedQualifiers));
 
-        // If no entity that could be the first primary entity is predicted at all, insert the term used as an implied subject.
+        
+        
+        
+        
+        // [3] If no entity that could be the first primary entity is predicted at all, insert the term used as an implied subject.
         int numEligiblePrimE1 = 0;
         for (Term t: predictedEs){
             if (!t.ontology.equals(Ontology.CHEBI) && !t.ontology.equals(Ontology.UNSUPPORTED)){
@@ -768,7 +796,9 @@ public class Composer {
             logger.info("default entity was added");
         }
 
-        // If atleast one of the entities is a GO process, include 'process quality' as a possible Q. 
+        
+        
+        // [4] If atleast one of the entities is a GO process, include 'process quality' as a possible Quality. 
         for (Term t: predictedEs){
             if(t.ontology.equals(Ontology.GO)){
                 OntologyTerm term = ontoObjects.get(Ontology.GO).getTermFromTermID(t.id);
@@ -778,65 +808,76 @@ public class Composer {
             }
         }
 
-        // Get all possible permutations of the terms within an acceptable EQ statement structure.
-        ArrayList<EQStatement> predictedEQs = EQBuilder.getAllPermutations(ontoObjects, predictedEs, predictedQsSimple, predictedQsRelational, predictedQualifiers);
-
+        
+        
+        
+        
+        // [5] Get all possible permutations of the terms within an acceptable EQ statement structure.
+        ArrayList<EQStatement> predictedEQs = ListCreator.getAllPermutations(ontoObjects, predictedEs, predictedQsSimple, predictedQsRelational, predictedQualifiers);
         logger.info(String.format("there are %s candidate EQs",predictedEQs.size()));
         for (EQStatement eq: predictedEQs){
             logger.info(eq.toLabelText(ontoObjects));
         }
         
-        // If an optional qualifier term is present always use it.
+        
+        
+        
+        // [6] If an optional qualifier term is present always use it.
         if (!predictedQualifiers.isEmpty()){
-            logDeleteEQs("removing %s EQs that are missing a found qualifier", Modifier.getNonQualifierEQs(predictedEQs));
-            predictedEQs.removeAll(Modifier.getNonQualifierEQs(predictedEQs));
+            logDeleteEQs("removing %s EQs that are missing a found qualifier", ListReducer.getNonQualifierEQs(predictedEQs));
+            predictedEQs.removeAll(ListReducer.getNonQualifierEQs(predictedEQs));
         }
         
-        // Check the dependencies between terms involved in post-composed (complex) entities, and remove problems.
-        logDeleteEQs("removing %s EQs with bad complex entities", Modifier.getInvalidComplexEQs(predictedEQs, annot));
-        //predictedEQs.removeAll(Modifier.getInvalidComplexEQs(predictedEQs, annot));
 
-
-        // Check for cases where one of the entity terms is overlapping with either the quality term or optional qualifier.
-        logDeleteEQs("removing %s EQs where an E overlaps with a Q", Modifier.getRedundantEQs(predictedEQs));
-        //predictedEQs.removeAll(Modifier.getRedundantEQs(predictedEQs));
-
-
+        
+        
+        // [7] Check for cases where one of the entity terms is overlapping with either the quality term or optional qualifier.
+        logDeleteEQs("removing %s EQs where an E overlaps with a Q", ListReducer.getRedundantEQs(predictedEQs));
+        predictedEQs.removeAll(ListReducer.getRedundantEQs(predictedEQs));
         logger.info(String.format("there are %s accepted EQs\n",predictedEQs.size()));
 
-        // Assign some score values to the predicted EQ statements based on other information.
+        
+        
+        
+        // [8] Assign some score values to the predicted EQ statements based on other information.
         checkCoverage(chunkID, predictedEQs);
         checkDepGraph(annot, predictedEQs);
 
-        // Only take a maximum of k EQ statements as output for each description input.
-        int threshold = 4;
-        predictedEQs.sort(new EQComparatorAvgScoreAndCoverage());
-        predictedEQs = new ArrayList<>(predictedEQs.subList(0, Math.min(threshold, predictedEQs.size())));
-
-
-        return predictedEQs;
-    }
-    
-    
-    
-    
-    
-    
-    
-    private void logDeleteTerms(String message, List<Term> terms){
-        logger.info(String.format(message,terms.size()));
-        for (Term t: terms){
-            logger.info(String.format("%s",t.id));
-        }
-    }
+        
+        
        
-    private void logDeleteEQs(String message, List<EQStatement> eqs) throws NonExistingEntityException{
-        logger.info(String.format(message,eqs.size()));
-        for (EQStatement eq: eqs){
-            logger.info(eq.toLabelText(ontoObjects));
+        // [9] Only take a maximum of k EQ statements as output for each description input.
+        int threshold = Config.maxAnnotationsPerText;
+        if (Config.useDGPaths){
+            predictedEQs.sort(new EQComparatorAvgScoreAndCoverageAndDG());
         }
+        else {
+            predictedEQs.sort(new EQComparatorAvgScoreAndCoverage());
+        }
+        predictedEQs = new ArrayList<>(predictedEQs.subList(0, Math.min(threshold, predictedEQs.size())));
+        
+        
+        
+        
+        // [10] Return the final set of EQ statement(s) after removing and sorting.
+        return predictedEQs;
+        
+        
+        
     }
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
     
     
     
@@ -846,7 +887,10 @@ public class Composer {
     
     /**
      * Coverage is defined as the fraction of nodes in dG that the contents of the ontology term is
-     * related or mapped to.
+     * related or mapped to. Determines this value for a particular EQ statement against a particular
+     * text description and then remembers this value in the object associated with the EQ statement,
+     * so that these values can be later used when sorting the list of available EQ statements. This
+     * is repeated for all the EQ statements passed in to the function.
      * @param chunkID
      * @param eqs 
      */
@@ -861,6 +905,12 @@ public class Composer {
             eq.setNodeOverlap(coverage);
         }
     }
+    
+    
+    
+    
+    
+    
     
     
     
@@ -883,23 +933,44 @@ public class Composer {
      */
     private void checkDepGraph(MyAnnotation annot, ArrayList<EQStatement>eqs) throws Exception{
         for (EQStatement eq: eqs){
+            
+            
+            // Find the nodes in the dependency graph for each class of term in the statements.
+            HashSet<String> primaryEntityNodes = new HashSet<>(eq.primaryEntity1.nodes);
+            if (eq.primaryEntity2!=null){
+                primaryEntityNodes.addAll(eq.primaryEntity2.nodes);
+            }       
+            HashSet<String> secondaryEntityNodes = new HashSet<>();
+            if (eq.secondaryEntity1!=null){
+                secondaryEntityNodes.addAll(eq.secondaryEntity1.nodes);
+            }
+            if (eq.secondaryEntity2!=null){
+                secondaryEntityNodes.addAll(eq.secondaryEntity2.nodes);
+            }
+            HashSet<String> qualityNodes = new HashSet<>(eq.quality.nodes);
+            
+            
             // Path from nodes for the first primary entity to the quality.
-            int len1 = Modifier.getMinPathLength(eq.primaryEntity1.nodes, eq.quality.nodes, annot);
-            double p1 = dG.getProbability(Role.PRIMARY_ENTITY1_ID, Role.QUALITY_ID, len1);
-            // Path from nodes for the first primary entity to the second primary entity.
+            int len1 = ListReducer.getMinPathLength(primaryEntityNodes, qualityNodes, annot);
+            double p1 = dG.getMergedProbability(Role.PRIMARY_ENTITY1_ID, Role.QUALITY_ID, len1);
+            // Path from nodes with post-composed entities.
             double p2 = 1.00;
             if (eq.primaryEntity2!=null){
-                int len2 = Modifier.getMinPathLength(eq.primaryEntity1.nodes, eq.primaryEntity2.nodes, annot);
+                int len2 = ListReducer.getMinPathLength(eq.primaryEntity1.nodes, eq.primaryEntity2.nodes, annot);
                 p2 = dG.getProbability(Role.PRIMARY_ENTITY1_ID, Role.PRIMARY_ENTITY2_ID, len2);
             }
-            // Path from nodes for the first primary entity to the first secondary entity.
+            if (eq.secondaryEntity1!=null && eq.secondaryEntity2!=null){
+                int len2 = ListReducer.getMinPathLength(eq.primaryEntity1.nodes, eq.primaryEntity2.nodes, annot);
+                p2 = Math.min(p2, dG.getProbability(Role.PRIMARY_ENTITY1_ID, Role.PRIMARY_ENTITY2_ID, len2));
+            }
+            // Path from nodes for the primary entity to the secondary entity.
             double p3 = 1.00;
-            if (eq.secondaryEntity2!=null){
-                int len3 = Modifier.getMinPathLength(eq.primaryEntity1.nodes, eq.secondaryEntity1.nodes, annot);
+            if (!secondaryEntityNodes.isEmpty()){
+                int len3 = ListReducer.getMinPathLength(primaryEntityNodes, secondaryEntityNodes, annot);
                 p3 = dG.getProbability(Role.PRIMARY_ENTITY1_ID, Role.SECONDARY_ENTITY1_ID, len3);
                 
             }
-            // Get the combined probability.
+            // Get the summary probability by taking the product.
             double score = p1*p2*p3;
             double[] values = {p1, p2, p3, score};
             eq.setDependencyGraphValues(values);
@@ -909,11 +980,14 @@ public class Composer {
     
     
     
+    
+    
+    
     /**
      * Takes a list of predicted terms and reduces it by removing any term T1 where some T2 exists that is a
      * descendant of T1 but where T2 has a high class probability associated with it than T1 does. In other
      * words, less specific terms are removed if and only if the list includes some more specific term that 
-     * also has a higher probability of mapping to the input text.
+     * also has a higher probability of mapping to the input text. This is not currently used.
      * @param predictedTerms
      * @return
      * @throws ClassExpressionException 
@@ -951,29 +1025,47 @@ public class Composer {
     
     
     
-
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    /**************************************************************************
+     * Functions for logging the process of narrowing down which EQ statements
+     * are constructed from the available annotated ontology terms and for
+     * processing all of the input text descriptions in general.
+     **************************************************************************/
+
+
+
     private void updateLog(int ctr, int step){
         if (ctr%step==0){
             logger.info(String.format("%s chunks processed",ctr));
         }
     }
     
+    private void logDeleteTerms(String message, List<Term> terms){
+        logger.info(String.format(message,terms.size()));
+        for (Term t: terms){
+            logger.info(String.format("%s",t.id));
+        }
+    }
+       
+    private void logDeleteEQs(String message, List<EQStatement> eqs) throws NonExistingEntityException{
+        logger.info(String.format(message,eqs.size()));
+        for (EQStatement eq: eqs){
+            logger.info(eq.toLabelText(ontoObjects));
+        }
+    }
+    
+    
+    
     
     
     
 }
-    
-    
-    
-    
-   
-    
-    
-    
-    
-    
-   
-    
-    
-    
