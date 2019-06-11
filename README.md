@@ -12,6 +12,9 @@ Both EQ statements and numerical vectors were used to as computable representati
 ### References
 Publication in preparation.
 
+### Feedback
+Send any feedback, questions, or suggestions to irbraun at iastate dot edu.
+
 
 
 
