@@ -12,13 +12,14 @@ source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_subset
 
 # Annotation results file with threshold column.
 DIR <- "/Users/irbraun/NetBeansProjects/term-mapping/tables/"
-INFILE <- "tableS1_word_variance.csv"
+INFILE <- "word_variance.csv"
 
 
 
 # Read in the file.
 df <- read(DIR, INFILE)
-
+methods <- c("Naive Bayes", "NOBLE Coder (partial)", "NOBLE Coder (precise)")
+df <- df[df$Method %in% methods, ]
 
 
 
