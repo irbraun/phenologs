@@ -112,7 +112,7 @@ configs_path = args.config_path
 
 
 # Running NOBLE Coder for semantic annotation with gridsearch for parameters.
-thresholds = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
+thresholds = [1.0]
 for t in thresholds:
 
 	'''
@@ -153,9 +153,8 @@ for t in thresholds:
 
 
 
-
 # Running NCBO Annotator for semantic annotation with gridsearch for parameters.
-thresholds = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
+thresholds = [1.0]
 for t in thresholds:
 
 	# Using the pre-trained word-embeddings from wikipedia.
@@ -168,9 +167,10 @@ for t in thresholds:
 
 
 
+
+
 # Running naive Bayes for semantic annotation with gridsearch for parameters.
-thresholds = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5]
-thresholds = []
+thresholds = [1.0]
 for t in thresholds:
 
 	# Using the pre-trained word embeddings from wikipedia.
@@ -193,20 +193,12 @@ for t in thresholds:
 
 
 
-
-'''
-
-
-
 # Aggregate a set of the output files from the semantic annotation step for comparison.
 ann.aggregate_annotations(dtype=dtype, configs_path=configs_path)
 files = ["output_pato/group1_eval.csv", "output_po/group1_eval.csv", "output_go/group1_eval.csv", "output_chebi/group1_eval.csv"]
 output = r"./output/aggregate"+dtype+".csv"
 get_metrics(output, dtype, r"./annotators/aggregate/", files)
 print "finished semantic annotation"
-
-
-
 
 
 
@@ -218,15 +210,9 @@ if dtype=="phenotype":
 
 
 
-
-
-
-
 # Generate final output.
 compose(networks_path="./networks/", dtype=dtype)
 print "finished generating output annotation file"
-
-
 
 
 
@@ -240,13 +226,10 @@ print "finished generating output annotation file"
 
 
 
-
 # Load or train any of the document embeddings models to be used.
 model_wiki = dt.load_model("./gensim/enwiki_dbow/doc2vec.bin")
 #model_domain_dmpv = train_model("./pubmed/combined_abstracts.txt", "dmpv.model", dm=0, size=300)
 #model_domain_dbow = train_model("./pubmed/combined_abstracts.txt", "dbow.model", dm=1, size=300)
-
-
 
 
 
@@ -266,7 +249,6 @@ if dtype == "phene":
 
 
 
-
 # Update the sets of edges given that the input descriptions were for phenotypes.
 if dtype == "split_phenotype":
 	# Update the file for the phenotype network.
@@ -275,8 +257,6 @@ if dtype == "split_phenotype":
 	dt.update_networkfile_bow("./data/split_chunks/", "./networks/phenotype_text_phenotype_network.csv", "./networks/phenotype_text_phenotype_network.csv")
 	print "done generating additional similarity values for the phenotype network"
 
-
-'''
 
 
 print "done"

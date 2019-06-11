@@ -2,10 +2,10 @@
 
 #Submit this script with: sbatch thefilename
 
-#SBATCH -t 16:00:00   # walltime
+#SBATCH -t 18:00:00   # walltime
 #SBATCH -N 1   # number of nodes in this job
 #SBATCH -n 16   # total number of processor cores in this job
-#SBATCH -J "ph"   # job name
+#SBATCH -J "full"   # job name
 #SBATCH --mail-user=irbraun@iastate.edu   # email address
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
