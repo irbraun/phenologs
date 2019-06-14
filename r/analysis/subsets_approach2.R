@@ -4,8 +4,7 @@ library(dplyr)
 library(data.table)
 library(car)
 library(parallel)
-library(hashmap)
-
+library(hashmap, lib.loc="/work/dillpicl/irbraun/R_libs/")
 
 source("/work/dillpicl/irbraun/term-mapping/path/r/utils.R")
 source("/work/dillpicl/irbraun/term-mapping/path/r/utils_for_subsets.R")
@@ -13,11 +12,11 @@ source("/work/dillpicl/irbraun/term-mapping/path/r/utils_for_subsets.R")
 
 # Specify column in the network file to be used as predicted values. Has to match the csv file.
 PRED_COLUMN_NAMES <- c("predefined", "cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "jaccard", "cosine")
-#PRED_COLUMN_NAMES <- c("predefined", "cur_m1_edge")
 
 # Network files.
 NETWORKS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/networks/"
-PHENOTYPE_EDGES_FILE <- "phenotype_text_phenotype_network.csv"
+IN_FILE_1 <- "phenotype_text_phenotype_network.csv"
+IN_FILE_2 <- "phene_text_phenotype_network.csv"
 # Function categorization files.
 SUBSETS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/r/"
 SUBSETS_FILENAME <- "phenotype_classification_list.csv"
@@ -35,11 +34,37 @@ cat(paste(numCores,"cores available"))
 
 
 
+
+# Read in the command line argument to choose correct network file.
+args = commandArgs(trailingOnly=TRUE)
+if (length(args)!=1) {stop("script takes one argument", call.=FALSE)}
+dtype = args[1]
+if(dtype=="-p1") {
+  PHENOTYPE_EDGES_FILE <- IN_FILE_1
+  TEXT_TYPE = "phenotype_text_"
+}else if(dtype=="-p2"){
+  PHENOTYPE_EDGES_FILE <- IN_FILE_2
+  TEXT_TYPE = "phene_text_"
+}else{
+  stop("argument not understood", call.=FALSE)
+}
+
+
+
+
+
+
+
+
+
+
+
+
 run_one_method_class_level <- function(pred_column_name, phenotype_network, subsets_df, class_name_list){
   
-  out_thresholds_file <- paste(OUTPUT_DIR,"class_thresh_",pred_column_name,".csv",sep="")
-  out_predictions_file <- paste(OUTPUT_DIR,"class_predct_",pred_column_name,".csv",sep="")
-  out_text_file <- paste(OUTPUT_DIR,"class_fscore_",pred_column_name,".csv",sep="")
+  out_thresholds_file <- paste(OUTPUT_DIR,TEXT_TYPE,"class_thresh_",pred_column_name,".csv",sep="")
+  out_predictions_file <- paste(OUTPUT_DIR,TEXT_TYPE,"class_predct_",pred_column_name,".csv",sep="")
+  out_text_file <- paste(OUTPUT_DIR,TEXT_TYPE,"class_fscore_",pred_column_name,".csv",sep="")
   
   phenotype_network$value_to_use <- phenotype_network[,pred_column_name]
   
@@ -108,9 +133,9 @@ run_one_method_class_level <- function(pred_column_name, phenotype_network, subs
 run_one_method_subset_level <- function(pred_column_name, phenotype_network, subsets_df, subset_name_list){
   
   # Generate method specific output files.
-  out_thresholds_file <- paste(OUTPUT_DIR,"subset_thresh_",pred_column_name,".csv",sep="")
-  out_predictions_file <- paste(OUTPUT_DIR,"subset_predct_",pred_column_name,".csv",sep="")
-  out_text_file <- paste(OUTPUT_DIR,"subset_fscore_",pred_column_name,".csv",sep="")
+  out_thresholds_file <- paste(OUTPUT_DIR,TEXT_TYPE,"subset_thresh_",pred_column_name,".csv",sep="")
+  out_predictions_file <- paste(OUTPUT_DIR,TEXT_TYPE,"subset_predct_",pred_column_name,".csv",sep="")
+  out_text_file <- paste(OUTPUT_DIR,TEXT_TYPE,"subset_fscore_",pred_column_name,".csv",sep="")
   
   
   # Define which similarity metric from the network edge file to use.

@@ -11,13 +11,39 @@ source("/work/dillpicl/irbraun/term-mapping/path/r/utils_for_networks.R")
 
 
 
-# The file specifying the network edges.
+# The fils specifying the network edges and output path.
 DIR <- "/work/dillpicl/irbraun/term-mapping/path/networks/"
-IN_FILE <- "phenotype_text_phenotype_network.csv"
-# Other constants.
+IN_FILE_1 <- "phenotype_text_phenotype_network.csv"
+IN_FILE_2 <- "phene_text_phenotype_network.csv"
+OUT_PATH_1 <- "/work/dillpicl/irbraun/term-mapping/path/r/output/phenotype_text_network_comparison.csv"
+OUT_PATH_2 <- "/work/dillpicl/irbraun/term-mapping/path/r/output/phene_text_network_comparison.csv"
+
+# Other constants for subsampling process.
 SAMPLING_RATIO <- 0.8
-OUT_PATH <- "/work/dillpicl/irbraun/term-mapping/path/r/output/network_comparison.csv"
 NUM_ITER <- 10
+
+
+# Read in the command line argument to choose correct network file.
+args = commandArgs(trailingOnly=TRUE)
+if (length(args)!=1) {stop("script takes one argument", call.=FALSE)}
+dtype = args[1]
+if(dtype=="-p1") {
+  IN_FILE <- IN_FILE_1
+  OUT_PATH <- OUT_PATH_1
+}else if(dtype=="-p2"){
+  IN_FILE <- IN_FILE_2
+  OUT_PATH <- OUT_PATH_2
+}else{
+  stop("argument not understood", call.=FALSE)
+}
+
+
+
+
+
+
+
+
 
 
 
