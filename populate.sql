@@ -1,0 +1,36 @@
+DROP TABLE IF EXISTS ppndata;
+CREATE TABLE ppndata (
+    `ppn_id` INT,
+    `Species` TEXT,
+    `gene_symbol` TEXT,
+    `Gene_Identifier` TEXT,
+    `allele_optional` TEXT,
+    `gene_name` TEXT,
+    `data_edited` TEXT,
+    `phenotype_name` TEXT,
+    `phenotype_description` TEXT,
+    `atomized_statement` TEXT,
+    `primary_entity1_ID` TEXT,
+    `primary_entity1_text` TEXT,
+    `relation_to_primary_optional` TEXT,
+    `primary_entity2_ID_optional` TEXT,
+    `primary_entity2_text_optional` TEXT,
+    `quality_ID` TEXT,
+    `quality_text` TEXT,
+    `PATO_Qualifier_ID_optional` TEXT,
+    `PATO_Qualifier_text_optional` TEXT,
+    `secondary_entity1_ID_optional` TEXT,
+    `secondary_entity1_text_optional` TEXT,
+    `relation_to_secondary_optional` TEXT,
+    `secondary_entity2_ID_optional` TEXT,
+    `secondary_entity2_text_opyional` TEXT,
+    `developmental_stage_ID_optional` TEXT,
+    `developmental_stage_text_optional` TEXT,
+    `condition_ID_optional` TEXT,
+    `condition_text_optional` TEXT,
+    `Pubmed_ID_optional` TEXT,
+    `Dominant_recessive_codominant_semi_dominant_optional` TEXT,
+    `Loss_or_gain_of_function_optional` TEXT
+);
+.mode csv
+.import data/original_datasets/ppn_cleaned_data_no_header.csv ppndata
