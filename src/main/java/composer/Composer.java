@@ -950,19 +950,22 @@ public class Composer {
             HashSet<String> qualityNodes = new HashSet<>(eq.quality.nodes);
             
             
-            // Path from nodes for the first primary entity to the quality.
+            // Path from nodes for the primary entity to the quality.
             int len1 = ListReducer.getMinPathLength(primaryEntityNodes, qualityNodes, annot);
             double p1 = dG.getMergedProbability(Role.PRIMARY_ENTITY1_ID, Role.QUALITY_ID, len1);
-            // Path from nodes with post-composed entities.
+            
+            
+            // Path from nodes within post-composed entities.
             double p2 = 1.00;
             if (eq.primaryEntity2!=null){
                 int len2 = ListReducer.getMinPathLength(eq.primaryEntity1.nodes, eq.primaryEntity2.nodes, annot);
                 p2 = dG.getProbability(Role.PRIMARY_ENTITY1_ID, Role.PRIMARY_ENTITY2_ID, len2);
             }
             if (eq.secondaryEntity1!=null && eq.secondaryEntity2!=null){
-                int len2 = ListReducer.getMinPathLength(eq.primaryEntity1.nodes, eq.primaryEntity2.nodes, annot);
-                p2 = Math.min(p2, dG.getProbability(Role.PRIMARY_ENTITY1_ID, Role.PRIMARY_ENTITY2_ID, len2));
+                int len2 = ListReducer.getMinPathLength(eq.secondaryEntity1.nodes, eq.secondaryEntity2.nodes, annot);
+                p2 = Math.min(p2, dG.getProbability(Role.SECONDARY_ENTITY1_ID, Role.SECONDARY_ENTITY2_ID, len2));
             }
+            
             // Path from nodes for the primary entity to the secondary entity.
             double p3 = 1.00;
             if (!secondaryEntityNodes.isEmpty()){

@@ -134,29 +134,41 @@ public class Comparators {
         @Override
         public int compare(EQStatement eq1, EQStatement eq2){
             // Test in terms of average term score.
+            System.out.println("average term score");
+            System.out.println(eq1.getAverageTermScore());
+            System.out.println(eq2.getAverageTermScore());
             if (eq1.getAverageTermScore() < eq2.getAverageTermScore()){
                 return 1;
             }
-            else if (eq1.getAverageTermScore() > eq2.getAverageTermScore()){
+            if (eq1.getAverageTermScore() > eq2.getAverageTermScore()){
                 return -1;
             }
             // Break ties.
-            else {
+            if (eq1.getAverageTermScore() == eq2.getAverageTermScore()){
                 // Test in terms of likelihood of dependency graphs.
+                System.out.println("dG score");
+                System.out.println(eq1.getDependencyGraphValues()[3]);
+                System.out.println(eq2.getDependencyGraphValues()[3]);
                 if (Double.valueOf(eq1.getDependencyGraphValues()[3]) < Double.valueOf(eq2.getDependencyGraphValues()[3])){
                     return 1;
                 }
-                else if (Double.valueOf(eq1.getDependencyGraphValues()[3]) > Double.valueOf(eq2.getDependencyGraphValues()[3])){
+                if (Double.valueOf(eq1.getDependencyGraphValues()[3]) > Double.valueOf(eq2.getDependencyGraphValues()[3])){
                     return -1;
                 }
                 // Break ties.
-                else {
+                if (eq1.getDependencyGraphValues()[3] == eq2.getDependencyGraphValues()[3]){
                     // Test in terms of node overlap.
+                    System.out.println("overlap score");
+                    System.out.println(eq1.getNodeOverlap());
+                    System.out.println(eq2.getNodeOverlap());
                     if (eq1.getNodeOverlap() < eq2.getNodeOverlap()){
                         return 1;
                     }
-                    else if (eq1.getNodeOverlap() > eq2.getNodeOverlap()){
+                    if (eq1.getNodeOverlap() > eq2.getNodeOverlap()){
                         return -1;
+                    }
+                    if (eq1.getNodeOverlap() == eq2.getNodeOverlap()){
+                        return 0;
                     }
                 }
             }
@@ -165,10 +177,7 @@ public class Comparators {
     }
     
     
-    
-    
-    
-
+   
     
     
     

@@ -28,7 +28,12 @@ public class MinPathCounter {
     
     public double getProbability(int l){
         int sum = utils.Utils.sum(new ArrayList<>(countsOfEachLength.values()));
-        return countsOfEachLength.getOrDefault(l,0) / (double) sum;
+        double prob = (double) countsOfEachLength.getOrDefault(l,0) / (double) sum;
+        if (Double.isNaN(prob)){
+            System.out.println("found NaN value for length probability");
+            return 0.000;
+        }
+        return prob;
     }
     
     public int getCount(int l){

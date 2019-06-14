@@ -214,13 +214,38 @@ public class DependencyParsing {
     }
     
     
+    
+    
     public double getProbability(Role r1, Role r2, int length){
-        return tagToDistObjectMap.get(getTag(r1,r2)).getProbability(length);
+        try{
+            return tagToDistObjectMap.get(getTag(r1,r2)).getProbability(length);
+        }
+        catch(Exception e){
+            System.out.println("Problem with getting probability of path length " + length);
+            System.out.println("First role was " + r1.toString());
+            System.out.println("Second role was " + r2.toString());
+            return 0.000;
+        }
     }
        
+    
+    
+    
     public double getMergedProbability(Role r1, Role r2, int length){
-        return tagToMergedDistObjectMap.get(getTag(r1,r2)).getProbability(length);
+        try{
+            return tagToMergedDistObjectMap.get(getTag(r1,r2)).getProbability(length);
+        }
+        catch(Exception e){
+            System.out.println("Problem with getting probability of path length " + length);
+            System.out.println("First role was " + r1.toString());
+            System.out.println("Second role was " + r2.toString());
+            return 0.000;
+        }
     }
+    
+    
+    
+    
     
     private String getTag(Role r1, Role r2){
         return String.format("%s:%s", r1.toString(), r2.toString());
