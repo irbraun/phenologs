@@ -5,6 +5,7 @@ package composer;
 import enums.Ontology;
 import config.Config;
 import enums.Role;
+import enums.TextDatatype;
 import infocontent.InfoContent;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -757,7 +758,7 @@ public class Composer {
         }
 
         
-        // [1] Optional removal steps that try to pair down the possible terms.
+        // [1] Outline possible statements. Following are optional removal steps that try to pair down the possible terms.
         logger.info(String.format("processing chunk %s (%s)\n",chunkID,text.getAtomChunkFromID(chunkID).getRawText()));
         logger.info(String.format("%s candidate E",predictedEs.size()));
         for (Term t: predictedEs){
@@ -840,7 +841,7 @@ public class Composer {
         
         
         // [8] Assign some score values to the predicted EQ statements based on other information.
-        checkCoverage(chunkID, predictedEQs);
+        checkCoverage(chunkID, predictedEQs, utils.Utils.inferTextType(Config.format));
         checkDepGraph(annot, predictedEQs);
 
         
@@ -894,16 +895,24 @@ public class Composer {
      * @param chunkID
      * @param eqs 
      */
-    private void checkCoverage(int chunkID, ArrayList<EQStatement>eqs){
-        HashSet<String> chunkNodes = new HashSet<>(text.getAtomChunkFromID(chunkID).getBagValues());
+    private void checkCoverage(int chunkID, ArrayList<EQStatement>eqs, TextDatatype dtype) throws Exception{
+        
+        HashSet<String> chunkNodes = new HashSet<>(text.getChunkFromIDWithDType(chunkID, dtype).getBagValues());
         for (EQStatement eq: eqs){
             HashSet<String> eqNodes = new HashSet<>();
             for (Term t: eq.termChain){
                 eqNodes.addAll(t.nodes);
             }
-            double coverage = (double) eqNodes.size() / (double) chunkNodes.size();
+            int numCovered = 0;
+            for (String w: chunkNodes){
+                if (eqNodes.contains(w)){
+                    numCovered++;
+                }
+            }
+            double coverage = (double) numCovered / (double) chunkNodes.size();
             eq.setNodeOverlap(coverage);
         }
+        
     }
     
     
