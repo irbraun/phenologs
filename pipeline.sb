@@ -31,3 +31,9 @@ module load jdk/8u141-b15-xf726oe
 python pipeline.py -d phene -c /work/dillpicl/irbraun/term-mapping/path/config/config_set_ph_ene/
 python pipeline.py -d phenotype -c /work/dillpicl/irbraun/term-mapping/path/config/config_set_ph_full/
 python pipeline.py -d split_phenotype -c /work/dillpicl/irbraun/term-mapping/path/config/config_set_ph_split/
+
+Rscript /work/dillpicl/irbraun/term-mapping/path/r/subsets_approach2.R -p1
+Rscript /work/dillpicl/irbraun/term-mapping/path/r/subsets_approach2.R -p2
+
+Rscript /work/dillpicl/irbraun/term-mapping/path/r/network_comparison.R -p1
+Rscript /work/dillpicl/irbraun/term-mapping/path/r/network_comparison.R -p2
