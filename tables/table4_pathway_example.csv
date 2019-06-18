@@ -1,13 +1,13 @@
 ﻿Text,Method,\textit{c1},,\textit{r1},,\textit{b1},
 ,,Rank,Similarity,Rank,Similarity,Rank,Similarity
 Both,PPN,1,1.000,4,0.667,10,0.500
-Phenotypes,EQs S1,1,1.000,50,0.000,7,0.045
-Phenotypes,EQs S2,1,1.000,21,0.312,10,0.421
-Phenotypes,Doc2Vec,1,0.969,2074,0.510,20,0.674
+Phenotypes,EQs S1,1,1.000,62,0.000,62,0.000
+Phenotypes,EQs S2,1,1.000,2059,0.036,974,0.084
+Phenotypes,Doc2Vec,1,0.969,2106,0.521,11,0.701
 Phenotypes,Set of Words,1,1.000,140,0.048,10,0.115
 Phenotypes,Bag of Words,1,1.000,288,0.084,9,0.242
-Phenes,EQs S1,1,1.000,801,0.000,801,0.000
-Phenes,EQs S2,1,1.000,2176,0.018,36,0.301
-Phenes,Doc2Vec,3,0.942,1594,0.551,870,0.597
+Phenes,EQs S1,1,1.000,754,0.029,81,0.099
+Phenes,EQs S2,1,1.000,1969,0.035,283,0.101
+Phenes,Doc2Vec,1,0.952,1918,0.541,691,0.624
 Phenes,Set of Words,1,1.000,31,0.000,17,0.143
 Phenes,Bag of Words,1,1.000,31,0.000,20,0.258
