@@ -122,7 +122,8 @@ public class SimilarityMetrics {
         
         // Check to make sure that neither of the lists has zero EQs in it.               
         if (eqList1.isEmpty() || eqList2.isEmpty()){
-            return 0.000;
+            return -1;
+            //return 0.000;
         }
         
         // Placeholder method for comparison while figuring out how to reproduce the exact values.
@@ -261,7 +262,8 @@ public class SimilarityMetrics {
         
         // Check to make sure that neither of the lists has zero EQs in it.
         if (eqList1.isEmpty() || eqList2.isEmpty()){
-            return 0.000;
+            //return 0.000;
+            return -1;
         }
         
         // The sets of EQ statements which comprise representations of those inherited by the ones passed in.
