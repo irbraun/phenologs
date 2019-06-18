@@ -17,14 +17,13 @@ source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
 
 # Network files.
 NETWORKS_DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
-PHENOTYPE_EDGES_FILE <- "phene_text_phene_network.csv"
+PHENOTYPE_EDGES_FILE <- "phene_text_phenotype_network.csv"
 # Define properties of the output files.
 OUTPUT_DIR <- "/Users/irbraun/Desktop/temp/"
 OUT_FILE_COLUMNS <- c("method","rank","sim","rank","sim","rank","sim","rank","sim")
 
 # The column names in the network file for each predictive method.
-#PRED_COLUMN_NAMES <- c("predefined", "cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "jaccard", "cosine")
-PRED_COLUMN_NAMES <- c("cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "jaccard", "cosine")
+PRED_COLUMN_NAMES <- c("predefined", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "jaccard", "cosine")
 
 # Get the number of cores available for parallelization.
 numCores <- detectCores()
@@ -135,9 +134,9 @@ get_df_for_one_method <- function(column_to_use, df, query_id, other_ids, phenot
 
 
 
-dfs <- mclapply(PRED_COLUMN_NAMES, get_df_for_one_method, df=phenotype_network, query_id=query_id, other_ids=other_ids, phenotype_nodes==FALSE, mc.cores=numCores)
+dfs <- mclapply(PRED_COLUMN_NAMES, get_df_for_one_method, df=phenotype_network, query_id=query_id, other_ids=other_ids, phenotype_nodes=TRUE, mc.cores=numCores)
 combined_df <- do.call("rbind", dfs)
-write.csv(combined_df, file=paste(OUTPUT_DIR,"table11111.csv",sep=""), row.names=F)
+write.csv(combined_df, file=paste(OUTPUT_DIR,"pathway_example_table.csv",sep=""), row.names=F)
 
 
 

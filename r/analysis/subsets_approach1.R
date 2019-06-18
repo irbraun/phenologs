@@ -13,7 +13,7 @@ source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils_for_subset
 
 # Network files.
 NETWORKS_DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
-PHENOTYPE_EDGES_FILE <- "phene_text_phenotype_network.csv"
+PHENOTYPE_EDGES_FILE <- "phenotype_text_phenotype_network.csv"
 # Function categorization files.
 SUBSETS_DIR <- "/Users/irbraun/NetBeansProjects/term-mapping/data/original_datasets/cleaned/"
 SUBSETS_FILENAME <- "phenotype_classification_list.csv"
@@ -202,7 +202,7 @@ method_df$subset_number <- as.numeric(method_df$subset_number)
 method_df <- method_df[method_df$subset!="all",]
 
 # Specifications for each plot.
-max_y <- 10
+max_y <- 12
 min_y <- -2
 step_y <- 2
 y_label <- "Similarity(within) - Similarity(between)"
