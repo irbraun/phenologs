@@ -775,7 +775,7 @@ public class Composer {
         
         // [2] Optional removal step checking for redundant entities.
         logDeleteTerms("removing %s redundant entity terms", ListReducer.findRedundantEntities(predictedEs));
-        predictedEs.removeAll(ListReducer.findRedundantEntities(predictedEs));
+        //predictedEs.removeAll(ListReducer.findRedundantEntities(predictedEs));
         //predictedQsSimple.removeAll(Modifier.findRedundantQualities(predictedQsSimple));
         //predictedQsRelational.removeAll(Modifier.findRedundantQualities(predictedQsRelational));
         //predictedQualifiers.removeAll(Modifier.findRedundantQualities(predictedQualifiers));
@@ -834,7 +834,7 @@ public class Composer {
         
         // [7] Check for cases where one of the entity terms is overlapping with either the quality term or optional qualifier.
         logDeleteEQs("removing %s EQs where an E overlaps with a Q", ListReducer.getRedundantEQs(predictedEQs));
-        predictedEQs.removeAll(ListReducer.getRedundantEQs(predictedEQs));
+        //predictedEQs.removeAll(ListReducer.getRedundantEQs(predictedEQs));
         logger.info(String.format("there are %s accepted EQs\n",predictedEQs.size()));
 
         
