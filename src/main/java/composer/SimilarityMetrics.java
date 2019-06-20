@@ -118,12 +118,27 @@ public class SimilarityMetrics {
         return (double)numIntersectionEQs / (double)numInUnion;
     }
     
+    
+    
+    
+    /**
+     * A method of calculating similarity between two sets of EQ statements that uses
+     * commonly inherited EQ statements. Uses the same function as above to find the 
+     * pairwise similarity between each individual EQ statements in the two sets. The
+     * average maximum similarity between each individual EQ in the smaller set and its
+     * most similar pair in the other set is returned as the similarity between the
+     * two sets.
+     * @param eqList1
+     * @param eqList2
+     * @param ontoObjects
+     * @return
+     * @throws Exception 
+     */
     public static double getEQSimilarityNoWeighting(ArrayList<EQStatement> eqList1, ArrayList<EQStatement> eqList2, HashMap<Ontology,Onto> ontoObjects) throws Exception{
         
         // Check to make sure that neither of the lists has zero EQs in it.               
         if (eqList1.isEmpty() || eqList2.isEmpty()){
-            return -1;
-            //return 0.000;
+            return 0.000;
         }
         
         // Placeholder method for comparison while figuring out how to reproduce the exact values.
@@ -139,51 +154,13 @@ public class SimilarityMetrics {
         }
         ArrayList<Double> maxSimilarities = new ArrayList<>();
         for (EQStatement eq1: shorterEQsList){
-            double maxSim = 0.00;
+            double maxSim = 0.000;
             for (EQStatement eq2: longerEQsList){
                 maxSim = Math.max(maxSim, getEQSimilarityNoWeighting(eq1, eq2, ontoObjects));            
             }
             maxSimilarities.add(maxSim);
         }
         return utils.Utils.mean(maxSimilarities);
-        
-        
-        /*
-        // Find the number of EQ statements which are uniquely inherited by those in list 1.
-        int numEQsIn1ButNot2 = 0;
-        for (EQStatement eq1: eqList1){
-            // Loop through the terms for this EQ statement.
-            ArrayList<Integer> quantityOfUniqueTermsAtEachComponent = new ArrayList<>();
-            for (int i=0; i<eq1.termChain.size(); i++){
-                HashSet<String> s1 = new HashSet<>(ontoObjects.get(eq1.termChain.get(i).ontology).getTermFromTermID(eq1.termChain.get(i).id).allNodes);
-                for (EQStatement eq2: eqList2){
-                    if (eq1.format.equals(eq2.format)){
-                        HashSet<String> s2 = new HashSet<>(ontoObjects.get(eq2.termChain.get(i).ontology).getTermFromTermID(eq2.termChain.get(i).id).allNodes);
-                        s1.removeAll(s2);
-                    }
-                }    
-                quantityOfUniqueTermsAtEachComponent.add(s1.size());
-            }
-            numEQsIn1ButNot2 += utils.Util.product(quantityOfUniqueTermsAtEachComponent);
-        }
-        
-        // Find the number of EQ statements which are inherited by those in both lists 1 and 2.
-        
-        // Find the number of EQ statements which are uniquely inherited by those in list 2.
-        
-        // Idea
-        for each EQ in list 1:
-            how many inherited EQs are there that aren't covered by anything in list2?
-            alg,
-            throw out every eq that doesn't match formatting of this eq
-            for all the ones that do match.
-                remove all terms from that are present in any of the comparison ones.
-                your left with some amount of terms in each slot for this eq
-                use that to generate the number of possible ones.
-
-            how many inherited EQs are there that aren't covered by anything in list1?
-            repeat this process.
-        */
         
     }
     
@@ -262,8 +239,7 @@ public class SimilarityMetrics {
         
         // Check to make sure that neither of the lists has zero EQs in it.
         if (eqList1.isEmpty() || eqList2.isEmpty()){
-            //return 0.000;
-            return -1;
+            return 0.000;
         }
         
         // The sets of EQ statements which comprise representations of those inherited by the ones passed in.
