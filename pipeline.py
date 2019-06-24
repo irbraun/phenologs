@@ -193,13 +193,14 @@ for t in thresholds:
 
 
 
+
+
 # Aggregate a set of the output files from the semantic annotation step for comparison.
 ann.aggregate_annotations(dtype=dtype, configs_path=configs_path)
 files = ["output_pato/group1_eval.csv", "output_po/group1_eval.csv", "output_go/group1_eval.csv", "output_chebi/group1_eval.csv"]
 output = r"./output/aggregate"+dtype+".csv"
 get_metrics(output, dtype, r"./annotators/aggregate/", files)
 print "finished semantic annotation"
-
 
 
 
