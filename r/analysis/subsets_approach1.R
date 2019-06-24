@@ -202,7 +202,7 @@ method_df$subset_number <- as.numeric(method_df$subset_number)
 method_df <- method_df[method_df$subset!="all",]
 
 # Specifications for each plot.
-max_y <- 12
+max_y <- 8
 min_y <- -2
 step_y <- 2
 y_label <- "Similarity(within) - Similarity(between)"
@@ -210,14 +210,14 @@ x_label <- "Functional Subsets"
 
 # Convert how methods are specified in the table to names that work in the figure.
 method_names <- list(
-  "predefined"="PPN",
+  "predefined"="Curated",
   "cur_m1_edge"="cm1", 
   "cur_m2_edge"="cm2", 
   "pre_m1_edge"="EQs S1", 
   "pre_m2_edge"="EQs S2", 
   "enwiki_dbow"="Doc2Vec", 
-  "jaccard"="Word Set", 
-  "cosine"="Word Bag"
+  "jaccard"="SOW", 
+  "cosine"="BOW"
 )
 method_labeller <- function(value){return(method_names[value])}
 method_labeller <- as_labeller(method_labeller)

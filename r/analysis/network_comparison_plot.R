@@ -75,7 +75,7 @@ color_codes <- c("#1A2F52", "#A6CE39", "#B0D4F1", "#B18AD5", "#C25350")
 
 
 method_names <- c("pre1_all","pre2_all","enw_all","cos_all","jac_all")
-labels <- c("EQs S1", "EQs S2", "Doc2Vec", "Bag of Words", "Set of Words")
+labels <- c("Pred EQ S1", "Pred EQ S2", "Doc2Vec", "Bag-of-words", "Set-of-words")
 ribbon_colors = rep("grey70",5)
 max_num_phenologs <- 583971
 
