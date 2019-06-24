@@ -26,4 +26,4 @@ Send any feedback, questions, or suggestions to irbraun at iastate dot edu.
 [4]: https://plantmethods.biomedcentral.com/articles/10.1186/s13007-015-0053-y
 [5]: https://stanfordnlp.github.io/CoreNLP/
 [6]: https://cs.stanford.edu/~quocle/paragraph_vector.pdf
-[7]: https://zenodo.org/record/3255021#.XRFDrpNKhT4
+[7]: https://doi.org/10.5281/zenodo.3255020
