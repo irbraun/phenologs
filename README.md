@@ -12,6 +12,8 @@ Both EQ statements and numerical vectors were used to as computable representati
 ### References
 Publication in preparation.
 
+Datasets generated using this code and other supplemental files are available [here][7].
+
 ### Feedback
 Send any feedback, questions, or suggestions to irbraun at iastate dot edu.
 
@@ -24,3 +26,4 @@ Send any feedback, questions, or suggestions to irbraun at iastate dot edu.
 [4]: https://plantmethods.biomedcentral.com/articles/10.1186/s13007-015-0053-y
 [5]: https://stanfordnlp.github.io/CoreNLP/
 [6]: https://cs.stanford.edu/~quocle/paragraph_vector.pdf
+[7]: https://zenodo.org/record/3255021#.XRFDrpNKhT4
