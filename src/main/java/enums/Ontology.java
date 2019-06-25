@@ -23,7 +23,7 @@ public enum Ontology implements Serializable {
     }
     
     public static List<Ontology> getAllOntologies(){
-        return new ArrayList<>(EnumSet.of(PATO, PO, GO, CHEBI, UBERON));
+        return new ArrayList<>(EnumSet.of(PATO, PO, GO, CHEBI));
     }
     
     public static List<Ontology> getSmallOntologies(){
