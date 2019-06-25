@@ -15,12 +15,20 @@ Download and unzip `phenologs_main` available at the data repository [here][7]. 
 
 The SLURM script `pipeline.sb` contains commands to generate datasets and run the analysis discussed in the publication. The commands in the script for running the pipeline and subsequent analysis are:
 ```
+
+# ---- Annotation and building similarity networks ----
+
+
 # Generate annotation files for phene and phenotype descriptions in the dataset, and 
 # build similarity networks between both phene and phenotypes using each applicable
 # type of input text description.
 python pipeline.py -d phene -c config/config_set_ph_ene/
 python pipeline.py -d phenotype -c config_set_ph_full/
 python pipeline.py -d split_phenotype -c config_set_ph_split/
+
+
+# ---- Analysis of networks and functional classification ----
+
 
 # Look at the within-group and between-group average phenotype similarities using
 # an existing hierarchical functional categorization with using both phenotype and
