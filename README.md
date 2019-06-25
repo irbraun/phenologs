@@ -31,8 +31,8 @@ Rscript r/subsets_approach1.R -p2
 # Look at the performance of each type of computationally generated phenotype 
 # representation on a functional classification task using either phenotype or
 # phene descriptions as the data source.
-#Rscript r/subsets_approach2.R -p1
-#Rscript r/subsets_approach2.R -p2
+Rscript r/subsets_approach2.R -p1
+Rscript r/subsets_approach2.R -p2
 
 # Compare the network built using curated phenotype representations to the networks
 # built computationally using each tool, with phenotype or phene descriptions as the 
