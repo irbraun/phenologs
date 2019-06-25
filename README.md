@@ -11,10 +11,15 @@ Both EQ statements and numerical vectors were used to as computable representati
 
 ### Reproducing Results
 Download and unzip `phenologs_main` available at the data repository [here][7].
+
 The SLURM script `pipeline.sb` contains commands to generate datasets and run the analysis discussed in the publication.
+
 Output files related to semantic annotations with specific tools are in `phenologs_main/annotators/`
+
 Output files summarizing the annotation results are in `phenologs_main/output/`
+
 Output network files are in `phenologs_main/output/`
+
 Output analysis files are in `phenologs_main/r/output/`
 
 ### References
