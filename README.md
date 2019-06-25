@@ -9,13 +9,20 @@ The dataset of phenotype descriptions for this work is taken from "[An ontology 
 ### Generating computable representations
 Both EQ statements and numerical vectors were used to as computable representations for phenotype descriptions to be generated without curators. EQ statement generation was performed using a pipeline that combines semantic annotation tools [NOBLE Coder][2], [NCBO Annotator][1], machine learning methods, and a rule-based approach. Descriptions were additionally embedded into numerical vectors using [Doc2Vec][6] models and bag of words methods.
 
+### Reproducing Results
+Download and unzip `phenologs_main` available at the data repository [here][7].
+The SLURM script `pipeline.sb` contains commands to generate datasets and run the analysis discussed in the publication.
+Output files related to semantic annotations with specific tools are in `phenologs_main/annotators/`
+Output files summarizing the annotation results are in `phenologs_main/output/`
+Output network files are in `phenologs_main/output/`
+Output analysis files are in `phenologs_main/r/output/`
+
 ### References
 Publication in preparation.
 
-Datasets generated using this code and other supplemental files are available [here][7].
-
 ### Feedback
 Send any feedback, questions, or suggestions to irbraun at iastate dot edu.
+
 
 
 
