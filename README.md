@@ -20,8 +20,8 @@ Download and unzip `phenologs_main` available at the data repository [here][7]. 
 # build similarity networks between both phene and phenotypes using each applicable
 # type of input text description.
 python pipeline.py -d phene -c config/config_set_ph_ene/
-python pipeline.py -d phenotype -c config_set_ph_full/
-python pipeline.py -d split_phenotype -c config_set_ph_split/
+python pipeline.py -d phenotype -c config/config_set_ph_full/
+python pipeline.py -d split_phenotype -c config/config_set_ph_split/
 
 
 # ---- Analysis of networks and functional classification ----
