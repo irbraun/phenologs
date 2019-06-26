@@ -10,10 +10,7 @@ The dataset of phenotype descriptions for this work is taken from "[An ontology 
 Both EQ statements and numerical vectors were used to as computable representations for phenotype descriptions to be generated without curators. EQ statement generation was performed using a pipeline that combines semantic annotation tools [NOBLE Coder][2], [NCBO Annotator][1], machine learning methods, and a rule-based approach. Descriptions were additionally embedded into numerical vectors using [Doc2Vec][6] models and bag of words methods.
 
 ### Reproducing results
-Download and unzip `phenologs_main` available at the data repository [here][7]. This directory contains a jar file with dependencies used by the pipeline, python modules for running the pipeline, semantic annotation tools, the main pipeline script, and R scripts used to analyze the outputs of the pipeline. 
-
-
-The SLURM script `pipeline.sb` contains commands to generate datasets and run the analysis discussed in the publication. The commands in the script for running the pipeline and subsequent analysis are:
+Download and unzip `phenologs_main` available at the data repository [here][7]. All java dependencies are contained with `term-mapping.jar`. Python and R package versions on which the pipeline was tested are listed in `packages.text`. The Slurm script `pipeline.sb` contains commands to generate datasets using the main pipeline script `pipeline.py` and analyze the results using scripts in `r`. The commands in the script for running the pipeline and subsequent analysis are:
 ```
 
 # ---- Annotation and building similarity networks ----
@@ -33,20 +30,20 @@ python pipeline.py -d split_phenotype -c config_set_ph_split/
 # Look at the within-group and between-group average phenotype similarities using
 # an existing hierarchical functional categorization with using both phenotype and
 # phene descriptions as the data source.
-Rscript r/subsets_approach1.R -p1
-Rscript r/subsets_approach1.R -p2
+Rscript r/subsets_approach1.R --phenotypes
+Rscript r/subsets_approach1.R --phenes
 
 # Look at the performance of each type of computationally generated phenotype 
 # representation on a functional classification task using either phenotype or
 # phene descriptions as the data source.
-Rscript r/subsets_approach2.R -p1
-Rscript r/subsets_approach2.R -p2
+Rscript r/subsets_approach2.R --phenotypes
+Rscript r/subsets_approach2.R --phenes
 
 # Compare the network built using curated phenotype representations to the networks
 # built computationally using each tool, with phenotype or phene descriptions as the 
 # data source.
-Rscript r/network_comparison.R -p1
-Rscript r/network_comparison.R -p2
+Rscript r/network_comparison.R --phenotypes
+Rscript r/network_comparison.R --phenes
 
 ```
 1. Output files related to semantic annotations with different methods are in `phenologs_main/annotators/`.
