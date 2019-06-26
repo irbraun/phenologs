@@ -10,7 +10,7 @@ The dataset of phenotype descriptions for this work is taken from "[An ontology 
 Both EQ statements and numerical vectors were used to as computable representations for phenotype descriptions to be generated without curators. EQ statement generation was performed using a pipeline that combines semantic annotation tools [NOBLE Coder][2], [NCBO Annotator][1], machine learning methods, and a rule-based approach. Descriptions were additionally embedded into numerical vectors using [Doc2Vec][6] models and bag of words methods.
 
 ### Reproducing results
-Download and unzip `phenologs_main` available at the data repository [here][7]. All java dependencies are contained with `term-mapping.jar`. Python and R package versions on which the pipeline was tested are listed in `packages.text`. The Slurm script `pipeline.sb` contains commands to generate datasets using the main pipeline script `pipeline.py` and analyze the results using scripts in `r`. The commands in the script for running the pipeline and subsequent analysis are:
+Download and unzip `phenologs_main` available at the data repository [here][7]. All java dependencies are contained with `term-mapping.jar`. Python and R package versions on which the pipeline was tested are listed in `packages.txt`. The Slurm script `pipeline.sb` contains commands to generate datasets using the main pipeline script `pipeline.py` and analyze the results using scripts in `r`. The commands in the script for running the pipeline and subsequent analysis are:
 ```
 
 # ---- Annotation and building similarity networks ----
