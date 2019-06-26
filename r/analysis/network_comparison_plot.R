@@ -66,12 +66,11 @@ df_long <- df_long[!(df_long$method %in% do_not_include),]
 
 # Make the plot out of obtained dataframe, color version.
 # Number of S(P1,P2) = 0 rows in the dataframe is 583971, limit x-axis to that.
-library("viridis")      
 library("grid")
 library("wesanderson")
 library("RColorBrewer")
-color_codes <- wes_palette("Cavalcanti1", 5)
-color_codes <- c("#1A2F52", "#A6CE39", "#B0D4F1", "#B18AD5", "#C25350")
+color_codes <- c("#000000", "#E69F00","#D55E00", "#009E73", "#F0E442")
+
 
 
 method_names <- c("pre1_all","pre2_all","enw_all","cos_all","jac_all")
