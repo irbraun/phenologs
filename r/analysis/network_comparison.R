@@ -6,17 +6,17 @@ library(car)
 library(parallel)
 
 
-source("/work/dillpicl/irbraun/term-mapping/path/r/utils.R")
-source("/work/dillpicl/irbraun/term-mapping/path/r/utils_for_networks.R")
+source("r/lib/utils.R")
+source("r/lib/utils_for_networks.R")
 
 
 
 # The fils specifying the network edges and output path.
-DIR <- "/work/dillpicl/irbraun/term-mapping/path/networks/"
+DIR <- "networks/"
 IN_FILE_1 <- "phenotype_text_phenotype_network.csv"
 IN_FILE_2 <- "phene_text_phenotype_network.csv"
-OUT_PATH_1 <- "/work/dillpicl/irbraun/term-mapping/path/r/output/phenotype_text_network_comparison.csv"
-OUT_PATH_2 <- "/work/dillpicl/irbraun/term-mapping/path/r/output/phene_text_network_comparison.csv"
+OUT_PATH_1 <- "r/output/phenotype_text_network_comparison.csv"
+OUT_PATH_2 <- "r/output/phene_text_network_comparison.csv"
 
 # Other constants for subsampling process.
 SAMPLING_RATIO <- 0.8
@@ -27,21 +27,15 @@ NUM_ITER <- 10
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)!=1) {stop("script takes one argument", call.=FALSE)}
 dtype = args[1]
-if(dtype=="-p1") {
+if(dtype=="--phenotypes") {
   IN_FILE <- IN_FILE_1
   OUT_PATH <- OUT_PATH_1
-}else if(dtype=="-p2"){
+}else if(dtype=="--phenes"){
   IN_FILE <- IN_FILE_2
   OUT_PATH <- OUT_PATH_2
 }else{
   stop("argument not understood", call.=FALSE)
 }
-
-
-
-
-
-
 
 
 
@@ -106,40 +100,27 @@ get_df_for_method <- function(pred_col_name, target_col_name, d){
 
 
 
-
-# trying to do them all at once.
 TARGET_COL_NAME <- "predefined"
-PRED_COL_NAMES <- c("predefined", "cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "cosine", "jaccard")
+PRED_COL_NAMES <- c("pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "cosine", "jaccard")
 
 method_dfs <- mclapply(PRED_COL_NAMES, get_df_for_method, target_col_name=TARGET_COL_NAME, d=d, mc.cores=numCores)
 
-# This part is still hardcoded, has to be changed here if using additional metrics.
-# Do this a better way.
 df <- data.frame(k=k_values,
-                 ppn_all=method_dfs[[1]][1,],
-                 ppn_min=method_dfs[[1]][2,],
-                 ppn_max=method_dfs[[1]][3,],
-                 cur1_all=method_dfs[[2]][1,],
-                 cur1_min=method_dfs[[2]][2,],
-                 cur1_max=method_dfs[[2]][3,],
-                 cur2_all=method_dfs[[3]][1,],
-                 cur2_min=method_dfs[[3]][2,],
-                 cur2_max=method_dfs[[3]][3,],
-                 pre1_all=method_dfs[[4]][1,],
-                 pre1_min=method_dfs[[4]][2,],
-                 pre1_max=method_dfs[[4]][3,],
-                 pre2_all=method_dfs[[5]][1,],
-                 pre2_min=method_dfs[[5]][2,],
-                 pre2_max=method_dfs[[5]][3,],
-                 enw_all=method_dfs[[6]][1,],
-                 enw_min=method_dfs[[6]][2,],
-                 enw_max=method_dfs[[6]][3,],
-                 cos_all=method_dfs[[7]][1,],
-                 cos_min=method_dfs[[7]][2,],
-                 cos_max=method_dfs[[7]][3,],
-                 jac_all=method_dfs[[8]][1,],
-                 jac_min=method_dfs[[8]][2,],
-                 jac_max=method_dfs[[8]][3,]
+                 pre1_all=method_dfs[[1]][1,],
+                 pre1_min=method_dfs[[1]][2,],
+                 pre1_max=method_dfs[[1]][3,],
+                 pre2_all=method_dfs[[2]][1,],
+                 pre2_min=method_dfs[[2]][2,],
+                 pre2_max=method_dfs[[2]][3,],
+                 enw_all=method_dfs[[3]][1,],
+                 enw_min=method_dfs[[3]][2,],
+                 enw_max=method_dfs[[3]][3,],
+                 cos_all=method_dfs[[4]][1,],
+                 cos_min=method_dfs[[4]][2,],
+                 cos_max=method_dfs[[4]][3,],
+                 jac_all=method_dfs[[5]][1,],
+                 jac_min=method_dfs[[5]][2,],
+                 jac_max=method_dfs[[5]][3,]
 )
 
 

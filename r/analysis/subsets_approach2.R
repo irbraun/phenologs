@@ -4,25 +4,25 @@ library(dplyr)
 library(data.table)
 library(car)
 library(parallel)
-library(hashmap, lib.loc="/work/dillpicl/irbraun/R_libs/")
+library(hashmap, lib.loc="r/lib/")
 
-source("/work/dillpicl/irbraun/term-mapping/path/r/utils.R")
-source("/work/dillpicl/irbraun/term-mapping/path/r/utils_for_subsets.R")
+source("r/lib/utils.R")
+source("r/lib/utils_for_subsets.R")
 
 
 # Specify column in the network file to be used as predicted values. Has to match the csv file.
-PRED_COLUMN_NAMES <- c("predefined", "cur_m1_edge", "cur_m2_edge", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "jaccard", "cosine")
+PRED_COLUMN_NAMES <- c("predefined", "pre_m1_edge", "pre_m2_edge", "enwiki_dbow", "jaccard", "cosine")
 
 # Network files.
-NETWORKS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/networks/"
+NETWORKS_DIR <- "networks/"
 IN_FILE_1 <- "phenotype_text_phenotype_network.csv"
 IN_FILE_2 <- "phene_text_phenotype_network.csv"
 # Function categorization files.
-SUBSETS_DIR <- "/work/dillpicl/irbraun/term-mapping/path/r/"
+SUBSETS_DIR <- "data/r_data/"
 SUBSETS_FILENAME <- "phenotype_classification_list.csv"
 CATEGORY_HIERARCHY_FILENAME <- "subset_names_cleaned.csv"
 # Output files.
-OUTPUT_DIR <- "/work/dillpicl/irbraun/term-mapping/path/r/output/"
+OUTPUT_DIR <- "r/output/"
 
 # Get the number of cores available for parallelization.
 numCores <- detectCores()
@@ -39,10 +39,10 @@ cat(paste(numCores,"cores available"))
 args = commandArgs(trailingOnly=TRUE)
 if (length(args)!=1) {stop("script takes one argument", call.=FALSE)}
 dtype = args[1]
-if(dtype=="-p1") {
+if(dtype=="--phenotypes") {
   PHENOTYPE_EDGES_FILE <- IN_FILE_1
   TEXT_TYPE = "phenotype_text_"
-}else if(dtype=="-p2"){
+}else if(dtype=="--phenes"){
   PHENOTYPE_EDGES_FILE <- IN_FILE_2
   TEXT_TYPE = "phene_text_"
 }else{
