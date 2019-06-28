@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,6 +65,17 @@ public class Utils {
         }
         double mean = sum / (double) l.size();
         return mean;
+    }
+    public static double median(ArrayList<Integer> l){
+        Collections.sort(l);
+        if (l.size()%2 != 0){
+            return (double) l.get(l.size()/2); 
+        }
+        else{
+            int idx1 = Math.floorDiv(l.size(), 2);
+            int idx2 = idx1+1;
+            return ((double) l.get(idx1) + (double) l.get(idx2)) / 2;
+        }
     }
     public static String toRoundedString(double value, int decimalPlaces){
         StringBuilder sb = new StringBuilder();
