@@ -26,5 +26,6 @@
 		"use_embeddings":"true",
 		"maxent_tol":"neg_five",
 		"max_features_per_term":5,
+		"use_dg_paths":"true",
 	},
 }
