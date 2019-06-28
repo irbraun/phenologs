@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import locus.LocusSubsets;
+import locus.PathwayGeneRanks;
 import nlp.CoreNLP;
 import nlp_annot.AggregateResults;
 import org.apache.log4j.Logger;
@@ -45,7 +46,9 @@ public class Main {
     private boolean compose;
     @Option(name="-l", usage="generating lists of locus subsets")
     private String locus = "";
-        
+    @Option(name="-p", usage="generating rank values for genes expected to belong in pathway search")
+    private boolean geneRank;
+    
     // The additional argument -thresh is used for both these with the default of 0.00.
     // The threshold applies towards to what degree word-embeddings are taken into account.
     // Smaller values mean more and more of the weaker information from the embeddings are used.
@@ -125,6 +128,9 @@ public class Main {
         // Everything else.
         if (!locus.equals("")){
             LocusSubsets.find_subsets();
+        }
+        if (geneRank){
+            PathwayGeneRanks.rankGenes();
         }
         if (textprep){
             InputDataPreparer idp = new InputDataPreparer();
