@@ -17,9 +17,9 @@ source("/Users/irbraun/NetBeansProjects/term-mapping/r/analysis/utils.R")
 
 # Network files.
 NETWORKS_DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
-PHENOTYPE_EDGES_FILE <- "phenotype_text_phenotype_network.csv"
+PHENOTYPE_EDGES_FILE <- "phene_text_phenotype_network.csv"
 # Define properties of the output files.
-OUTPUT_DIR <- "/Users/irbraun/Desktop/temp/"
+OUTPUT_DIR <- "/Users/irbraun/Desktop/"
 OUT_FILE_COLUMNS <- c("method","rank","sim","rank","sim","rank","sim","rank","sim")
 
 # The column names in the network file for each predictive method.
