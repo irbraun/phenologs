@@ -6,9 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import objects.Chunk;
 import text.Text;
 
 
@@ -18,10 +20,24 @@ public class PathwayGeneRanks {
     
     public static void rankGenes() throws Exception{
         
+        
+        
+
         Text text = new Text();
         
-        String inputGeneList = "/Users/irbraun/Desktop/gene_list.txt";
+     
         
+        
+        /** Step 1) Find which genes from a large list are in the data, which is input to R script. **/
+        lookForGenesInData(text, "/Users/irbraun/Desktop/big_gene_list.txt");
+        
+        
+        // Then copy and paste resulting genes and corresponding phenotype IDs into the R script to get query specific files.
+        // Copy and paste the list of genes into a text file (gene_list.txt) so that it can be used to references files made by the R script.
+        
+        
+        /** Step 2) Generate a table of ranked genes from files produced by the R script. **/
+        String inputGeneList = "/Users/irbraun/Desktop/gene_list.txt";
         
         // Read the list of gene IDs that are expected to be in this pathway or regulatory network or related.
         BufferedReader reader_gene_list = new BufferedReader(new FileReader(inputGeneList));
@@ -31,8 +47,7 @@ public class PathwayGeneRanks {
             pathwayGeneIDs.add(line.trim());
         }
         
-        
-        
+
         // Set up the output table.
         PrintWriter printer = new PrintWriter("/Users/irbraun/Desktop/big_table.csv");
 
@@ -133,6 +148,74 @@ public class PathwayGeneRanks {
         }
         
     }
+    
+    
+    
+    
+    
+    private static void lookForGenesInData(Text text, String inputPath) throws FileNotFoundException, IOException, SQLException{
+        // Read the list of gene IDs that are expected to be in this pathway or regulatory network or related.
+        String inputGeneList = inputPath;
+        BufferedReader reader_gene_list = new BufferedReader(new FileReader(inputGeneList));
+        HashSet<String> pathwayGeneIDs = new HashSet<>();
+        HashMap<String,String> idToName = new HashMap<>();
+        HashSet<String> originalReferences = new HashSet<>();
+        HashSet<String> foundGeneIDs = new HashSet<>();
+        String line;
+        String currentName = "";
+        while ((line = reader_gene_list.readLine()) != null){
+        switch (line.substring(0,1)) {
+            case "#":
+                currentName = line.substring(1, line.length());
+                break;
+            case "*":
+                pathwayGeneIDs.add(line.substring(1,line.length()).trim());
+                idToName.put(line.substring(1,line.length()).trim(), currentName);
+                originalReferences.add(line.substring(1,line.length()).trim());
+                break;
+            default:
+                pathwayGeneIDs.add(line.trim());
+                idToName.put(line.trim(),currentName);
+                break;
+        }
+
+        }
+        System.out.println("List of found genes in querying format: \n\n");
+        for (String geneID: pathwayGeneIDs){
+            HashSet<Integer> atomIDs = new HashSet<>();
+            for (Chunk c: text.getAllAtomChunks()){
+                if (c.geneIdentifier.trim().equals(geneID.trim())){
+                    atomIDs.add(c.chunkID);
+                }
+            }
+            HashSet<Integer> phenotypeIDs = new HashSet<>();
+            for (Integer atomID: atomIDs){
+                phenotypeIDs.add(text.getPhenotypeIDfromAtomID(atomID));
+            }
+            if (!phenotypeIDs.isEmpty()){
+                foundGeneIDs.add(geneID);
+                StringBuilder sb = new StringBuilder();
+                for (Integer s: phenotypeIDs){
+                    sb.append(",");
+                    sb.append(s.toString());
+                }
+                String original = "";
+                if (originalReferences.contains(geneID)){
+                    original = "*";
+                }
+                System.out.println(String.format("c(\"%s\" %s)\t\t\t\t# %s %s", geneID, sb.toString(), idToName.get(geneID), original));
+            }
+        }
+        
+        System.out.println("\n\nList of found genes in txt file format: \n\n");
+        for (String geneID: foundGeneIDs){
+            System.out.println(geneID);
+        }
+        
+    }
+    
+    
+    
     
     
     
