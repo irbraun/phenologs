@@ -56,7 +56,7 @@ public class InfoContent {
         return owicMap.get(o).getIC(word);
     }
     
-    public static double getICofEQInCorpus(String eqStr){
+    public static double getICofEQInCorpus(String eqStr) throws Exception{
         return ceqic.getIC(eqStr);
     }
     

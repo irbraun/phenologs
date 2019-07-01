@@ -101,6 +101,7 @@ public class PathwayGeneRanks {
         
         
         
+        
         // Check the mean and mode ranks of each gene known to be in the pathway for each method.
         for (int idx=0; idx<numMethods; idx++){
             String methodName = methodNamesArray[idx];
@@ -128,21 +129,6 @@ public class PathwayGeneRanks {
             // Produce a line for the output table.
             Object[] data = {queryGene, dtype, methodName, binCounts[0], binCounts[1], binCounts[2]};
             printer.println(String.format("%s,%s,%s,%s,%s,%s", data));
-            
-            
-            // Report the results of doing this for a given method.
-            /*
-            System.out.println(String.format("Method = %s",methodName));
-            System.out.println(String.format("The ranks of the %s pathway genes were", pathwayGeneIDs.size()));
-            for (int rank: foundRanks){
-                System.out.println(rank);
-            }
-            double mean = foundRanks.stream().mapToInt(val -> val).average().orElse(0.0);
-            double median = utils.Utils.median(foundRanks);
-                    
-            System.out.println(String.format("Mean = %s",mean));
-            System.out.println(String.format("Median = %s",median));
-            */
             
         }
         

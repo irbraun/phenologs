@@ -1,12 +1,9 @@
 
 package infocontent;
 
-import composer.EQStatement;
 import enums.Ontology;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.HashSet;
-import static main.Main.logger;
 import ontology.Onto;
 import text.Text;
 
@@ -62,16 +59,7 @@ public class CorpusEQIC {
 
     }
     
-   
-    // TODO this is incorrect, things that aren't in the dictionary should have either high IC (0 freq)
-    // or there should be a baseline frequency that is assumed for things that aren't observe.
-    double getIC(String eqStr){
-        try{
-            return infoContent.get(eqStr);
-        }
-        catch(NullPointerException e){
-            logger.info(String.format("problem finding corpus ic of %s",eqStr));
-            return 0.000;
-        }
+    double getIC(String eqStr) throws Exception{
+        throw new Exception("information content of EQ statement not supported");
     }
 }
