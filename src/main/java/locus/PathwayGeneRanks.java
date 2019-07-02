@@ -29,7 +29,7 @@ public class PathwayGeneRanks {
         
         
         /** Step 1) Find which genes from a large list are in the data, which is input to R script. **/
-        lookForGenesInData(text, "/Users/irbraun/Desktop/big_gene_list.txt");
+        //lookForGenesInData(text, "/Users/irbraun/Desktop/accessions_to_look_for.txt");
         
         
         // Then copy and paste resulting genes and corresponding phenotype IDs into the R script to get query specific files.
@@ -37,7 +37,7 @@ public class PathwayGeneRanks {
         
         
         /** Step 2) Generate a table of ranked genes from files produced by the R script. **/
-        String inputGeneList = "/Users/irbraun/Desktop/gene_list.txt";
+        String inputGeneList = "/Users/irbraun/Desktop/gene_list_small.txt";
         
         // Read the list of gene IDs that are expected to be in this pathway or regulatory network or related.
         BufferedReader reader_gene_list = new BufferedReader(new FileReader(inputGeneList));
@@ -46,6 +46,7 @@ public class PathwayGeneRanks {
         while ((line = reader_gene_list.readLine()) != null){
             pathwayGeneIDs.add(line.trim());
         }
+
         
 
         // Set up the output table.
@@ -78,7 +79,7 @@ public class PathwayGeneRanks {
         ArrayList<Integer> binMaxValues = new ArrayList<>();
         binMaxValues.add(10);
         binMaxValues.add(100);
-        binMaxValues.add(10000);
+        binMaxValues.add(100000);
         
         
         
@@ -106,7 +107,7 @@ public class PathwayGeneRanks {
         {
             String[] lineValues = line.split(delimiter);
             for (int idx=0; idx<lineValues.length; idx++){
-                String geneID = text.getPhenotypeChunkFromID(Integer.valueOf(lineValues[idx])).geneIdentifier;
+                String geneID = text.getPhenotypeChunkFromID(Integer.valueOf(lineValues[idx])).geneIdentifier.toLowerCase().trim();
                 if (!methodToGeneListMap.get(idx).contains(geneID)){
                     methodToGeneListMap.get(idx).add(geneID);
                 }
@@ -122,6 +123,7 @@ public class PathwayGeneRanks {
             String methodName = methodNamesArray[idx];
             ArrayList<Integer> foundRanks = new ArrayList<>();
             for (String geneID: pathwayGeneIDs){
+                geneID = geneID.toLowerCase().trim();
                 int rank = methodToGeneListMap.get(idx).indexOf(geneID)+1;
                 if (rank != 0){
                     foundRanks.add(rank);
@@ -164,27 +166,32 @@ public class PathwayGeneRanks {
         String line;
         String currentName = "";
         while ((line = reader_gene_list.readLine()) != null){
-        switch (line.substring(0,1)) {
-            case "#":
-                currentName = line.substring(1, line.length());
-                break;
-            case "*":
-                pathwayGeneIDs.add(line.substring(1,line.length()).trim());
-                idToName.put(line.substring(1,line.length()).trim(), currentName);
-                originalReferences.add(line.substring(1,line.length()).trim());
-                break;
-            default:
-                pathwayGeneIDs.add(line.trim());
-                idToName.put(line.trim(),currentName);
-                break;
-        }
-
+            if (!line.trim().equals("")){
+                switch (line.substring(0,1)) {
+                    case "#":
+                        currentName = line.substring(1, line.length());
+                        break;
+                    case "*":
+                        pathwayGeneIDs.add(line.substring(1,line.length()).trim());
+                        idToName.put(line.substring(1,line.length()).trim(), currentName);
+                        originalReferences.add(line.substring(1,line.length()).trim());
+                        break;
+                    default:
+                        pathwayGeneIDs.add(line.trim());
+                        idToName.put(line.trim(),currentName);
+                        break;
+                }
+            }
         }
         System.out.println("List of found genes in querying format: \n\n");
         for (String geneID: pathwayGeneIDs){
             HashSet<Integer> atomIDs = new HashSet<>();
             for (Chunk c: text.getAllAtomChunks()){
-                if (c.geneIdentifier.trim().equals(geneID.trim())){
+                
+                // Don't use the original version to do the check, remove . and case first.
+                String chunkRep = c.geneIdentifier.trim().toLowerCase().replace(".","");
+                String fileRep = geneID.trim().toLowerCase().replace(".", "");
+                if (chunkRep.equals(fileRep)){
                     atomIDs.add(c.chunkID);
                 }
             }
@@ -203,7 +210,7 @@ public class PathwayGeneRanks {
                 if (originalReferences.contains(geneID)){
                     original = "*";
                 }
-                System.out.println(String.format("c(\"%s\" %s)\t\t\t\t# %s %s", geneID, sb.toString(), idToName.get(geneID), original));
+                System.out.println(String.format("c(\"%s\" %s),\t\t\t\t# %s %s", geneID, sb.toString(), idToName.get(geneID), original));
             }
         }
         
