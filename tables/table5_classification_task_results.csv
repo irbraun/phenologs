@@ -1,8 +1,0 @@
-Method,Phene descriptions,,Phenotype descriptions,
-,`Class',`Subset',`Class',`Subset'
-Curated EQs,0.470,0.359,0.470,0.359
-Pred EQs S1,0.472,0.472,0.369,0.320
-Pred EQs S2,0.504,0.413,0.437,0.368
-Set-of-words,0.613,0.447,0.587,0.426
-Bag-of-words,0.595,0.423,0.549,0.409
-Doc2Vec,0.455,0.331,0.486,0.377

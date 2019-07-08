@@ -1,9 +1,0 @@
-﻿Species,Phenotype descriptions,Phene descriptions,EQ statements
-\textit{Arabidopsis thaliana},1385,5172,5172
-\textit{Zea mays},117,373,373
-\textit{Solanum lycopersicum},90,269,269
-\textit{Oryza sativa},86,340,340
-\textit{Medicago truncatula},40,149,149
-\textit{Glycine max},24,61,61
-Example,Short hypocotyl and expanded cotyledon under hourly far red pulses,expanded cotyledon under hourly far red pulses,PO:0020030 (cotyledon) + PATO:0000586 (increased size)
-,,short hypocotyl under hourly far red pulses,PO:0020100 (hypocotyl) + PATO:0000574 (decreased length)
