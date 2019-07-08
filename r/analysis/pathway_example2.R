@@ -20,7 +20,8 @@ NETWORKS_DIR <- "/Users/irbraun/Desktop/droplet/path/networks/"
 PHENOTYPE_TEXT_EDGES_FILE <- "phenotype_text_phenotype_network.csv"
 PHENE_TEXT_EDGES_FILE <- "phene_text_phenotype_network.csv"
 # Define properties of the output files.
-OUTPUT_DIR <- "/Users/irbraun/Desktop/pathway_membership_files/"
+#OUTPUT_DIR <- "/Users/irbraun/Desktop/pathway_analysis/rankings_for_anthocyanin_pathway_queries/"
+OUTPUT_DIR <- "/Users/irbraun/Desktop/pathway_analysis/rankings_for_transparent_testa_queries/"
 OUT_FILE_COLUMNS <- c("method","rank","sim","rank","sim","rank","sim","rank","sim")
 
 # The column names in the network file for each predictive method.
@@ -56,31 +57,51 @@ query_list <- list(
   c("GRMZM2G172795", 173,1335,1584)                           # b1
 )
 
-# Expanded set of gene IDs to include other enzymes.
+# IDs for the phenotypes and corresponding transparenet test genes in Arabidopsis.
 query_list <- list(
-  c("AT5G07990",     2792),				                            #  pr1 
-  c("AT1G10370",     1848),				                            #  bz2 
-  c("GRMZM2G172795", 1584,1335,173),			                   	#  transcription factors 
-  c("GRMZM2G084799", 2467),				                            #  transcription factors 
-  c("AT4G39640",     449),			                             	#  bz2 
-  c("GRMZM5G822829", 1728,2599,215,220,175,1263),				      #   transcription factors 
-  c("AT5G13930",     2793),				                            #  c2 
-  c("GRMZM2G026930", 1585,2466,2709,213,1979,171,1582,1583),	#  a1 *
-  c("AT3G51240",     2788),				                            #  fht1 
-  c("AT5G17220",     1730),				                            #  bz2 
-  c("GRMZM2G422750", 1262),				                            #  c2 *
-  c("GRMZM2G165390", 228,2326),				                        #  bz1 *
-  c("AT5G24530",     1912),				                            #  fht1 
-  c("GRMZM2G016241", 229),			                            	#  bz2 *
-  c("AT5G44070",     1450),				                            #  bz2 
-  c("GRMZM2G701063", 1336,169),				                        #  transcription factors 
-  c("GRMZM5G881887", 1890,1891),			                       	#  a1 
-  c("AT5G42800",     2795),				                            #  a1 
-  c("GRMZM2G086773", 1889),				                            #  a1 
-  c("AT3G55120",     2789),				                            #  chi1 
-  c("GRMZM2G005066", 170,1261),				                        #  transcription factors 
-  c("GRMZM2G345717", 214,174)				                          #  a2 *
+  c("At3g51240" ,2788),				#  transparent testa 
+  c("At1g34790" ,2787),				#  transparent testa 
+  c("At5g24520" ,2796),				#  transparent testa 
+  c("At5g48100" ,1682),				#  transparent testa 
+  c("At3g55120" ,2789),				#  transparent testa 
+  c("At5g17220" ,1730),				#  transparent testa 
+  c("At5g23260" ,114),				#  transparent testa 
+  c("At4g09820" ,2791),				#  transparent testa 
+  c("At2g37260" ,2797),				#  transparent testa 
+  c("At3g59030" ,2790),				#  transparent testa 
+  c("At5g13930" ,2793),				#  transparent testa 
+  c("At5g07990" ,2792),				#  transparent testa 
+  c("At5g35550" ,2794),				#  transparent testa 
+  c("At1g61720" ,1777),				#  transparent testa 
+  c("At1g43620" ,1731),				#  transparent testa 
+  c("At5g42800" ,2795)			#  transparent testa 
 )
+
+# Expanded set of gene IDs to include other enzymes.
+# query_list <- list(
+#   c("AT5G07990",     2792),				                            #  pr1 
+#   c("AT1G10370",     1848),				                            #  bz2 
+#   c("GRMZM2G172795", 1584,1335,173),			                   	#  transcription factors 
+#   c("GRMZM2G084799", 2467),				                            #  transcription factors 
+#   c("AT4G39640",     449),			                             	#  bz2 
+#   c("GRMZM5G822829", 1728,2599,215,220,175,1263),				      #   transcription factors 
+#   c("AT5G13930",     2793),				                            #  c2 
+#   c("GRMZM2G026930", 1585,2466,2709,213,1979,171,1582,1583),	#  a1 *
+#   c("AT3G51240",     2788),				                            #  fht1 
+#   c("AT5G17220",     1730),				                            #  bz2 
+#   c("GRMZM2G422750", 1262),				                            #  c2 *
+#   c("GRMZM2G165390", 228,2326),				                        #  bz1 *
+#   c("AT5G24530",     1912),				                            #  fht1 
+#   c("GRMZM2G016241", 229),			                            	#  bz2 *
+#   c("AT5G44070",     1450),				                            #  bz2 
+#   c("GRMZM2G701063", 1336,169),				                        #  transcription factors 
+#   c("GRMZM5G881887", 1890,1891),			                       	#  a1 
+#   c("AT5G42800",     2795),				                            #  a1 
+#   c("GRMZM2G086773", 1889),				                            #  a1 
+#   c("AT3G55120",     2789),				                            #  chi1 
+#   c("GRMZM2G005066", 170,1261),				                        #  transcription factors 
+#   c("GRMZM2G345717", 214,174)				                          #  a2 *
+# )
 
 
 
@@ -135,81 +156,101 @@ for(query in query_list){
 
 
 
-
-
-
-# Making the figure.
-df <- read("/Users/irbraun/Desktop/", "big_table.csv")
-df$gene <- as.character(df$gene)
-
-# Average the values (bin quantities) for each method and text description type and get standard deviation.
-for (method in PRED_COLUMN_NAMES){
+make_figure <- function(dir, infile, step_size, y_lim, outfile_path){
+  # Making the figure.
+  df <- read(dir, infile)
+  df$gene <- as.character(df$gene)
   
-  sub_df <- df[(df$dtype=="Phenotype Descriptions") & (df$method==method),]
-  df[nrow(df)+1,] <- c("average", "Phenotype Descriptions", method,  mean(sub_df$bin_10), mean(sub_df$bin_100), mean(sub_df$bin_inf))
-  df[nrow(df)+1,] <- c("stdev", "Phenotype Descriptions", method, sd(sub_df$bin_10), sd(sub_df$bin_100), sd(sub_df$bin_inf))
-  df$bin_10 <- as.numeric(df$bin_10)
-  df$bin_100 <- as.numeric(df$bin_100)
-  df$bin_inf <- as.numeric(df$bin_inf)
+  # Average the values (bin quantities) for each method and text description type and get standard deviation.
+  for (method in PRED_COLUMN_NAMES){
+    
+    sub_df <- df[(df$dtype=="Phenotype Descriptions") & (df$method==method),]
+    df[nrow(df)+1,] <- c("average", "Phenotype Descriptions", method,  mean(sub_df$bin_10), mean(sub_df$bin_20), mean(sub_df$bin_30), mean(sub_df$bin_40), mean(sub_df$bin_50), mean(sub_df$bin_inf))
+    df[nrow(df)+1,] <- c("stdev", "Phenotype Descriptions", method, sd(sub_df$bin_10), sd(sub_df$bin_20), sd(sub_df$bin_30), sd(sub_df$bin_40), sd(sub_df$bin_50), sd(sub_df$bin_inf))
+    df$bin_10 <- as.numeric(df$bin_10)
+    df$bin_20 <- as.numeric(df$bin_20)
+    df$bin_30 <- as.numeric(df$bin_30)
+    df$bin_40 <- as.numeric(df$bin_40)
+    df$bin_50 <- as.numeric(df$bin_50)
+    df$bin_inf <- as.numeric(df$bin_inf)
+    
+    sub_df <- df[(df$dtype=="Phene Descriptions") & (df$method==method),]
+    df[nrow(df)+1,] <- c("average", "Phene Descriptions", method,  mean(sub_df$bin_10), mean(sub_df$bin_20), mean(sub_df$bin_30), mean(sub_df$bin_40), mean(sub_df$bin_50), mean(sub_df$bin_inf))
+    df[nrow(df)+1,] <- c("stdev", "Phene Descriptions", method, sd(sub_df$bin_10), sd(sub_df$bin_20), sd(sub_df$bin_30), sd(sub_df$bin_40), sd(sub_df$bin_50), sd(sub_df$bin_inf))
+    df$bin_10 <- as.numeric(df$bin_10)
+    df$bin_20 <- as.numeric(df$bin_20)
+    df$bin_30 <- as.numeric(df$bin_30)
+    df$bin_40 <- as.numeric(df$bin_40)
+    df$bin_50 <- as.numeric(df$bin_50)
+    df$bin_inf <- as.numeric(df$bin_inf)
+  }
   
-  sub_df <- df[(df$dtype=="Phene Descriptions") & (df$method==method),]
-  df[nrow(df)+1,] <- c("average", "Phene Descriptions", method,  mean(sub_df$bin_10), mean(sub_df$bin_100), mean(sub_df$bin_inf))
-  df[nrow(df)+1,] <- c("stdev", "Phene Descriptions", method, sd(sub_df$bin_10), sd(sub_df$bin_100), sd(sub_df$bin_inf))
-  df$bin_10 <- as.numeric(df$bin_10)
-  df$bin_100 <- as.numeric(df$bin_100)
-  df$bin_inf <- as.numeric(df$bin_inf)
+  # Averages.
+  df_avg <- df[df$gene=="average",]
+  df_long_avg <- gather(df_avg, bin, quantity, bin_10:bin_inf, factor_key=TRUE)
+  names(df_long_avg)[5] <- "avg"
+  
+  # Standard deviations.
+  df_sd <- df[df$gene=="stdev",]
+  df_long_sd <- gather(df_sd, bin, quantity, bin_10:bin_inf, factor_key=TRUE)
+  names(df_long_sd)[5] <- "sd"
+  
+  # Combined.
+  df_long <- merge(df_long_avg, df_long_sd, by=c("dtype","method","bin"))
+  
+  
+  
+  
+  
+  # Convert how methods are specified in the table to names that work in the figure and order as well.
+  df_long$method_factor <- factor(df_long$method, levels=c("predefined", "pre_m1_edge", "pre_m2_edge", "jaccard", "cosine", "enwiki_dbow"))
+  method_names <- list(
+    "predefined"="Curated EQs",
+    "pre_m1_edge"="Pred EQs S1",
+    "pre_m2_edge"="Pred EQs S2",
+    "enwiki_dbow"="Doc2Vec",
+    "jaccard"="Set-of-words",
+    "cosine"="Bag-of-words",
+    "Phenotype Descriptions"="Phenotype Descriptions",
+    "Phene Descriptions"="Phene Descriptions"
+  )
+  method_labeller <- function(value){return(method_names[value])}
+  method_labeller <- as_labeller(method_labeller)
+  
+  
+  # Make the plot.
+  ggplot(data=df_long, aes(x=bin,y=avg) ) + geom_bar(stat="identity") + geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2) +
+    facet_grid(dtype~method_factor, labeller=method_labeller) +
+    theme_bw() +
+    scale_x_discrete(breaks=c("bin_10","bin_20","bin_30", "bin_40", "bin_50", "bin_inf"), labels=c("1-10","11-20","21-30","31-40","41-50","50+")) +
+    scale_y_continuous(breaks=seq(0,y_lim,step_size), limits=c(NA,y_lim)) +
+    theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), 
+          axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+          legend.direction = "vertical", 
+          legend.position = "right", 
+          panel.grid.minor = element_line(color="lightgray"), 
+          panel.grid.major=element_blank(), 
+          axis.line=element_blank()) +
+    xlab("Rank Value") + ylab("Rank Quantity")
+  
+  # Save the image of the plot.
+  filename <- outfile_path
+  ggsave(filename, plot=last_plot(), device="png", path=NULL, scale=1, width=24, height=12, units=c("cm"), dpi=300, limitsize=TRUE)
 }
 
-# Averages.
-df_avg <- df[df$gene=="average",]
-df_long_avg <- gather(df_avg, bin, quantity, bin_10:bin_inf, factor_key=TRUE)
-names(df_long_avg)[5] <- "avg"
-
-# Standard deviations.
-df_sd <- df[df$gene=="stdev",]
-df_long_sd <- gather(df_sd, bin, quantity, bin_10:bin_inf, factor_key=TRUE)
-names(df_long_sd)[5] <- "sd"
-
-# Combined.
-df_long <- merge(df_long_avg, df_long_sd, by=c("dtype","method","bin"))
 
 
 
 
 
-# Convert how methods are specified in the table to names that work in the figure and order as well.
-df_long$method_factor <- factor(df_long$method, levels=c("predefined", "pre_m1_edge", "pre_m2_edge", "jaccard", "cosine", "enwiki_dbow"))
-method_names <- list(
-  "predefined"="Curated EQs",
-  "pre_m1_edge"="Pred EQs S1",
-  "pre_m2_edge"="Pred EQs S2",
-  "enwiki_dbow"="Doc2Vec",
-  "jaccard"="Set-of-words",
-  "cosine"="Bag-of-words",
-  "Phenotype Descriptions"="Phenotype Descriptions",
-  "Phene Descriptions"="Phene Descriptions"
-)
-method_labeller <- function(value){return(method_names[value])}
-method_labeller <- as_labeller(method_labeller)
+make_figure("/Users/irbraun/Desktop/pathway_analysis/", "big_table_query_ap_target_tt.csv", step_size=2, y_lim=18, "/Users/irbraun/Desktop/pathway_analysis/figure_pathway_example_ap_to_tt.png")
+make_figure("/Users/irbraun/Desktop/pathway_analysis/", "big_table_query_ap_target_ap.csv", step_size=1, y_lim=12, "/Users/irbraun/Desktop/pathway_analysis/figure_pathway_example_ap_to_ap.png")
+make_figure("/Users/irbraun/Desktop/pathway_analysis/", "big_table_query_tt_target_tt.csv", step_size=2, y_lim=18, "/Users/irbraun/Desktop/pathway_analysis/figure_pathway_example_tt_to_tt.png")
+make_figure("/Users/irbraun/Desktop/pathway_analysis/", "big_table_query_tt_target_ap.csv", step_size=1, y_lim=12, "/Users/irbraun/Desktop/pathway_analysis/figure_pathway_example_tt_to_ap.png")
 
 
-# Make the plot.
-ggplot(data=df_long, aes(x=bin,y=avg) ) + geom_bar(stat="identity") + geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2) +
-  facet_grid(dtype~method_factor, labeller=method_labeller) +
-  theme_bw() +
-  scale_x_discrete(breaks=c("bin_10","bin_100","bin_inf"), labels=c("1-10","11-100","100+")) +
-  scale_y_continuous(breaks=seq(0,8,1)) +
-  theme(plot.title = element_text(lineheight=1.0, face="bold", hjust=0.5), 
-        legend.direction = "vertical", 
-        legend.position = "right", 
-        panel.grid.minor = element_line(color="lightgray"), 
-        panel.grid.major=element_blank(), 
-        axis.line=element_blank()) +
-  xlab("Rank Value") + ylab("Rank Quantity")
 
-# Save the image of the plot.
-filename <- "/Users/irbraun/Desktop/figure6_pathway_example.png"
-ggsave(filename, plot=last_plot(), device="png", path=NULL, scale=1, width=24, height=12, units=c("cm"), dpi=300, limitsize=TRUE)
+
 
 
 

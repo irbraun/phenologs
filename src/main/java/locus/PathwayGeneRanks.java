@@ -29,43 +29,68 @@ public class PathwayGeneRanks {
         
         
         /** Step 1) Find which genes from a large list are in the data, which is input to R script. **/
-        //lookForGenesInData(text, "/Users/irbraun/Desktop/accessions_to_look_for.txt");
+        //lookForGenesInData(text, "/Users/irbraun/Desktop/pathway_analysis/accessions_to_look_for_tt.txt");
         
         
         // Then copy and paste resulting genes and corresponding phenotype IDs into the R script to get query specific files.
-        // Copy and paste the list of genes into a text file (gene_list.txt) so that it can be used to references files made by the R script.
+        // Copy and paste the list of genes into a text file (e.g., gene_list.txt) so that it can be used to references files made by the R script.
         
         
         /** Step 2) Generate a table of ranked genes from files produced by the R script. **/
-        String inputGeneList = "/Users/irbraun/Desktop/gene_list_small.txt";
         
-        // Read the list of gene IDs that are expected to be in this pathway or regulatory network or related.
-        BufferedReader reader_gene_list = new BufferedReader(new FileReader(inputGeneList));
-        HashSet<String> pathwayGeneIDs = new HashSet<>();
-        String line;
-        while ((line = reader_gene_list.readLine()) != null){
-            pathwayGeneIDs.add(line.trim());
+        
+        
+        // Read the list of genes to be used as the queries.
+        //String inputGeneListOfQueries = "/Users/irbraun/Desktop/pathway_analysis/gene_list_ap.txt";
+        String inputGeneListOfQueries = "/Users/irbraun/Desktop/pathway_analysis/gene_list_tt.txt";
+        BufferedReader reader_gene_list_queries = new BufferedReader(new FileReader(inputGeneListOfQueries));
+        HashSet<String> queryPathwayGeneIDs = new HashSet<>();
+        String line1;
+        while ((line1 = reader_gene_list_queries.readLine()) != null){
+            queryPathwayGeneIDs.add(line1.trim());
         }
-
         
-
+        
+        // Read the list of genes to be used as the targets.
+        String inputGeneListOfTargets = "/Users/irbraun/Desktop/pathway_analysis/gene_list_ap.txt";
+        //String inputGeneListOfTargets = "/Users/irbraun/Desktop/pathway_analysis/gene_list_tt.txt";
+        BufferedReader reader_gene_list_targets = new BufferedReader(new FileReader(inputGeneListOfTargets));
+        HashSet<String> targetPathwayGeneIDs = new HashSet<>();
+        String line2;
+        while ((line2 = reader_gene_list_targets.readLine()) != null){
+            targetPathwayGeneIDs.add(line2.trim());
+        }
+        
+        
+        
+        
+      
         // Set up the output table.
-        PrintWriter printer = new PrintWriter("/Users/irbraun/Desktop/big_table.csv");
-
-        String header = "gene, dtype, method, bin_10, bin_100, bin_inf";
+        //PrintWriter printer = new PrintWriter("/Users/irbraun/Desktop/pathway_analysis/big_table_query_ap_target_ap.csv");
+        //PrintWriter printer = new PrintWriter("/Users/irbraun/Desktop/pathway_analysis/big_table_query_tt_target_tt.csv");
+        //PrintWriter printer = new PrintWriter("/Users/irbraun/Desktop/pathway_analysis/big_table_query_ap_target_tt.csv");
+        PrintWriter printer = new PrintWriter("/Users/irbraun/Desktop/pathway_analysis/big_table_query_tt_target_ap.csv");
+        
+        
+        String header = "gene, dtype, method, bin_10, bin_20, bin_30, bin_40, bin_50, bin_inf";
         printer.println(header);
         
         
         // Create a list of the files created for each query.
-        String phenotypeTextFileTemplate = "/Users/irbraun/Desktop/pathway_membership_files/phenotype_text_%s.csv";
-        String pheneTextFileTemplate = "/Users/irbraun/Desktop/pathway_membership_files/phene_text_%s.csv";
-        for (String geneID: pathwayGeneIDs){
+        //String phenotypeTextFileTemplate = "/Users/irbraun/Desktop/pathway_analysis/rankings_for_anthocyanin_pathway_queries/phenotype_text_%s.csv";
+        //String pheneTextFileTemplate = "/Users/irbraun/Desktop/pathway_analysis/rankings_for_anthocyanin_pathway_queries/phene_text_%s.csv";
+        String phenotypeTextFileTemplate = "/Users/irbraun/Desktop/pathway_analysis/rankings_for_transparent_testa_queries/phenotype_text_%s.csv";
+        String pheneTextFileTemplate = "/Users/irbraun/Desktop/pathway_analysis/rankings_for_transparent_testa_queries/phene_text_%s.csv";
+        
+        
+        
+        for (String geneID: queryPathwayGeneIDs){
             // Define where the input network files should be for just this query.
             String phenotypeTextFilename = String.format(phenotypeTextFileTemplate, geneID);
             String pheneTextFilename = String.format(pheneTextFileTemplate, geneID);
             // Run the process for a single query gene on each data type.
-            rankWithTextFile(text, phenotypeTextFilename, pathwayGeneIDs, "Phenotype Descriptions", geneID, printer);
-            rankWithTextFile(text, pheneTextFilename, pathwayGeneIDs, "Phene Descriptions", geneID, printer);
+            rankWithTextFile(text, phenotypeTextFilename, targetPathwayGeneIDs, "Phenotype Descriptions", geneID, printer);
+            rankWithTextFile(text, pheneTextFilename, targetPathwayGeneIDs, "Phene Descriptions", geneID, printer);
         
         }
         printer.close();
@@ -73,12 +98,15 @@ public class PathwayGeneRanks {
     }
     
     
-    private static void rankWithTextFile(Text text, String inputPath, HashSet<String> pathwayGeneIDs, String dtype, String queryGene, PrintWriter printer) throws FileNotFoundException, IOException{
+    private static void rankWithTextFile(Text text, String inputPath, HashSet<String> targetPathwayGeneIDs, String dtype, String queryGene, PrintWriter printer) throws FileNotFoundException, IOException{
         
         // Define the bins to be used for assessing gene ranks.
         ArrayList<Integer> binMaxValues = new ArrayList<>();
         binMaxValues.add(10);
-        binMaxValues.add(100);
+        binMaxValues.add(20);
+        binMaxValues.add(30);
+        binMaxValues.add(40);
+        binMaxValues.add(50);
         binMaxValues.add(100000);
         
         
@@ -122,7 +150,7 @@ public class PathwayGeneRanks {
         for (int idx=0; idx<numMethods; idx++){
             String methodName = methodNamesArray[idx];
             ArrayList<Integer> foundRanks = new ArrayList<>();
-            for (String geneID: pathwayGeneIDs){
+            for (String geneID: targetPathwayGeneIDs){
                 geneID = geneID.toLowerCase().trim();
                 int rank = methodToGeneListMap.get(idx).indexOf(geneID)+1;
                 if (rank != 0){
@@ -133,19 +161,19 @@ public class PathwayGeneRanks {
             
             // Bin the ranks that were found.
             int binMin = 1;
-            int[] binCounts = new int[3];
+            int[] binCounts = new int[binMaxValues.size()];
             for (int i=0; i<binCounts.length; i++){
                 for (Integer r: foundRanks){
-                    if (r>=binMin && r<binMaxValues.get(i)){
+                    if (r>=binMin && r<=binMaxValues.get(i)){
                         binCounts[i]++;
                     }
                 }
-                binMin = binMaxValues.get(i);
+                binMin = binMaxValues.get(i)+1;
             }      
                     
             // Produce a line for the output table.
-            Object[] data = {queryGene, dtype, methodName, binCounts[0], binCounts[1], binCounts[2]};
-            printer.println(String.format("%s,%s,%s,%s,%s,%s", data));
+            Object[] data = {queryGene, dtype, methodName, binCounts[0], binCounts[1], binCounts[2], binCounts[3], binCounts[4], binCounts[5]};
+            printer.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s", data));
             
         }
         
@@ -211,6 +239,9 @@ public class PathwayGeneRanks {
                     original = "*";
                 }
                 System.out.println(String.format("c(\"%s\" %s),\t\t\t\t# %s %s", geneID, sb.toString(), idToName.get(geneID), original));
+            }
+            else {
+                //System.out.println(String.format("%s was not found in dataset", geneID));
             }
         }
         
