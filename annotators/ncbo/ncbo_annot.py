@@ -90,10 +90,10 @@ def write_to_csv(outfiles, ontologies, chunkID, annotations, sentence, get_class
 # where the output annotation files will be named like phenotype_results.csv.
 
 # Where should the parent directory for the output files be?
-base_output_directory="/Users/irbraun/NetBeansProjects/term-mapping/path/annotators/ncbo/"
+base_output_directory="./output_from_ncbo_rest_api/"
 
 # Where are the text files that have the phenotypes or phenes in them?
-directory = "/Users/irbraun/NetBeansProjects/term-mapping/path/data/split_chunks/"
+directory = "../../data/split_chunks/"
 
 
 
