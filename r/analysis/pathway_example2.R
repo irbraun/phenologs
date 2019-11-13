@@ -219,7 +219,7 @@ make_figure <- function(dir, infile, step_size, y_lim, outfile_path){
   
   
   # Make the plot.
-  ggplot(data=df_long, aes(x=bin,y=avg) ) + geom_bar(stat="identity") + geom_errorbar(aes(ymin=avg-sd, ymax=avg+sd), width=.2) +
+  ggplot(data=df_long, aes(x=bin,y=avg))+geom_bar(stat="identity")+geom_bar(stat="identity", color="black")+geom_errorbar(aes(ymin=avg, ymax=avg+sd), width=.2) +
     facet_grid(dtype~method_factor, labeller=method_labeller) +
     theme_bw() +
     scale_x_discrete(breaks=c("bin_10","bin_20","bin_30", "bin_40", "bin_50", "bin_inf"), labels=c("1-10","11-20","21-30","31-40","41-50","50+")) +
