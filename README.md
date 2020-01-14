@@ -52,7 +52,7 @@ Rscript r/network_comparison.R --phenes
 4. Output analysis files are in `phenologs_main/r/output/`.
 
 ### References
-A preprint is available at bioRxiv [here][8].
+The Frontiers in Plant Science paper that this repository is asssociated with is available [here][8].
 
 ### Feedback
 Send any feedback, questions, or suggestions to irbraun at iastate dot edu.
@@ -68,4 +68,4 @@ Send any feedback, questions, or suggestions to irbraun at iastate dot edu.
 [5]: https://stanfordnlp.github.io/CoreNLP/
 [6]: https://cs.stanford.edu/~quocle/paragraph_vector.pdf
 [7]: https://doi.org/10.5281/zenodo.3255020
-[8]: https://www.biorxiv.org/content/10.1101/689976v1
+[8]: https://doi.org/10.3389/fpls.2019.01629
